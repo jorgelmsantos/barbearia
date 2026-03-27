@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login Barbearia</title>
+
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+    }
+
+    .card {
+      background: #1e1e1e;
+      padding: 20px;
+      margin: 100px auto;
+      width: 300px;
+      border-radius: 10px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      background: #00c853;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>💈 Login</h2>
+
+  <input id="email" placeholder="Email">
+  <input id="senha" type="password" placeholder="Senha">
+
+  <button onclick="login()">Entrar</button>
+</div>
+
+<script>
+async function login() {
+  console.log('clicou');
+
+  const email = document.getElementById('email').value;
+  const senha = document.getElementById('senha').value;
+
+  try {
+    const res = await fetch('http://localhost:3001/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, senha })
+    });
+
+    console.log('status:', res.status);
+
+    const data = await res.json();
+    console.log('resposta:', data);
+
+    if (!res.ok) {
+      alert('Login inválido');
+      return;
+    }
+
+    // ✅ salva token
+    localStorage.setItem('token', data.token);
+
+    // ✅ REDIRECIONA
+    window.location.href = 'admin.html';
+
+  } catch (erro) {
+    console.error('ERRO FETCH:', erro);
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Painel Barbearia</title>
+
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: Arial;
+      padding: 20px;
+    }
+
+    h2 {
+      margin-top: 40px;
+    }
+
+    .card {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      background: #00c853;
+      color: white;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+    }
+
+    td, th {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>💈 Painel Admin</h1>
+
+<!-- BARBEIRO -->
+<div class="card">
+  <h2>Barbeiros</h2>
+
+  <input id="nomeBarbeiro" placeholder="Nome do barbeiro">
+  <button onclick="cadastrarBarbeiro()">Cadastrar</button>
+
+  <ul id="listaBarbeiros"></ul>
+</div>
+
+<!-- SERVIÇOS -->
+<div class="card">
+  <h2>Serviços</h2>
+
+  <input id="nomeServico" placeholder="Nome do serviço">
+  <input id="precoServico" placeholder="Preço">
+  <button onclick="cadastrarServico()">Cadastrar</button>
+
+  <ul id="listaServicos"></ul>
+</div>
+
+<!-- AGENDAMENTOS -->
+<div class="card">
+  <h2>Agendamentos</h2>
+  <input type="date" id="filtroData">
+<button onclick="filtrarData()">Filtrar</button>
+
+  <button onclick="carregarAgendamentos()">Atualizar</button>
+
+  <h3 id="totalHoje"></h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Serviço</th>
+        <th>Barbeiro</th>
+        <th>Data</th>
+        <th>Hora</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaAgendamentos"></tbody>
+  </table>
+</div>
+
+<script>
+
+// ================= BARBEIRO =================
+async function cadastrarBarbeiro() {
+  const nome = document.getElementById('nomeBarbeiro').value;
+
+  await fetch('http://localhost:3001/barbeiros', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ nome })
+  });
+
+  carregarBarbeiros();
+}
+
+async function carregarBarbeiros() {
+  const res = await fetch('http://localhost:3001/barbeiros');
+  const lista = await res.json();
+
+  const ul = document.getElementById('listaBarbeiros');
+  ul.innerHTML = '';
+
+  lista.forEach(b => {
+    const li = document.createElement('li');
+
+    li.innerHTML = `
+      ${b.nome}
+      <button onclick="excluirBarbeiro('${b._id}')">❌</button>
+    `;
+
+    ul.appendChild(li);
+  });
+}
+
+async function excluirBarbeiro(id) {
+  await fetch(`http://localhost:3001/barbeiros/${id}`, {
+    method: 'DELETE'
+  });
+
+  carregarBarbeiros();
+}
+
+// ================= SERVIÇOS =================
+async function cadastrarServico() {
+  const nome = document.getElementById('nomeServico').value;
+  const preco = document.getElementById('precoServico').value;
+
+  await fetch('http://localhost:3001/servicos', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ nome, preco })
+  });
+
+  carregarServicos();
+}
+
+async function carregarServicos() {
+  const res = await fetch('http://localhost:3001/servicos');
+  const lista = await res.json();
+
+  const ul = document.getElementById('listaServicos');
+  ul.innerHTML = '';
+
+  lista.forEach(s => {
+    const li = document.createElement('li');
+
+    li.innerHTML = `
+      ${s.nome} - R$ ${s.preco}
+      <button onclick="excluirServico('${s._id}')">❌</button>
+    `;
+
+    ul.appendChild(li);
+  });
+}
+
+async function excluirServico(id) {
+  await fetch(`http://localhost:3001/servicos/${id}`, {
+    method: 'DELETE'
+  });
+
+  carregarServicos();
+}
+
+// ================= AGENDAMENTOS =================
+async function carregarAgendamentos() {
+  const res = await fetch('http://localhost:3001/agendamentos');
+  const lista = await res.json();
+
+  renderizarTabela(lista);
+}
+
+async function filtrarData() {
+  const data = document.getElementById('filtroData').value;
+
+  const res = await fetch(`http://localhost:3001/agendamentos/${data}`);
+  const lista = await res.json();
+
+  renderizarTabela(lista);
+}
+
+async function carregarDashboard() {
+  const hoje = new Date().toISOString().split('T')[0];
+
+  const res = await fetch(`http://localhost:3001/agendamentos/${hoje}`);
+  const lista = await res.json();
+
+  document.getElementById('totalHoje').innerText =
+    `📊 Atendimentos hoje: ${lista.length}`;
+}
+
+function renderizarTabela(lista) {
+  const tabela = document.getElementById('tabelaAgendamentos');
+  tabela.innerHTML = '';
+
+  lista.forEach(a => {
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td>${a.nomeCliente}</td>
+      <td>${a.servico}</td>
+      <td>${a.barbeiro}</td>
+      <td>${a.data}</td>
+      <td>${a.hora}</td>
+    `;
+
+    tabela.appendChild(tr);
+  });
+}
+
+// carregar ao abrir
+carregarBarbeiros();
+carregarServicos();
+carregarAgendamentos();
+carregarDashboard();
+
+</script>
+
+</body>
+</html>

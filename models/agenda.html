@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Barbearia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+    }
+
+    .card {
+      background: #1e1e1e;
+      padding: 20px;
+      margin: 20px auto;
+      width: 320px;
+      border-radius: 10px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      background: #00c853;
+      color: white;
+      font-weight: bold;
+    }
+
+    .hora {
+  display: inline-block;
+  padding: 10px;
+  margin: 5px;
+  background: #2a2a2a;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.hora:hover {
+  background: #444;
+}
+
+.selecionado {
+  background: #00c853 !important;
+  transform: scale(1.1);
+}
+
+    .selecionado {
+      background: #00c853;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>💈 Barbearia</h1>
+
+<div class="card">
+  <input id="nome" placeholder="Seu nome">
+  <input id="telefone" placeholder="Telefone" oninput="mascaraTelefone(this)">
+
+  <select id="servico" onchange="atualizarPreco()">
+  <option value="30">Corte - R$30</option>
+  <option value="20">Barba - R$20</option>
+  <option value="50">Corte + Barba - R$50</option>
+</select>
+
+<p id="preco">Valor: R$30</p>
+
+  <select id="barbeiro" onchange="gerarHorarios(); carregarHorariosOcupados();">
+    <option>João</option>
+    <option>Carlos</option>
+  </select>
+
+  <input type="date" id="data" onchange="gerarHorarios(); carregarHorariosOcupados();">
+
+  <div id="horarios"></div>
+
+  <button onclick="agendar()">Agendar</button>
+</div>
+
+<script>
+let horaSelecionada = null;
+
+function gerarHorarios() {
+  const container = document.getElementById('horarios');
+  container.innerHTML = '';
+
+  const horarios = [
+    "09:00","09:30","10:00","10:30",
+    "11:00","11:30","14:00","14:30",
+    "15:00","15:30","16:00"
+  ];
+
+  horarios.forEach(h => {
+    const div = document.createElement('div');
+    div.innerText = h;
+    div.className = 'hora';
+
+    div.onclick = () => {
+      document.querySelectorAll('.hora').forEach(el => el.classList.remove('selecionado'));
+      div.classList.add('selecionado');
+      horaSelecionada = h;
+    };
+
+    container.appendChild(div);
+  });
+}
+
+gerarHorarios();
+
+async function agendar() {
+  const nome = document.getElementById('nome').value.trim();
+  const telefone = document.getElementById('telefone').value.trim();
+  const servicoSelect = document.getElementById('servico');
+  const servico = servicoSelect.options[servicoSelect.selectedIndex].text;
+  const valor = servicoSelect.value;
+  const barbeiro = document.getElementById('barbeiro').value;
+  const data = document.getElementById('data').value;
+
+  // 🔒 Validações
+  if (!nome || !telefone || !data || !barbeiro) {
+    alert('Preencha todos os campos');
+    return;
+  }
+
+  if (!horaSelecionada) {
+    alert('Selecione um horário');
+    return;
+  }
+
+  try {
+    const res = await fetch('http://localhost:3001/agendamentos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nomeCliente: nome,
+        telefone,
+        servico,
+        valor,
+        barbeiro,
+        data,
+        hora: horaSelecionada
+      })
+    });
+
+    const dataResponse = await res.json();
+
+    if (!res.ok) {
+      alert(dataResponse.erro || 'Erro ao agendar');
+      return;
+    }
+
+    alert('✅ Agendamento realizado com sucesso!');
+
+    // 🧹 Limpar formulário
+    document.getElementById('nome').value = '';
+    document.getElementById('telefone').value = '';
+    document.getElementById('data').value = '';
+    horaSelecionada = null;
+
+    document.querySelectorAll('.hora').forEach(el => {
+      el.classList.remove('selecionado');
+    });
+
+    // 🔄 Atualizar horários ocupados
+    gerarHorarios();
+    carregarHorariosOcupados();
+
+  } catch (erro) {
+    console.error(erro);
+    alert('Erro ao conectar com o servidor');
+  }
+}
+function mascaraTelefone(input) {
+  let valor = input.value.replace(/\D/g, '');
+
+  if (valor.length > 11) valor = valor.slice(0, 11);
+
+  if (valor.length > 6) {
+    input.value = `(${valor.slice(0,2)}) ${valor.slice(2,7)}-${valor.slice(7)}`;
+  } else if (valor.length > 2) {
+    input.value = `(${valor.slice(0,2)}) ${valor.slice(2)}`;
+  } else {
+    input.value = valor;
+  }
+}
+function atualizarPreco() {
+  const select = document.getElementById('servico');
+  const preco = select.value;
+  document.getElementById('preco').innerText = `Valor: R$${preco}`;
+}
+async function carregarHorariosOcupados() {
+  const data = document.getElementById('data').value;
+  const barbeiro = document.getElementById('barbeiro').value;
+
+  const res = await fetch('http://localhost:3001/agendamentos');
+  const lista = await res.json();
+
+  const ocupados = lista
+    .filter(a => a.data === data && a.barbeiro === barbeiro)
+    .map(a => a.hora);
+
+  document.querySelectorAll('.hora').forEach(div => {
+    if (ocupados.includes(div.innerText)) {
+      div.style.background = '#555';
+      div.style.pointerEvents = 'none';
+    }
+  });
+}
+
+async function carregarBarbeiros() {
+  const res = await fetch('http://localhost:3001/barbeiros');
+  const lista = await res.json();
+
+  const select = document.getElementById('barbeiro');
+  select.innerHTML = '';
+
+  lista.forEach(b => {
+    const option = document.createElement('option');
+    option.value = b.nome;
+    option.text = b.nome;
+    select.appendChild(option);
+  });
+}
+
+async function carregarServicos() {
+  const res = await fetch('http://localhost:3001/servicos');
+  const lista = await res.json();
+
+  const select = document.getElementById('servico');
+  select.innerHTML = '';
+
+  lista.forEach(s => {
+    const option = document.createElement('option');
+    option.value = s.nome;
+    option.text = `${s.nome} - R$ ${s.preco}`;
+    select.appendChild(option);
+  });
+}
+
+carregarBarbeiros();
+carregarServicos();
+</script>
+
+</body>
+</html>
