@@ -76,8 +76,9 @@
 <!-- AGENDAMENTOS -->
 <div class="card">
   <h2>Agendamentos</h2>
+
   <input type="date" id="filtroData">
-<button onclick="filtrarData()">Filtrar</button>
+  <button onclick="filtrarData()">Filtrar</button>
 
   <button onclick="carregarAgendamentos()">Atualizar</button>
 
@@ -99,21 +100,25 @@
 
 <script>
 
+// 🔥 SUA API ONLINE
+const API_URL = "https://barbearia-api.onrender.com";
+
 // ================= BARBEIRO =================
 async function cadastrarBarbeiro() {
   const nome = document.getElementById('nomeBarbeiro').value;
 
-  await fetch('http://localhost:3001/barbeiros', {
+  await fetch(`${API_URL}/barbeiros`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ nome })
   });
 
+  document.getElementById('nomeBarbeiro').value = '';
   carregarBarbeiros();
 }
 
 async function carregarBarbeiros() {
-  const res = await fetch('http://localhost:3001/barbeiros');
+  const res = await fetch(`${API_URL}/barbeiros`);
   const lista = await res.json();
 
   const ul = document.getElementById('listaBarbeiros');
@@ -132,7 +137,7 @@ async function carregarBarbeiros() {
 }
 
 async function excluirBarbeiro(id) {
-  await fetch(`http://localhost:3001/barbeiros/${id}`, {
+  await fetch(`${API_URL}/barbeiros/${id}`, {
     method: 'DELETE'
   });
 
@@ -144,17 +149,20 @@ async function cadastrarServico() {
   const nome = document.getElementById('nomeServico').value;
   const preco = document.getElementById('precoServico').value;
 
-  await fetch('http://localhost:3001/servicos', {
+  await fetch(`${API_URL}/servicos`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ nome, preco })
   });
 
+  document.getElementById('nomeServico').value = '';
+  document.getElementById('precoServico').value = '';
+
   carregarServicos();
 }
 
 async function carregarServicos() {
-  const res = await fetch('http://localhost:3001/servicos');
+  const res = await fetch(`${API_URL}/servicos`);
   const lista = await res.json();
 
   const ul = document.getElementById('listaServicos');
@@ -173,7 +181,7 @@ async function carregarServicos() {
 }
 
 async function excluirServico(id) {
-  await fetch(`http://localhost:3001/servicos/${id}`, {
+  await fetch(`${API_URL}/servicos/${id}`, {
     method: 'DELETE'
   });
 
@@ -182,7 +190,7 @@ async function excluirServico(id) {
 
 // ================= AGENDAMENTOS =================
 async function carregarAgendamentos() {
-  const res = await fetch('http://localhost:3001/agendamentos');
+  const res = await fetch(`${API_URL}/agendamentos`);
   const lista = await res.json();
 
   renderizarTabela(lista);
@@ -191,7 +199,7 @@ async function carregarAgendamentos() {
 async function filtrarData() {
   const data = document.getElementById('filtroData').value;
 
-  const res = await fetch(`http://localhost:3001/agendamentos/${data}`);
+  const res = await fetch(`${API_URL}/agendamentos/${data}`);
   const lista = await res.json();
 
   renderizarTabela(lista);
@@ -200,7 +208,7 @@ async function filtrarData() {
 async function carregarDashboard() {
   const hoje = new Date().toISOString().split('T')[0];
 
-  const res = await fetch(`http://localhost:3001/agendamentos/${hoje}`);
+  const res = await fetch(`${API_URL}/agendamentos/${hoje}`);
   const lista = await res.json();
 
   document.getElementById('totalHoje').innerText =

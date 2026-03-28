@@ -7,12 +7,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// conexão com MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/barbearia');
+// =========================
+// 🔥 CONEXÃO MONGO (ATLAS)
+// =========================
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ Mongo conectado'))
+.catch(err => console.log('❌ Erro Mongo:', err));
 
-// models
+// =========================
+// MODELS
+// =========================
 const Cliente = require('./models/Cliente');
-const Agendamento = require('./models/agendamentos'); // corrigido
+const Agendamento = require('./models/agendamentos');
 const Barbeiro = require('./models/Barbeiro');
 const Servico = require('./models/Servico');
 
@@ -20,7 +29,7 @@ const Servico = require('./models/Servico');
 // ROTA TESTE
 // =========================
 app.get('/', (req, res) => {
-  res.send('API NOVA FUNCIONANDO');
+  res.send('API FUNCIONANDO 🚀');
 });
 
 // =========================
@@ -47,75 +56,127 @@ app.post('/login', (req, res) => {
 // CLIENTES
 // =========================
 app.post('/clientes', async (req, res) => {
-  const cliente = await Cliente.create(req.body);
-  res.json(cliente);
+  try {
+    const cliente = await Cliente.create(req.body);
+    res.json(cliente);
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao criar cliente' });
+  }
 });
 
 // =========================
 // AGENDAMENTOS
 // =========================
 
-// criar agendamento
+// criar
 app.post('/agendamentos', async (req, res) => {
-  const { data, hora, barbeiro } = req.body;
+  try {
+    const { data, hora, barbeiro } = req.body;
 
-  const conflito = await Agendamento.findOne({ data, hora, barbeiro });
+    const conflito = await Agendamento.findOne({ data, hora, barbeiro });
 
-  if (conflito) {
-    return res.status(400).json({ erro: 'Horário já ocupado para esse barbeiro' });
+    if (conflito) {
+      return res.status(400).json({ erro: 'Horário já ocupado para esse barbeiro' });
+    }
+
+    const agendamento = await Agendamento.create(req.body);
+
+    console.log(`📲 Agendamento: ${req.body.nomeCliente} - ${data} ${hora}`);
+
+    res.json(agendamento);
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao criar agendamento' });
   }
-
-  const agendamento = await Agendamento.create(req.body);
-
-  console.log(`📲 Agendamento: ${req.body.nomeCliente} - ${data} ${hora}`);
-
-  res.json(agendamento);
 });
 
 // listar todos
 app.get('/agendamentos', async (req, res) => {
-  const lista = await Agendamento.find();
-  res.json(lista);
+  try {
+    const lista = await Agendamento.find();
+    res.json(lista);
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao buscar agendamentos' });
+  }
 });
 
-// agenda por data
+// por data
 app.get('/agendamentos/:data', async (req, res) => {
-  const lista = await Agendamento.find({ data: req.params.data });
-  res.json(lista);
+  try {
+    const lista = await Agendamento.find({ data: req.params.data });
+    res.json(lista);
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao buscar por data' });
+  }
 });
 
-// excluir
+// deletar
 app.delete('/agendamentos/:id', async (req, res) => {
-  await Agendamento.findByIdAndDelete(req.params.id);
-  res.json({ ok: true });
+  try {
+    await Agendamento.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao deletar agendamento' });
+  }
 });
 
 // =========================
 // SERVIÇOS
 // =========================
-
 app.post('/servicos', async (req, res) => {
-  const servico = await Servico.create(req.body);
-  res.json(servico);
+  try {
+    const servico = await Servico.create(req.body);
+    res.json(servico);
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao criar serviço' });
+  }
 });
 
 app.get('/servicos', async (req, res) => {
-  const lista = await Servico.find();
-  res.json(lista);
+  try {
+    const lista = await Servico.find();
+    res.json(lista);
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao buscar serviços' });
+  }
+});
+
+app.delete('/servicos/:id', async (req, res) => {
+  try {
+    await Servico.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao deletar serviço' });
+  }
 });
 
 // =========================
 // BARBEIROS
 // =========================
-
 app.post('/barbeiros', async (req, res) => {
-  const barbeiro = await Barbeiro.create(req.body);
-  res.json(barbeiro);
+  try {
+    const barbeiro = await Barbeiro.create(req.body);
+    res.json(barbeiro);
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao criar barbeiro' });
+  }
 });
 
 app.get('/barbeiros', async (req, res) => {
-  const lista = await Barbeiro.find();
-  res.json(lista);
+  try {
+    const lista = await Barbeiro.find();
+    res.json(lista);
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao buscar barbeiros' });
+  }
+});
+
+app.delete('/barbeiros/:id', async (req, res) => {
+  try {
+    await Barbeiro.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao deletar barbeiro' });
+  }
 });
 
 // =========================
@@ -124,19 +185,5 @@ app.get('/barbeiros', async (req, res) => {
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
-  console.log('Servidor rodando');
-});
-
-//deletar cadastro de barbeiro
-
-app.delete('/barbeiros/:id', async (req, res) => {
-  await Barbeiro.findByIdAndDelete(req.params.id);
-  res.json({ ok: true });
-});
-
-//deletar serviço
-
-app.delete('/servicos/:id', async (req, res) => {
-  await Servico.findByIdAndDelete(req.params.id);
-  res.json({ ok: true });
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });

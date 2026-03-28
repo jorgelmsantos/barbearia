@@ -31,6 +31,17 @@
       background: #00c853;
       color: white;
       font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    .erro {
+      color: #ff5252;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -43,43 +54,64 @@
   <input id="email" placeholder="Email">
   <input id="senha" type="password" placeholder="Senha">
 
-  <button onclick="login()">Entrar</button>
+  <button id="btnLogin" onclick="login()">Entrar</button>
+
+  <p id="erro" class="erro"></p>
 </div>
 
 <script>
-async function login() {
-  console.log('clicou');
 
-  const email = document.getElementById('email').value;
-  const senha = document.getElementById('senha').value;
+// 🔥 SUA API ONLINE
+const API_URL = "https://barbearia-api.onrender.com";
+
+async function login() {
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('senha').value.trim();
+  const btn = document.getElementById('btnLogin');
+  const erroEl = document.getElementById('erro');
+
+  erroEl.innerText = '';
+
+  // 🔒 validação
+  if (!email || !senha) {
+    erroEl.innerText = 'Preencha email e senha';
+    return;
+  }
+
+  // 🔄 loading
+  btn.disabled = true;
+  btn.innerText = 'Entrando...';
 
   try {
-    const res = await fetch('http://localhost:3001/login', {
+    const res = await fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, senha })
     });
 
-    console.log('status:', res.status);
-
     const data = await res.json();
-    console.log('resposta:', data);
 
     if (!res.ok) {
-      alert('Login inválido');
+      erroEl.innerText = data.erro || 'Login inválido';
+      btn.disabled = false;
+      btn.innerText = 'Entrar';
       return;
     }
 
     // ✅ salva token
     localStorage.setItem('token', data.token);
 
-    // ✅ REDIRECIONA
+    // ✅ redireciona
     window.location.href = 'admin.html';
 
   } catch (erro) {
-    console.error('ERRO FETCH:', erro);
+    console.error(erro);
+    erroEl.innerText = 'Erro ao conectar com o servidor';
+    btn.disabled = false;
+    btn.innerText = 'Entrar';
   }
 }
+
 </script>
 
 </body>

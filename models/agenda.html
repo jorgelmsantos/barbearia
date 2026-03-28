@@ -35,26 +35,21 @@
     }
 
     .hora {
-  display: inline-block;
-  padding: 10px;
-  margin: 5px;
-  background: #2a2a2a;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: 0.2s;
-}
+      display: inline-block;
+      padding: 10px;
+      margin: 5px;
+      background: #2a2a2a;
+      cursor: pointer;
+      border-radius: 8px;
+    }
 
-.hora:hover {
-  background: #444;
-}
-
-.selecionado {
-  background: #00c853 !important;
-  transform: scale(1.1);
-}
+    .hora:hover {
+      background: #444;
+    }
 
     .selecionado {
-      background: #00c853;
+      background: #00c853 !important;
+      transform: scale(1.1);
     }
   </style>
 </head>
@@ -67,18 +62,11 @@
   <input id="nome" placeholder="Seu nome">
   <input id="telefone" placeholder="Telefone" oninput="mascaraTelefone(this)">
 
-  <select id="servico" onchange="atualizarPreco()">
-  <option value="30">Corte - R$30</option>
-  <option value="20">Barba - R$20</option>
-  <option value="50">Corte + Barba - R$50</option>
-</select>
+  <select id="servico" onchange="atualizarPreco()"></select>
 
-<p id="preco">Valor: R$30</p>
+  <p id="preco">Valor: R$0</p>
 
-  <select id="barbeiro" onchange="gerarHorarios(); carregarHorariosOcupados();">
-    <option>João</option>
-    <option>Carlos</option>
-  </select>
+  <select id="barbeiro" onchange="gerarHorarios(); carregarHorariosOcupados();"></select>
 
   <input type="date" id="data" onchange="gerarHorarios(); carregarHorariosOcupados();">
 
@@ -88,8 +76,13 @@
 </div>
 
 <script>
+
+// 🔥 SUA API ONLINE
+const API_URL = "https://barbearia-api.onrender.com";
+
 let horaSelecionada = null;
 
+// ================= HORÁRIOS =================
 function gerarHorarios() {
   const container = document.getElementById('horarios');
   container.innerHTML = '';
@@ -115,18 +108,18 @@ function gerarHorarios() {
   });
 }
 
-gerarHorarios();
-
+// ================= AGENDAR =================
 async function agendar() {
   const nome = document.getElementById('nome').value.trim();
   const telefone = document.getElementById('telefone').value.trim();
+
   const servicoSelect = document.getElementById('servico');
-  const servico = servicoSelect.options[servicoSelect.selectedIndex].text;
+  const servicoTexto = servicoSelect.options[servicoSelect.selectedIndex].text;
   const valor = servicoSelect.value;
+
   const barbeiro = document.getElementById('barbeiro').value;
   const data = document.getElementById('data').value;
 
-  // 🔒 Validações
   if (!nome || !telefone || !data || !barbeiro) {
     alert('Preencha todos os campos');
     return;
@@ -138,13 +131,13 @@ async function agendar() {
   }
 
   try {
-    const res = await fetch('http://localhost:3001/agendamentos', {
+    const res = await fetch(`${API_URL}/agendamentos`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         nomeCliente: nome,
         telefone,
-        servico,
+        servico: servicoTexto,
         valor,
         barbeiro,
         data,
@@ -159,19 +152,13 @@ async function agendar() {
       return;
     }
 
-    alert('✅ Agendamento realizado com sucesso!');
+    alert('✅ Agendamento realizado!');
 
-    // 🧹 Limpar formulário
     document.getElementById('nome').value = '';
     document.getElementById('telefone').value = '';
     document.getElementById('data').value = '';
     horaSelecionada = null;
 
-    document.querySelectorAll('.hora').forEach(el => {
-      el.classList.remove('selecionado');
-    });
-
-    // 🔄 Atualizar horários ocupados
     gerarHorarios();
     carregarHorariosOcupados();
 
@@ -180,6 +167,8 @@ async function agendar() {
     alert('Erro ao conectar com o servidor');
   }
 }
+
+// ================= TELEFONE =================
 function mascaraTelefone(input) {
   let valor = input.value.replace(/\D/g, '');
 
@@ -193,16 +182,22 @@ function mascaraTelefone(input) {
     input.value = valor;
   }
 }
+
+// ================= PREÇO =================
 function atualizarPreco() {
   const select = document.getElementById('servico');
   const preco = select.value;
-  document.getElementById('preco').innerText = `Valor: R$${preco}`;
+  document.getElementById('preco').innerText = `Valor: R$ ${preco}`;
 }
+
+// ================= BLOQUEAR HORÁRIOS =================
 async function carregarHorariosOcupados() {
   const data = document.getElementById('data').value;
   const barbeiro = document.getElementById('barbeiro').value;
 
-  const res = await fetch('http://localhost:3001/agendamentos');
+  if (!data || !barbeiro) return;
+
+  const res = await fetch(`${API_URL}/agendamentos`);
   const lista = await res.json();
 
   const ocupados = lista
@@ -217,8 +212,9 @@ async function carregarHorariosOcupados() {
   });
 }
 
+// ================= DADOS DINÂMICOS =================
 async function carregarBarbeiros() {
-  const res = await fetch('http://localhost:3001/barbeiros');
+  const res = await fetch(`${API_URL}/barbeiros`);
   const lista = await res.json();
 
   const select = document.getElementById('barbeiro');
@@ -233,7 +229,7 @@ async function carregarBarbeiros() {
 }
 
 async function carregarServicos() {
-  const res = await fetch('http://localhost:3001/servicos');
+  const res = await fetch(`${API_URL}/servicos`);
   const lista = await res.json();
 
   const select = document.getElementById('servico');
@@ -241,14 +237,19 @@ async function carregarServicos() {
 
   lista.forEach(s => {
     const option = document.createElement('option');
-    option.value = s.nome;
+    option.value = s.preco;
     option.text = `${s.nome} - R$ ${s.preco}`;
     select.appendChild(option);
   });
+
+  atualizarPreco();
 }
 
+// ================= INIT =================
+gerarHorarios();
 carregarBarbeiros();
 carregarServicos();
+
 </script>
 
 </body>
