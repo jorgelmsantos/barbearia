@@ -1,0 +1,1 @@
+const API_URL = "https://barbearia-api-3l45.onrender.com";

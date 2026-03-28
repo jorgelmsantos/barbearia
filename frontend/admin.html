@@ -98,10 +98,10 @@
   </table>
 </div>
 
-<script>
+<!-- 🔥 IMPORTANTE: CONFIG PRIMEIRO -->
+<script src="config.js"></script>
 
-// 🔥 SUA API ONLINE
-const API_URL = "https://barbearia-api.onrender.com";
+<script>
 
 // ================= BARBEIRO =================
 async function cadastrarBarbeiro() {
@@ -234,7 +234,7 @@ function renderizarTabela(lista) {
   });
 }
 
-// carregar ao abrir
+// ================= INIT =================
 carregarBarbeiros();
 carregarServicos();
 carregarAgendamentos();

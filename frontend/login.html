@@ -59,10 +59,10 @@
   <p id="erro" class="erro"></p>
 </div>
 
-<script>
+<!-- 🔥 IMPORTA CONFIG PRIMEIRO -->
+<script src="config.js"></script>
 
-// 🔥 SUA API ONLINE
-const API_URL = "https://barbearia-api.onrender.com";
+<script>
 
 async function login() {
   const email = document.getElementById('email').value.trim();
@@ -72,13 +72,11 @@ async function login() {
 
   erroEl.innerText = '';
 
-  // 🔒 validação
   if (!email || !senha) {
     erroEl.innerText = 'Preencha email e senha';
     return;
   }
 
-  // 🔄 loading
   btn.disabled = true;
   btn.innerText = 'Entrando...';
 
@@ -98,10 +96,8 @@ async function login() {
       return;
     }
 
-    // ✅ salva token
     localStorage.setItem('token', data.token);
 
-    // ✅ redireciona
     window.location.href = 'admin.html';
 
   } catch (erro) {
