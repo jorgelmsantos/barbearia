@@ -7,7 +7,13 @@ const AgendamentoSchema = new mongoose.Schema({
   servico: String,
   barbeiro: String,
   data: String,
-  hora: String
+  hora: String,
+
+  // 🔥 NOVO CAMPO
+  status: {
+    type: String,
+    default: 'ativo' // ativo | cancelado
+  }
 });
 
 module.exports = mongoose.model('agendamentos', AgendamentoSchema);
