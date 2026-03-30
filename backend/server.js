@@ -119,6 +119,19 @@ app.delete('/agendamentos/:id', async (req, res) => {
   }
 });
 
+//cancelar
+app.put('/agendamentos/:id/cancelar', async (req, res) => {
+  try {
+    await Agendamento.findByIdAndUpdate(req.params.id, {
+      status: 'cancelado'
+    });
+
+    res.json({ ok: true });
+  } catch (erro) {
+    res.status(500).json({ erro: 'Erro ao cancelar' });
+  }
+});
+
 // =========================
 // SERVIÇOS
 // =========================
