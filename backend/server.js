@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const Usuario = require('./models/Usuario');
 
 const app = express();
 app.use(cors());
@@ -189,6 +190,48 @@ app.delete('/barbeiros/:id', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ erro: 'Erro ao deletar barbeiro' });
+  }
+});
+
+// cadastro de clientes
+
+app.post('/clientes/registro', async (req, res) => {
+  try {
+    const { nome, email, senha } = req.body;
+
+    const existe = await Usuario.findOne({ email });
+
+    if (existe) {
+      return res.status(400).json({ erro: 'Email já cadastrado' });
+    }
+
+    const usuario = await Usuario.create({ nome, email, senha });
+
+    res.json(usuario);
+
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao cadastrar' });
+  }
+});
+
+//rota de login do cliente 
+
+app.post('/clientes/login', async (req, res) => {
+  try {
+    const { email, senha } = req.body;
+
+    const usuario = await Usuario.findOne({ email, senha });
+
+    if (!usuario) {
+      return res.status(401).json({ erro: 'Login inválido' });
+    }
+
+    const token = jwt.sign({ id: usuario._id }, 'segredo');
+
+    res.json({ token, usuario });
+
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro no login' });
   }
 });
 
