@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const Usuario = require('./models/Usuario');
+require('dotenv').config(); // 🔥 IMPORTANTE VIR PRIMEIRO
 
 const app = express();
 app.use(cors());
@@ -11,9 +11,6 @@ app.use(express.json());
 // =========================
 // 🔥 CONEXÃO MONGO (ATLAS)
 // =========================
-
-require('dotenv').config();
-
 mongoose.connect(process.env.MONGO_URL)
   .then(() => console.log('✅ Mongo conectado'))
   .catch(err => console.log('❌ Erro Mongo:', err));
@@ -25,6 +22,7 @@ const Cliente = require('./models/Cliente');
 const Agendamento = require('./models/agendamentos');
 const Barbeiro = require('./models/Barbeiro');
 const Servico = require('./models/Servico');
+const Usuario = require('./models/Usuario');
 
 // =========================
 // ROTA TESTE
@@ -34,7 +32,7 @@ app.get('/', (req, res) => {
 });
 
 // =========================
-// LOGIN
+// LOGIN ADMIN
 // =========================
 const USUARIO = {
   email: 'admin@barbearia.com',
@@ -54,7 +52,7 @@ app.post('/login', (req, res) => {
 });
 
 // =========================
-// CLIENTES
+// CLIENTES (SIMPLES)
 // =========================
 app.post('/clientes', async (req, res) => {
   try {
@@ -66,10 +64,54 @@ app.post('/clientes', async (req, res) => {
 });
 
 // =========================
+// USUÁRIOS (LOGIN DO CLIENTE)
+// =========================
+
+// REGISTRO
+app.post('/clientes/registro', async (req, res) => {
+  try {
+    const { nome, email, senha } = req.body;
+
+    const existe = await Usuario.findOne({ email });
+
+    if (existe) {
+      return res.status(400).json({ erro: 'Email já cadastrado' });
+    }
+
+    const usuario = await Usuario.create({ nome, email, senha });
+
+    res.json(usuario);
+
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao cadastrar' });
+  }
+});
+
+// LOGIN CLIENTE
+app.post('/clientes/login', async (req, res) => {
+  try {
+    const { email, senha } = req.body;
+
+    const usuario = await Usuario.findOne({ email, senha });
+
+    if (!usuario) {
+      return res.status(401).json({ erro: 'Login inválido' });
+    }
+
+    const token = jwt.sign({ id: usuario._id }, 'segredo');
+
+    res.json({ token, usuario });
+
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro no login' });
+  }
+});
+
+// =========================
 // AGENDAMENTOS
 // =========================
 
-// criar
+// CRIAR
 app.post('/agendamentos', async (req, res) => {
   try {
     const { data, hora, barbeiro } = req.body;
@@ -80,17 +122,21 @@ app.post('/agendamentos', async (req, res) => {
       return res.status(400).json({ erro: 'Horário já ocupado para esse barbeiro' });
     }
 
-    const agendamento = await Agendamento.create(req.body);
+    const agendamento = await Agendamento.create({
+      ...req.body,
+      status: 'ativo' // 🔥 IMPORTANTE
+    });
 
     console.log(`📲 Agendamento: ${req.body.nomeCliente} - ${data} ${hora}`);
 
     res.json(agendamento);
+
   } catch (err) {
     res.status(500).json({ erro: 'Erro ao criar agendamento' });
   }
 });
 
-// listar todos
+// LISTAR TODOS
 app.get('/agendamentos', async (req, res) => {
   try {
     const lista = await Agendamento.find();
@@ -100,7 +146,7 @@ app.get('/agendamentos', async (req, res) => {
   }
 });
 
-// por data
+// POR DATA
 app.get('/agendamentos/:data', async (req, res) => {
   try {
     const lista = await Agendamento.find({ data: req.params.data });
@@ -110,17 +156,7 @@ app.get('/agendamentos/:data', async (req, res) => {
   }
 });
 
-// deletar
-app.delete('/agendamentos/:id', async (req, res) => {
-  try {
-    await Agendamento.findByIdAndDelete(req.params.id);
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ erro: 'Erro ao deletar agendamento' });
-  }
-});
-
-//cancelar
+// CANCELAR
 app.put('/agendamentos/:id/cancelar', async (req, res) => {
   try {
     await Agendamento.findByIdAndUpdate(req.params.id, {
@@ -190,48 +226,6 @@ app.delete('/barbeiros/:id', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ erro: 'Erro ao deletar barbeiro' });
-  }
-});
-
-// cadastro de clientes
-
-app.post('/clientes/registro', async (req, res) => {
-  try {
-    const { nome, email, senha } = req.body;
-
-    const existe = await Usuario.findOne({ email });
-
-    if (existe) {
-      return res.status(400).json({ erro: 'Email já cadastrado' });
-    }
-
-    const usuario = await Usuario.create({ nome, email, senha });
-
-    res.json(usuario);
-
-  } catch (err) {
-    res.status(500).json({ erro: 'Erro ao cadastrar' });
-  }
-});
-
-//rota de login do cliente 
-
-app.post('/clientes/login', async (req, res) => {
-  try {
-    const { email, senha } = req.body;
-
-    const usuario = await Usuario.findOne({ email, senha });
-
-    if (!usuario) {
-      return res.status(401).json({ erro: 'Login inválido' });
-    }
-
-    const token = jwt.sign({ id: usuario._id }, 'segredo');
-
-    res.json({ token, usuario });
-
-  } catch (err) {
-    res.status(500).json({ erro: 'Erro no login' });
   }
 });
 
