@@ -32,6 +32,7 @@
       background: #00c853;
       color: white;
       font-weight: bold;
+      cursor: pointer;
     }
 
     .hora {
@@ -75,10 +76,20 @@
   <button onclick="agendar()">Agendar</button>
 </div>
 
-<script>
+<!-- 🔥 NOVA ÁREA DE CANCELAMENTO -->
+<div class="card">
+  <h3>Cancelar Agendamento</h3>
 
-// 🔥 SUA API ONLINE
-const API_URL = "https://barbearia-api-3l45.onrender.com";
+  <input id="telefoneCancelamento" placeholder="Seu telefone">
+  <button onclick="buscarAgendamentosCliente()">Buscar</button>
+
+  <div id="listaCliente"></div>
+</div>
+
+<!-- 🔥 CONFIG CENTRAL -->
+<script src="config.js"></script>
+
+<script>
 
 let horaSelecionada = null;
 
@@ -201,7 +212,7 @@ async function carregarHorariosOcupados() {
   const lista = await res.json();
 
   const ocupados = lista
-    .filter(a => a.data === data && a.barbeiro === barbeiro)
+    .filter(a => a.data === data && a.barbeiro === barbeiro && a.status !== 'cancelado')
     .map(a => a.hora);
 
   document.querySelectorAll('.hora').forEach(div => {
@@ -243,6 +254,45 @@ async function carregarServicos() {
   });
 
   atualizarPreco();
+}
+
+// ================= CANCELAMENTO CLIENTE =================
+async function buscarAgendamentosCliente() {
+  const telefone = document.getElementById('telefoneCancelamento').value;
+
+  const res = await fetch(`${API_URL}/agendamentos`);
+  const lista = await res.json();
+
+  const filtrados = lista.filter(a => a.telefone === telefone);
+
+  const div = document.getElementById('listaCliente');
+  div.innerHTML = '';
+
+  if (filtrados.length === 0) {
+    div.innerHTML = '<p>Nenhum agendamento encontrado</p>';
+    return;
+  }
+
+  filtrados.forEach(a => {
+    const el = document.createElement('div');
+
+    el.innerHTML = `
+      ${a.data} ${a.hora} - ${a.servico}
+      ${a.status !== 'cancelado'
+        ? `<button onclick="cancelarCliente('${a._id}')">Cancelar</button>`
+        : '<span style="color:red">Cancelado</span>'}
+    `;
+
+    div.appendChild(el);
+  });
+}
+
+async function cancelarCliente(id) {
+  await fetch(`${API_URL}/agendamentos/${id}/cancelar`, {
+    method: 'PUT'
+  });
+
+  buscarAgendamentosCliente();
 }
 
 // ================= INIT =================

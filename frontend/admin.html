@@ -52,7 +52,6 @@
 
 <h1>💈 Painel Admin</h1>
 
-<!-- BARBEIRO -->
 <div class="card">
   <h2>Barbeiros</h2>
 
@@ -62,7 +61,6 @@
   <ul id="listaBarbeiros"></ul>
 </div>
 
-<!-- SERVIÇOS -->
 <div class="card">
   <h2>Serviços</h2>
 
@@ -73,7 +71,6 @@
   <ul id="listaServicos"></ul>
 </div>
 
-<!-- AGENDAMENTOS -->
 <div class="card">
   <h2>Agendamentos</h2>
 
@@ -92,13 +89,14 @@
         <th>Barbeiro</th>
         <th>Data</th>
         <th>Hora</th>
+        <th>Status</th>
+        <th>Ação</th>
       </tr>
     </thead>
     <tbody id="tabelaAgendamentos"></tbody>
   </table>
 </div>
 
-<!-- 🔥 IMPORTANTE: CONFIG PRIMEIRO -->
 <script src="config.js"></script>
 
 <script>
@@ -126,21 +124,14 @@ async function carregarBarbeiros() {
 
   lista.forEach(b => {
     const li = document.createElement('li');
-
-    li.innerHTML = `
-      ${b.nome}
-      <button onclick="excluirBarbeiro('${b._id}')">❌</button>
-    `;
-
+    li.innerHTML = `${b.nome}
+      <button onclick="excluirBarbeiro('${b._id}')">❌</button>`;
     ul.appendChild(li);
   });
 }
 
 async function excluirBarbeiro(id) {
-  await fetch(`${API_URL}/barbeiros/${id}`, {
-    method: 'DELETE'
-  });
-
+  await fetch(`${API_URL}/barbeiros/${id}`, { method: 'DELETE' });
   carregarBarbeiros();
 }
 
@@ -170,21 +161,14 @@ async function carregarServicos() {
 
   lista.forEach(s => {
     const li = document.createElement('li');
-
-    li.innerHTML = `
-      ${s.nome} - R$ ${s.preco}
-      <button onclick="excluirServico('${s._id}')">❌</button>
-    `;
-
+    li.innerHTML = `${s.nome} - R$ ${s.preco}
+      <button onclick="excluirServico('${s._id}')">❌</button>`;
     ul.appendChild(li);
   });
 }
 
 async function excluirServico(id) {
-  await fetch(`${API_URL}/servicos/${id}`, {
-    method: 'DELETE'
-  });
-
+  await fetch(`${API_URL}/servicos/${id}`, { method: 'DELETE' });
   carregarServicos();
 }
 
@@ -192,22 +176,18 @@ async function excluirServico(id) {
 async function carregarAgendamentos() {
   const res = await fetch(`${API_URL}/agendamentos`);
   const lista = await res.json();
-
   renderizarTabela(lista);
 }
 
 async function filtrarData() {
   const data = document.getElementById('filtroData').value;
-
   const res = await fetch(`${API_URL}/agendamentos/${data}`);
   const lista = await res.json();
-
   renderizarTabela(lista);
 }
 
 async function carregarDashboard() {
   const hoje = new Date().toISOString().split('T')[0];
-
   const res = await fetch(`${API_URL}/agendamentos/${hoje}`);
   const lista = await res.json();
 
@@ -228,13 +208,31 @@ function renderizarTabela(lista) {
       <td>${a.barbeiro}</td>
       <td>${a.data}</td>
       <td>${a.hora}</td>
+      <td style="color:${a.status === 'cancelado' ? 'red' : 'lightgreen'}">
+        ${a.status || 'ativo'}
+      </td>
+      <td>
+        ${a.status !== 'cancelado'
+          ? `<button onclick="cancelar('${a._id}')">❌</button>`
+          : '-'}
+      </td>
     `;
 
     tabela.appendChild(tr);
   });
 }
 
-// ================= INIT =================
+async function cancelar(id) {
+  if (!confirm('Cancelar agendamento?')) return;
+
+  await fetch(`${API_URL}/agendamentos/${id}/cancelar`, {
+    method: 'PUT'
+  });
+
+  carregarAgendamentos();
+}
+
+// INIT
 carregarBarbeiros();
 carregarServicos();
 carregarAgendamentos();
