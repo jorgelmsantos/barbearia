@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Área do Cliente</title>
+  <title>Login Cliente</title>
 
   <style>
     body {
@@ -14,15 +14,15 @@
     .card {
       background: #1e1e1e;
       padding: 20px;
-      margin: 20px auto;
-      width: 320px;
+      margin: 100px auto;
+      width: 300px;
       border-radius: 10px;
     }
 
     input, button {
       width: 100%;
       padding: 10px;
-      margin: 5px 0;
+      margin: 10px 0;
       border-radius: 5px;
       border: none;
     }
@@ -34,56 +34,35 @@
       cursor: pointer;
     }
 
-    .agendamento {
-      background: #2a2a2a;
-      padding: 10px;
-      margin: 10px;
-      border-radius: 8px;
-      text-align: left;
-    }
-
-    .cancelado {
-      opacity: 0.5;
-      text-decoration: line-through;
-    }
-
-    .btn-cancelar {
-      background: #ff5252;
-      margin-top: 10px;
+    .erro {
+      color: #ff5252;
     }
   </style>
 </head>
 
 <body>
 
-<h1>💈 Área do Cliente</h1>
+<div class="card">
+  <h2>💈 Login Cliente</h2>
 
-<!-- LOGIN -->
-<div class="card" id="loginBox">
-  <h3>Login</h3>
   <input id="email" placeholder="Email">
   <input id="senha" type="password" placeholder="Senha">
-  <button onclick="login()">Entrar</button>
-  <p id="erroLogin"></p>
-</div>
 
-<!-- AGENDAMENTOS -->
-<div class="card" id="areaCliente" style="display:none;">
-  <h3>Meus Agendamentos</h3>
-  <div id="listaAgendamentos"></div>
+  <button onclick="login()">Entrar</button>
+
+  <p id="erro" class="erro"></p>
 </div>
 
 <script>
 
-// 🔥 SUA API
 const API_URL = "https://barbearia-api-3l45.onrender.com";
 
-let usuarioLogado = null;
-
-// ================= LOGIN =================
 async function login() {
-  const email = document.getElementById('email').value;
-  const senha = document.getElementById('senha').value;
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('senha').value.trim();
+  const erroEl = document.getElementById('erro');
+
+  erroEl.innerText = '';
 
   const res = await fetch(`${API_URL}/clientes/login`, {
     method: 'POST',
@@ -94,73 +73,15 @@ async function login() {
   const data = await res.json();
 
   if (!res.ok) {
-    document.getElementById('erroLogin').innerText = data.erro;
+    erroEl.innerText = data.erro || 'Erro no login';
     return;
   }
 
-  usuarioLogado = data.usuario;
+  // 🔥 salva usuário
+  localStorage.setItem('usuario', JSON.stringify(data.usuario));
 
-  document.getElementById('loginBox').style.display = 'none';
-  document.getElementById('areaCliente').style.display = 'block';
-
-  carregarAgendamentos();
-}
-
-// ================= LISTAR =================
-async function carregarAgendamentos() {
-  const res = await fetch(`${API_URL}/agendamentos/cliente/${usuarioLogado._id}`);
-  const lista = await res.json();
-
-  const container = document.getElementById('listaAgendamentos');
-  container.innerHTML = '';
-
-  if (lista.length === 0) {
-    container.innerHTML = '<p>Nenhum agendamento encontrado</p>';
-    return;
-  }
-
-  lista.forEach(a => {
-    const div = document.createElement('div');
-
-    div.className = 'agendamento';
-    if (a.status === 'cancelado') {
-      div.classList.add('cancelado');
-    }
-
-    div.innerHTML = `
-      <b>${a.servico}</b><br>
-      Barbeiro: ${a.barbeiro}<br>
-      Data: ${a.data}<br>
-      Hora: ${a.hora}<br>
-      Status: ${a.status}
-    `;
-
-    // botão cancelar (só se ativo)
-    if (a.status === 'ativo') {
-      const btn = document.createElement('button');
-      btn.innerText = 'Cancelar';
-      btn.className = 'btn-cancelar';
-
-      btn.onclick = () => cancelarAgendamento(a._id);
-
-      div.appendChild(btn);
-    }
-
-    container.appendChild(div);
-  });
-}
-
-// ================= CANCELAR =================
-async function cancelarAgendamento(id) {
-  if (!confirm('Deseja cancelar este agendamento?')) return;
-
-  await fetch(`${API_URL}/agendamentos/${id}/cancelar`, {
-    method: 'PUT'
-  });
-
-  alert('Agendamento cancelado!');
-
-  carregarAgendamentos();
+  // 🔥 REDIRECIONA
+  window.location.href = 'agenda.html';
 }
 
 </script>
