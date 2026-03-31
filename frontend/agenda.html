@@ -55,6 +55,7 @@
 
     .cancelado {
       opacity: 0.5;
+      text-decoration: line-through;
     }
 
     .btn-cancelar {
@@ -94,7 +95,7 @@
 
 <script>
 
-// 🔒 PROTEÇÃO LOGIN
+// 🔒 USUÁRIO LOGADO
 const usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
 
 if (!usuarioLogado) {
@@ -110,6 +111,32 @@ function logout() {
 
 let horaSelecionada = null;
 
+// ================= HORÁRIOS =================
+function gerarHorarios() {
+  const container = document.getElementById('horarios');
+  container.innerHTML = '';
+
+  const horarios = [
+    "09:00","09:30","10:00","10:30",
+    "11:00","11:30","14:00","14:30",
+    "15:00","15:30","16:00"
+  ];
+
+  horarios.forEach(h => {
+    const div = document.createElement('div');
+    div.innerText = h;
+    div.className = 'hora';
+
+    div.onclick = () => {
+      document.querySelectorAll('.hora').forEach(el => el.classList.remove('selecionado'));
+      div.classList.add('selecionado');
+      horaSelecionada = h;
+    };
+
+    container.appendChild(div);
+  });
+}
+
 // ================= AGENDAR =================
 async function agendar() {
   const nome = document.getElementById('nome').value;
@@ -121,13 +148,17 @@ async function agendar() {
   const servicoTexto = servicoSelect.options[servicoSelect.selectedIndex].text;
   const valor = servicoSelect.value;
 
+  if (!nome || !telefone || !data || !barbeiro) {
+    return alert('Preencha todos os campos');
+  }
+
   if (!horaSelecionada) return alert('Selecione horário');
 
-  await fetch(`${API_URL}/agendamentos`, {
+  const res = await fetch(`${API_URL}/agendamentos`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
-      clienteId: usuarioLogado._id, // 🔥 VINCULA
+      clienteId: usuarioLogado._id,
       nomeCliente: nome,
       telefone,
       servico: servicoTexto,
@@ -138,8 +169,17 @@ async function agendar() {
     })
   });
 
+  const dataResponse = await res.json();
+
+  if (!res.ok) {
+    return alert(dataResponse.erro);
+  }
+
   alert('Agendado!');
+
   carregarMeusAgendamentos();
+  gerarHorarios();
+  carregarHorariosOcupados();
 }
 
 // ================= MEUS AGENDAMENTOS =================
@@ -157,7 +197,7 @@ async function carregarMeusAgendamentos() {
     if (a.status === 'cancelado') div.classList.add('cancelado');
 
     div.innerHTML = `
-      ${a.servico}<br>
+      <b>${a.servico}</b><br>
       ${a.data} ${a.hora}<br>
       ${a.status}
     `;
@@ -173,12 +213,75 @@ async function carregarMeusAgendamentos() {
         });
 
         carregarMeusAgendamentos();
+        carregarHorariosOcupados();
       };
 
       div.appendChild(btn);
     }
 
     container.appendChild(div);
+  });
+}
+
+// ================= BLOQUEAR HORÁRIOS =================
+async function carregarHorariosOcupados() {
+  const data = document.getElementById('data').value;
+  const barbeiro = document.getElementById('barbeiro').value;
+
+  if (!data || !barbeiro) return;
+
+  const res = await fetch(`${API_URL}/agendamentos`);
+  const lista = await res.json();
+
+  const ocupados = lista
+    .filter(a => a.data === data && a.barbeiro === barbeiro && a.status !== 'cancelado')
+    .map(a => a.hora);
+
+  document.querySelectorAll('.hora').forEach(div => {
+    if (ocupados.includes(div.innerText)) {
+      div.style.background = '#555';
+      div.style.pointerEvents = 'none';
+    }
+  });
+}
+
+// ================= SERVIÇOS =================
+async function carregarServicos() {
+  const res = await fetch(`${API_URL}/servicos`);
+  const lista = await res.json();
+
+  const select = document.getElementById('servico');
+  select.innerHTML = '';
+
+  lista.forEach(s => {
+    const option = document.createElement('option');
+    option.value = s.preco;
+    option.text = `${s.nome} - R$ ${s.preco}`;
+    select.appendChild(option);
+  });
+
+  atualizarPreco();
+}
+
+function atualizarPreco() {
+  const select = document.getElementById('servico');
+  const preco = select.value;
+  document.getElementById('preco').innerText = `Valor: R$ ${preco}`;
+}
+
+// ================= BARBEIROS =================
+async function carregarBarbeiros() {
+  const res = await fetch(`${API_URL}/barbeiros`);
+  const lista = await res.json();
+
+  const select = document.getElementById('barbeiro');
+  select.innerHTML = '';
+
+  lista.forEach(b => {
+    const option = document.createElement('option');
+    option.value = b.nome;
+    option.text = b.nome;
+    select.appendChild(option);
   });
 }
 
