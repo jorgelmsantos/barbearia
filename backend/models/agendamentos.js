@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
 
 const AgendamentoSchema = new mongoose.Schema({
-  clienteId: {
-    type: String,
-    required: false
-  },
+  clienteId: String,
   nomeCliente: String,
   telefone: String,
   servico: String,
@@ -12,13 +9,20 @@ const AgendamentoSchema = new mongoose.Schema({
   data: String,
   hora: String,
 
-  // 🔥 STATUS DO AGENDAMENTO
+  valor: Number,
+
   status: {
     type: String,
-    default: 'ativo' // ativo | cancelado
+    default: 'ativo'
+  },
+
+  statusPagamento: {
+    type: String,
+    default: 'pendente'
   }
+
 }, {
-  timestamps: true // 🔥 ajuda muito no futuro (criação/atualização)
+  timestamps: true
 });
 
 module.exports = mongoose.model('agendamentos', AgendamentoSchema);

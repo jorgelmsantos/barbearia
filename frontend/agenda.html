@@ -4,70 +4,22 @@
   <title>Barbearia</title>
 
   <style>
-    body {
-      background: #111;
-      color: white;
-      font-family: Arial;
-      text-align: center;
-    }
-
-    .card {
-      background: #1e1e1e;
-      padding: 20px;
-      margin: 20px auto;
-      width: 320px;
-      border-radius: 10px;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 5px;
-      border: none;
-    }
-
-    button {
-      background: #00c853;
-      color: white;
-      cursor: pointer;
-    }
-
-    .hora {
-      display: inline-block;
-      padding: 10px;
-      margin: 5px;
-      background: #2a2a2a;
-      cursor: pointer;
-      border-radius: 8px;
-    }
-
-    .selecionado {
-      background: #00c853 !important;
-    }
-
-    .agendamento {
-      background: #2a2a2a;
-      margin: 10px;
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    .cancelado {
-      opacity: 0.5;
-      text-decoration: line-through;
-    }
-
-    .btn-cancelar {
-      background: #ff5252;
-      margin-top: 10px;
-    }
+    body { background: #111; color: white; font-family: Arial; text-align: center; }
+    .card { background: #1e1e1e; padding: 20px; margin: 20px auto; width: 320px; border-radius: 10px; }
+    input, select, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: none; }
+    button { background: #00c853; color: white; cursor: pointer; }
+    .hora { display: inline-block; padding: 10px; margin: 5px; background: #2a2a2a; cursor: pointer; border-radius: 8px; }
+    .selecionado { background: #00c853 !important; }
+    .agendamento { background: #2a2a2a; margin: 10px; padding: 10px; border-radius: 8px; }
+    .cancelado { opacity: 0.5; text-decoration: line-through; }
+    .btn-cancelar { background: #ff5252; margin-top: 10px; }
   </style>
 </head>
 
 <body>
 
 <h1>💈 Barbearia</h1>
+<h2 id="boasVindas"></h2>
 
 <div class="card">
   <button onclick="logout()">Sair</button>
@@ -94,8 +46,6 @@
 <script src="config.js"></script>
 
 <script>
-
-// 🔒 USUÁRIO LOGADO
 const usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
 
 if (!usuarioLogado) {
@@ -103,26 +53,25 @@ if (!usuarioLogado) {
   window.location.href = 'usuario.html';
 }
 
-// ================= LOGOUT =================
+document.getElementById('boasVindas').innerHTML =
+  `👋 Bem-vindo, <b>${usuarioLogado.nome}</b>`;
+
 function logout() {
   localStorage.removeItem('usuario');
   window.location.href = 'usuario.html';
 }
 
 let horaSelecionada = null;
+let agendamentoEditando = null;
+let total = 0;
 
-// ================= HORÁRIOS =================
+// horários
 function gerarHorarios() {
   const container = document.getElementById('horarios');
   container.innerHTML = '';
 
-  const horarios = [
-    "09:00","09:30","10:00","10:30",
-    "11:00","11:30","14:00","14:30",
-    "15:00","15:30","16:00"
-  ];
-
-  horarios.forEach(h => {
+  ["09:00","09:30","10:00","10:30","11:00","11:30","14:00","14:30","15:00","15:30","16:00"]
+  .forEach(h => {
     const div = document.createElement('div');
     div.innerText = h;
     div.className = 'hora';
@@ -137,7 +86,7 @@ function gerarHorarios() {
   });
 }
 
-// ================= AGENDAR =================
+// agendar / remarcar
 async function agendar() {
   const nome = document.getElementById('nome').value;
   const telefone = document.getElementById('telefone').value;
@@ -146,43 +95,51 @@ async function agendar() {
 
   const servicoSelect = document.getElementById('servico');
   const servicoTexto = servicoSelect.options[servicoSelect.selectedIndex].text;
-  const valor = servicoSelect.value;
-
-  if (!nome || !telefone || !data || !barbeiro) {
-    return alert('Preencha todos os campos');
-  }
+  const valor = Number(servicoSelect.value);
 
   if (!horaSelecionada) return alert('Selecione horário');
 
-  const res = await fetch(`${API_URL}/agendamentos`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      clienteId: usuarioLogado._id,
-      nomeCliente: nome,
-      telefone,
-      servico: servicoTexto,
-      valor,
-      barbeiro,
-      data,
-      hora: horaSelecionada
-    })
-  });
+  if (agendamentoEditando) {
+    await fetch(`${API_URL}/agendamentos/${agendamentoEditando._id}/remarcar`, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ data, hora: horaSelecionada, barbeiro })
+    });
 
-  const dataResponse = await res.json();
+    alert('Remarcado!');
+    agendamentoEditando = null;
 
-  if (!res.ok) {
-    return alert(dataResponse.erro);
+  } else {
+    await fetch(`${API_URL}/agendamentos`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        clienteId: usuarioLogado._id,
+        nomeCliente: nome,
+        telefone,
+        servico: servicoTexto,
+        valor,
+        barbeiro,
+        data,
+        hora: horaSelecionada
+      })
+    });
+
+    total += valor;
+    alert(`Agendado! Total: R$ ${total}`);
   }
 
-  alert('Agendado!');
-
   carregarMeusAgendamentos();
-  gerarHorarios();
-  carregarHorariosOcupados();
 }
 
-// ================= MEUS AGENDAMENTOS =================
+// abrir remarcar
+function abrirRemarcacao(a) {
+  agendamentoEditando = a;
+  document.getElementById('data').value = a.data;
+  gerarHorarios();
+}
+
+// listar
 async function carregarMeusAgendamentos() {
   const res = await fetch(`${API_URL}/agendamentos/cliente/${usuarioLogado._id}`);
   const lista = await res.json();
@@ -203,49 +160,29 @@ async function carregarMeusAgendamentos() {
     `;
 
     if (a.status === 'ativo') {
-      const btn = document.createElement('button');
-      btn.innerText = 'Cancelar';
-      btn.className = 'btn-cancelar';
 
-      btn.onclick = async () => {
-        await fetch(`${API_URL}/agendamentos/${a._id}/cancelar`, {
-          method: 'PUT'
-        });
+      const btnCancelar = document.createElement('button');
+      btnCancelar.innerText = 'Cancelar';
+      btnCancelar.className = 'btn-cancelar';
 
+      btnCancelar.onclick = async () => {
+        await fetch(`${API_URL}/agendamentos/${a._id}/cancelar`, { method: 'PUT' });
         carregarMeusAgendamentos();
-        carregarHorariosOcupados();
       };
 
-      div.appendChild(btn);
+      const btnRemarcar = document.createElement('button');
+      btnRemarcar.innerText = 'Remarcar';
+      btnRemarcar.onclick = () => abrirRemarcacao(a);
+
+      div.appendChild(btnCancelar);
+      div.appendChild(btnRemarcar);
     }
 
     container.appendChild(div);
   });
 }
 
-// ================= BLOQUEAR HORÁRIOS =================
-async function carregarHorariosOcupados() {
-  const data = document.getElementById('data').value;
-  const barbeiro = document.getElementById('barbeiro').value;
-
-  if (!data || !barbeiro) return;
-
-  const res = await fetch(`${API_URL}/agendamentos`);
-  const lista = await res.json();
-
-  const ocupados = lista
-    .filter(a => a.data === data && a.barbeiro === barbeiro && a.status !== 'cancelado')
-    .map(a => a.hora);
-
-  document.querySelectorAll('.hora').forEach(div => {
-    if (ocupados.includes(div.innerText)) {
-      div.style.background = '#555';
-      div.style.pointerEvents = 'none';
-    }
-  });
-}
-
-// ================= SERVIÇOS =================
+// carregar dados
 async function carregarServicos() {
   const res = await fetch(`${API_URL}/servicos`);
   const lista = await res.json();
@@ -264,12 +201,10 @@ async function carregarServicos() {
 }
 
 function atualizarPreco() {
-  const select = document.getElementById('servico');
-  const preco = select.value;
-  document.getElementById('preco').innerText = `Valor: R$ ${preco}`;
+  document.getElementById('preco').innerText =
+    `Valor: R$ ${document.getElementById('servico').value}`;
 }
 
-// ================= BARBEIROS =================
 async function carregarBarbeiros() {
   const res = await fetch(`${API_URL}/barbeiros`);
   const lista = await res.json();
@@ -285,12 +220,11 @@ async function carregarBarbeiros() {
   });
 }
 
-// ================= INIT =================
+// init
 carregarBarbeiros();
 carregarServicos();
 gerarHorarios();
 carregarMeusAgendamentos();
-
 </script>
 
 </body>
