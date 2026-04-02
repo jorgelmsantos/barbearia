@@ -5,14 +5,64 @@
 
   <style>
     body { background: #111; color: white; font-family: Arial; text-align: center; }
-    .card { background: #1e1e1e; padding: 20px; margin: 20px auto; width: 320px; border-radius: 10px; }
-    input, select, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: none; }
-    button { background: #00c853; color: white; cursor: pointer; }
-    .hora { display: inline-block; padding: 10px; margin: 5px; background: #2a2a2a; cursor: pointer; border-radius: 8px; }
+
+    .card {
+      background: #1e1e1e;
+      padding: 20px;
+      margin: 20px auto;
+      width: 350px;
+      border-radius: 12px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      background: #00c853;
+      color: white;
+      cursor: pointer;
+    }
+
+    .hora {
+      display: inline-block;
+      padding: 10px;
+      margin: 5px;
+      background: #2a2a2a;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
     .selecionado { background: #00c853 !important; }
-    .agendamento { background: #2a2a2a; margin: 10px; padding: 10px; border-radius: 8px; }
-    .cancelado { opacity: 0.5; text-decoration: line-through; }
-    .btn-cancelar { background: #ff5252; margin-top: 10px; }
+
+    .item-carrinho {
+      background: #2a2a2a;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 8px;
+      text-align: left;
+    }
+
+    .btn-remover {
+      background: #ff5252;
+      margin-top: 5px;
+    }
+
+    .agendamento {
+      background: #2a2a2a;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .cancelado {
+      opacity: 0.5;
+      text-decoration: line-through;
+    }
   </style>
 </head>
 
@@ -30,14 +80,24 @@
   <select id="servico" onchange="atualizarPreco()"></select>
   <p id="preco">Valor: R$0</p>
 
-  <select id="barbeiro" onchange="gerarHorarios(); carregarHorariosOcupados();"></select>
-  <input type="date" id="data" onchange="gerarHorarios(); carregarHorariosOcupados();">
+  <select id="barbeiro"></select>
+  <input type="date" id="data">
 
   <div id="horarios"></div>
 
-  <button onclick="agendar()">Agendar</button>
+  <button onclick="adicionarCarrinho()">➕ Adicionar Serviço</button>
 </div>
 
+<!-- 🛒 CARRINHO -->
+<div class="card">
+  <h3>🛒 Carrinho</h3>
+  <div id="carrinho"></div>
+  <h3 id="total">Total: R$ 0</h3>
+
+  <button onclick="finalizarAgendamentos()">✅ Finalizar</button>
+</div>
+
+<!-- 📅 AGENDAMENTOS -->
 <div class="card">
   <h3>Meus Agendamentos</h3>
   <div id="meusAgendamentos"></div>
@@ -46,26 +106,52 @@
 <script src="config.js"></script>
 
 <script>
-const usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
+// ================= USUÁRIO =================
+let usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
 
 if (!usuarioLogado) {
   alert('Faça login');
   window.location.href = 'usuario.html';
 }
 
-document.getElementById('boasVindas').innerHTML =
-  `👋 Bem-vindo, <b>${usuarioLogado.nome}</b>`;
+// 🔥 ATUALIZA USUÁRIO (PLANO)
+async function atualizarUsuario() {
+  try {
+    const res = await fetch(`${API_URL}/clientes/login`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        email: usuarioLogado.email,
+        senha: usuarioLogado.senha
+      })
+    });
+
+    const data = await res.json();
+    usuarioLogado = data.usuario;
+    localStorage.setItem('usuario', JSON.stringify(usuarioLogado));
+
+  } catch (err) {
+    console.error('Erro ao atualizar usuário');
+  }
+}
+
+// ================= UI =================
+function renderUsuario() {
+  document.getElementById('boasVindas').innerHTML =
+    `👋 Bem-vindo, <b>${usuarioLogado.nome}</b><br>
+     ${usuarioLogado.planoAtivo ? '🔥 Plano Fidelidade ATIVO' : '💳 Sem plano'}`;
+
+  document.getElementById('nome').value = usuarioLogado.nome;
+}
 
 function logout() {
   localStorage.removeItem('usuario');
   window.location.href = 'usuario.html';
 }
 
+// ================= HORÁRIOS =================
 let horaSelecionada = null;
-let agendamentoEditando = null;
-let total = 0;
 
-// horários
 function gerarHorarios() {
   const container = document.getElementById('horarios');
   container.innerHTML = '';
@@ -86,10 +172,10 @@ function gerarHorarios() {
   });
 }
 
-// agendar / remarcar
-async function agendar() {
-  const nome = document.getElementById('nome').value;
-  const telefone = document.getElementById('telefone').value;
+// ================= CARRINHO =================
+let carrinho = [];
+
+function adicionarCarrinho() {
   const barbeiro = document.getElementById('barbeiro').value;
   const data = document.getElementById('data').value;
 
@@ -97,49 +183,79 @@ async function agendar() {
   const servicoTexto = servicoSelect.options[servicoSelect.selectedIndex].text;
   const valor = Number(servicoSelect.value);
 
-  if (!horaSelecionada) return alert('Selecione horário');
-
-  if (agendamentoEditando) {
-    await fetch(`${API_URL}/agendamentos/${agendamentoEditando._id}/remarcar`, {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ data, hora: horaSelecionada, barbeiro })
-    });
-
-    alert('Remarcado!');
-    agendamentoEditando = null;
-
-  } else {
-    await fetch(`${API_URL}/agendamentos`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        clienteId: usuarioLogado._id,
-        nomeCliente: nome,
-        telefone,
-        servico: servicoTexto,
-        valor,
-        barbeiro,
-        data,
-        hora: horaSelecionada
-      })
-    });
-
-    total += valor;
-    alert(`Agendado! Total: R$ ${total}`);
+  if (!data || !barbeiro || !horaSelecionada) {
+    return alert('Preencha tudo');
   }
 
-  carregarMeusAgendamentos();
+  carrinho.push({ servico: servicoTexto, valor, barbeiro, data, hora: horaSelecionada });
+
+  renderCarrinho();
 }
 
-// abrir remarcar
-function abrirRemarcacao(a) {
-  agendamentoEditando = a;
-  document.getElementById('data').value = a.data;
-  gerarHorarios();
+function renderCarrinho() {
+  const div = document.getElementById('carrinho');
+  div.innerHTML = '';
+
+  let total = 0;
+
+  carrinho.forEach((item, index) => {
+    total += item.valor;
+
+    const el = document.createElement('div');
+    el.className = 'item-carrinho';
+
+    el.innerHTML = `
+      <b>${item.servico}</b><br>
+      ${item.data} ${item.hora}<br>
+      ${item.barbeiro}
+      <button class="btn-remover" onclick="removerItem(${index})">Remover</button>
+    `;
+
+    div.appendChild(el);
+  });
+
+  document.getElementById('total').innerText = `Total: R$ ${total}`;
 }
 
-// listar
+function removerItem(index) {
+  carrinho.splice(index, 1);
+  renderCarrinho();
+}
+
+// ================= FINALIZAR =================
+async function finalizarAgendamentos() {
+  const telefone = document.getElementById('telefone').value;
+
+  if (!telefone) return alert('Informe telefone');
+  if (carrinho.length === 0) return alert('Carrinho vazio');
+
+  try {
+    for (let item of carrinho) {
+      await fetch(`${API_URL}/agendamentos`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          clienteId: usuarioLogado._id,
+          nomeCliente: usuarioLogado.nome,
+          telefone,
+          ...item
+        })
+      });
+    }
+
+    alert('Agendamentos realizados!');
+
+    carrinho = [];
+    renderCarrinho();
+    carregarMeusAgendamentos();
+    gerarHorarios();
+
+  } catch (err) {
+    alert('Erro ao agendar');
+  }
+}
+
+// ================= LISTAR =================
 async function carregarMeusAgendamentos() {
   const res = await fetch(`${API_URL}/agendamentos/cliente/${usuarioLogado._id}`);
   const lista = await res.json();
@@ -160,29 +276,23 @@ async function carregarMeusAgendamentos() {
     `;
 
     if (a.status === 'ativo') {
+      const btn = document.createElement('button');
+      btn.innerText = 'Cancelar';
+      btn.className = 'btn-remover';
 
-      const btnCancelar = document.createElement('button');
-      btnCancelar.innerText = 'Cancelar';
-      btnCancelar.className = 'btn-cancelar';
-
-      btnCancelar.onclick = async () => {
+      btn.onclick = async () => {
         await fetch(`${API_URL}/agendamentos/${a._id}/cancelar`, { method: 'PUT' });
         carregarMeusAgendamentos();
       };
 
-      const btnRemarcar = document.createElement('button');
-      btnRemarcar.innerText = 'Remarcar';
-      btnRemarcar.onclick = () => abrirRemarcacao(a);
-
-      div.appendChild(btnCancelar);
-      div.appendChild(btnRemarcar);
+      div.appendChild(btn);
     }
 
     container.appendChild(div);
   });
 }
 
-// carregar dados
+// ================= DADOS =================
 async function carregarServicos() {
   const res = await fetch(`${API_URL}/servicos`);
   const lista = await res.json();
@@ -220,11 +330,15 @@ async function carregarBarbeiros() {
   });
 }
 
-// init
-carregarBarbeiros();
-carregarServicos();
-gerarHorarios();
-carregarMeusAgendamentos();
+// ================= INIT =================
+(async () => {
+  await atualizarUsuario();
+  renderUsuario();
+  carregarBarbeiros();
+  carregarServicos();
+  gerarHorarios();
+  carregarMeusAgendamentos();
+})();
 </script>
 
 </body>

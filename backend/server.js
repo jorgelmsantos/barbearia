@@ -97,7 +97,11 @@ app.post('/clientes/login', async (req, res) => {
 // CRIAR
 app.post('/agendamentos', async (req, res) => {
   try {
-    const { data, hora, barbeiro } = req.body;
+    const { data, hora, barbeiro, clienteId, valor } = req.body;
+
+    if (!data || !hora || !barbeiro) {
+      return res.status(400).json({ erro: 'Dados incompletos' });
+    }
 
     const conflito = await Agendamento.findOne({ data, hora, barbeiro });
 
@@ -105,15 +109,33 @@ app.post('/agendamentos', async (req, res) => {
       return res.status(400).json({ erro: 'Horário já ocupado' });
     }
 
+    // 🔥 BUSCA USUÁRIO
+    let valorFinal = valor;
+
+    if (clienteId) {
+      const usuario = await Usuario.findById(clienteId);
+
+      if (usuario && usuario.planoAtivo) {
+        // verifica validade
+        if (!usuario.validadePlano || usuario.validadePlano >= new Date()) {
+          valorFinal = 0;
+        } else {
+          // plano expirou
+          usuario.planoAtivo = false;
+          await usuario.save();
+        }
+      }
+    }
+
     const agendamento = await Agendamento.create({
       ...req.body,
-      status: 'ativo',
-      statusPagamento: 'pendente'
+      valor: valorFinal,
+      status: 'ativo'
     });
 
     res.json(agendamento);
 
-  } catch {
+  } catch (err) {
     res.status(500).json({ erro: 'Erro ao criar agendamento' });
   }
 });
@@ -194,6 +216,38 @@ app.post('/barbeiros', async (req, res) => {
 app.get('/barbeiros', async (req, res) => {
   const lista = await Barbeiro.find();
   res.json(lista);
+});
+
+// =========================
+// PLANO FIDELIDADE
+// =========================
+
+// ATIVAR / DESATIVAR
+app.put('/clientes/:id/plano', async (req, res) => {
+  try {
+    const { ativo, dias } = req.body;
+
+    let validade = null;
+
+    if (ativo && dias) {
+      validade = new Date();
+      validade.setDate(validade.getDate() + dias);
+    }
+
+    const usuario = await Usuario.findByIdAndUpdate(
+      req.params.id,
+      {
+        planoAtivo: ativo,
+        validadePlano: validade
+      },
+      { new: true }
+    );
+
+    res.json(usuario);
+
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao atualizar plano' });
+  }
 });
 
 // =========================
