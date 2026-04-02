@@ -71,6 +71,13 @@
 <h1>💈 Barbearia</h1>
 <h2 id="boasVindas"></h2>
 
+<div class="card" id="planoBox" style="display:none;">
+  <h3 id="planoNome"></h3>
+  <p id="planoValor"></p>
+
+  <button onclick="assinarPlano()">💳 Assinar Plano</button>
+</div>
+
 <div class="card">
   <button onclick="logout()">Sair</button>
 
@@ -330,6 +337,54 @@ async function carregarBarbeiros() {
   });
 }
 
+//plano fidelidade  
+
+let planoGlobal = null;
+
+// carregar plano
+async function carregarPlano() {
+  const res = await fetch(`${API_URL}/plano`);
+  const plano = await res.json();
+
+  planoGlobal = plano;
+
+  if (!plano || !plano.ativo) return;
+
+  // se usuário NÃO tem plano ativo
+  if (!usuarioLogado.planoAtivo) {
+    document.getElementById('planoBox').style.display = 'block';
+
+    document.getElementById('planoNome').innerText = plano.nome;
+    document.getElementById('planoValor').innerText = `R$ ${plano.valor} / mês`;
+  }
+}
+
+//pagar plano fidelidade
+
+async function assinarPlano() {
+  // 👉 AQUI depois você conecta PIX real
+  const confirmar = confirm(`Deseja pagar R$ ${planoGlobal.valor}?`);
+
+  if (!confirmar) return;
+
+  const res = await fetch(`${API_URL}/plano/assinar/${usuarioLogado._id}`, {
+    method: 'POST'
+  });
+
+  const usuarioAtualizado = await res.json();
+
+  localStorage.setItem('usuario', JSON.stringify(usuarioAtualizado));
+
+  alert('Plano ativado!');
+
+  // 🔥 pergunta se quer agendar
+  if (confirm('Plano ativo! Deseja agendar agora?')) {
+    window.scrollTo(0, 300);
+  }
+
+  location.reload();
+}
+
 // ================= INIT =================
 (async () => {
   await atualizarUsuario();
@@ -338,6 +393,7 @@ async function carregarBarbeiros() {
   carregarServicos();
   gerarHorarios();
   carregarMeusAgendamentos();
+  carregarPlano();
 })();
 </script>
 

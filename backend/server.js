@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+
 require('dotenv').config();
 
 const app = express();
@@ -23,6 +24,7 @@ const Agendamento = require('./models/agendamentos');
 const Barbeiro = require('./models/Barbeiro');
 const Servico = require('./models/Servico');
 const Usuario = require('./models/Usuario');
+const Plano = require('./models/Plano');
 
 // =========================
 // ROTA TESTE
@@ -87,6 +89,41 @@ app.post('/clientes/login', async (req, res) => {
 
   } catch {
     res.status(500).json({ erro: 'Erro no login' });
+  }
+});
+
+// criar ou atualizar plano
+app.post('/plano', async (req, res) => {
+  const { nome, valor, limiteMensal, ativo } = req.body;
+
+  const plano = await Plano.findOneAndUpdate(
+    {},
+    { nome, valor, limiteMensal, ativo },
+    { upsert: true, new: true }
+  );
+
+  res.json(plano);
+});
+
+// buscar plano
+app.get('/plano', async (req, res) => {
+  const plano = await Plano.findOne();
+  res.json(plano);
+});
+
+//pagar plano fidelidade
+app.post('/plano/assinar/:id', async (req, res) => {
+  try {
+    const usuario = await Usuario.findByIdAndUpdate(
+      req.params.id,
+      { planoAtivo: true },
+      { new: true }
+    );
+
+    res.json(usuario);
+
+  } catch {
+    res.status(500).json({ erro: 'Erro ao ativar plano' });
   }
 });
 

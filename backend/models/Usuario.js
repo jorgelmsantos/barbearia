@@ -5,17 +5,10 @@ const UsuarioSchema = new mongoose.Schema({
   email: String,
   senha: String,
 
-  // 🔥 PLANO FIDELIDADE
   planoAtivo: {
     type: Boolean,
     default: false
-  },
-
-  validadePlano: {
-    type: Date,
-    default: null
   }
-
-}, { timestamps: true });
+});
 
 module.exports = mongoose.model('usuarios', UsuarioSchema);
