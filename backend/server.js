@@ -1,319 +1,176 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Painel Barbearia</title>
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+require('dotenv').config();
 
-  <style>
-    body {
-      background: #111;
-      color: white;
-      font-family: Arial;
-      padding: 20px;
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// ================= MONGO =================
+mongoose.connect(process.env.MONGO_URL)
+  .then(() => console.log('✅ Mongo conectado'))
+  .catch(err => console.log('❌ Erro Mongo:', err));
+
+// ================= MODELS =================
+const Agendamento = require('./models/agendamentos');
+const Barbeiro = require('./models/Barbeiro');
+const Servico = require('./models/Servico');
+const Usuario = require('./models/Usuario');
+
+// ================= TESTE =================
+app.get('/', (req, res) => {
+  res.send('API FUNCIONANDO 🚀');
+});
+
+// ================= LOGIN =================
+app.post('/clientes/login', async (req, res) => {
+  try {
+    const { email, senha } = req.body;
+
+    const usuario = await Usuario.findOne({ email, senha });
+
+    if (!usuario) {
+      return res.status(401).json({ erro: 'Login inválido' });
     }
 
-    h1 { margin-bottom: 10px; }
+    res.json({ usuario });
 
-    .menu {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .menu button {
-      flex: 1;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      background: #1e1e1e;
-      color: white;
-      cursor: pointer;
-    }
-
-    .menu button:hover {
-      background: #00c853;
-    }
-
-    .card {
-      background: #1e1e1e;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-
-    input, button {
-      padding: 10px;
-      margin: 5px;
-      border-radius: 5px;
-      border: none;
-    }
-
-    button {
-      background: #00c853;
-      color: white;
-      cursor: pointer;
-    }
-
-    .dashboard {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .box {
-      flex: 1;
-      min-width: 150px;
-      background: #2a2a2a;
-      padding: 15px;
-      border-radius: 10px;
-      text-align: center;
-    }
-
-    .pedido {
-      background: #2a2a2a;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
-    }
-
-    .cancelado {
-      color: red;
-      text-decoration: line-through;
-    }
-
-    .btn-cancelar {
-      background: #ff5252;
-      margin-top: 5px;
-    }
-  </style>
-</head>
-
-<body>
-
-<h1>💈 Painel Admin</h1>
-
-<div class="menu">
-  <button onclick="mostrar('dashboard')">📊 Dashboard</button>
-  <button onclick="mostrar('barbeiros')">✂️ Barbeiros</button>
-  <button onclick="mostrar('servicos')">💰 Serviços</button>
-  <button onclick="mostrar('agenda')">📅 Agenda</button>
-</div>
-
-<!-- DASHBOARD -->
-<div id="dashboard" class="card">
-  <h2>📊 Visão Geral</h2>
-
-  <div class="dashboard">
-    <div class="box" id="totalAgendamentos"></div>
-    <div class="box" id="faturamento"></div>
-    <div class="box" id="maisVendido"></div>
-  </div>
-</div>
-
-<!-- BARBEIROS -->
-<div id="barbeiros" class="card" style="display:none;">
-  <h2>Barbeiros</h2>
-
-  <input id="nomeBarbeiro" placeholder="Nome">
-  <button onclick="cadastrarBarbeiro()">Cadastrar</button>
-
-  <ul id="listaBarbeiros"></ul>
-</div>
-
-<!-- SERVIÇOS -->
-<div id="servicos" class="card" style="display:none;">
-  <h2>Serviços</h2>
-
-  <input id="nomeServico" placeholder="Nome">
-  <input id="precoServico" placeholder="Preço">
-  <button onclick="cadastrarServico()">Cadastrar</button>
-
-  <ul id="listaServicos"></ul>
-</div>
-
-<!-- AGENDA -->
-<div id="agenda" class="card" style="display:none;">
-  <h2>Agendamentos</h2>
-
-  <input type="date" id="filtroData" onchange="filtrar()">
-
-  <div id="listaPedidos"></div>
-</div>
-
-<script src="config.js"></script>
-
-<script>
-
-// ================= MENU =================
-function mostrar(secao){
-  ['dashboard','barbeiros','servicos','agenda'].forEach(id=>{
-    document.getElementById(id).style.display = 'none';
-  });
-
-  document.getElementById(secao).style.display = 'block';
-}
+  } catch {
+    res.status(500).json({ erro: 'Erro no login' });
+  }
+});
 
 // ================= BARBEIROS =================
-async function cadastrarBarbeiro(){
-  await fetch(`${API_URL}/barbeiros`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ nome:nomeBarbeiro.value })
-  });
+app.get('/barbeiros', async (req, res) => {
+  const lista = await Barbeiro.find();
+  res.json(lista);
+});
 
-  nomeBarbeiro.value='';
-  carregarBarbeiros();
-}
+app.post('/barbeiros', async (req, res) => {
+  const novo = await Barbeiro.create(req.body);
+  res.json(novo);
+});
 
-async function carregarBarbeiros(){
-  let lista = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
-
-  listaBarbeiros.innerHTML='';
-
-  lista.forEach(b=>{
-    let li=document.createElement('li');
-    li.innerHTML = `${b.nome}`;
-    listaBarbeiros.appendChild(li);
-  });
-}
+app.delete('/barbeiros/:id', async (req, res) => {
+  await Barbeiro.findByIdAndDelete(req.params.id);
+  res.json({ ok: true });
+});
 
 // ================= SERVIÇOS =================
-async function cadastrarServico(){
-  await fetch(`${API_URL}/servicos`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      nome:nomeServico.value,
-      preco:precoServico.value
-    })
-  });
+app.get('/servicos', async (req, res) => {
+  const lista = await Servico.find();
+  res.json(lista);
+});
 
-  nomeServico.value='';
-  precoServico.value='';
-  carregarServicos();
-}
+app.post('/servicos', async (req, res) => {
+  const novo = await Servico.create(req.body);
+  res.json(novo);
+});
 
-async function carregarServicos(){
-  let lista = await fetch(`${API_URL}/servicos`).then(r=>r.json());
+app.delete('/servicos/:id', async (req, res) => {
+  await Servico.findByIdAndDelete(req.params.id);
+  res.json({ ok: true });
+});
 
-  listaServicos.innerHTML='';
+// ================= AGENDAMENTO EM LOTE =================
+app.post('/agendamentos/lote', async (req, res) => {
+  try {
+    const { clienteId, nomeCliente, telefone, itens } = req.body;
 
-  lista.forEach(s=>{
-    let li=document.createElement('li');
-    li.innerHTML = `${s.nome} - R$ ${s.preco}`;
-    listaServicos.appendChild(li);
-  });
-}
+    if (!itens || itens.length === 0) {
+      return res.status(400).json({ erro: 'Carrinho vazio' });
+    }
 
-// ================= AGENDAMENTOS =================
-let agendamentosGlobal = [];
+    const grupoId = Date.now().toString();
 
-async function carregarAgendamentos(){
-  agendamentosGlobal = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
+    // valida conflito
+    for (let item of itens) {
+      const conflito = await Agendamento.findOne({
+        data: item.data,
+        hora: item.hora,
+        barbeiro: item.barbeiro,
+        status: { $ne: 'cancelado' }
+      });
 
-  renderAgenda(agendamentosGlobal);
-  renderDashboard(agendamentosGlobal);
-}
+      if (conflito) {
+        return res.status(400).json({
+          erro: `Horário ocupado: ${item.data} ${item.hora}`
+        });
+      }
+    }
 
-function filtrar(){
-  const data = filtroData.value;
+    const agendamentos = await Promise.all(
+      itens.map(item =>
+        Agendamento.create({
+          clienteId,
+          nomeCliente,
+          telefone,
+          grupoId,
+          ...item,
+          status: 'ativo'
+        })
+      )
+    );
 
-  if (!data) return renderAgenda(agendamentosGlobal);
+    res.json(agendamentos);
 
-  const filtrados = agendamentosGlobal.filter(a => a.data === data);
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao criar agendamento' });
+  }
+});
 
-  renderAgenda(filtrados);
-}
+// ================= LISTAR TODOS =================
+app.get('/agendamentos', async (req, res) => {
+  const lista = await Agendamento.find().sort({ data: 1, hora: 1 });
+  res.json(lista);
+});
 
-// ================= AGRUPAR (🔥 CORRIGIDO) =================
-function agrupar(lista){
+// ================= FILTRAR POR DATA =================
+app.get('/agendamentos/data/:data', async (req, res) => {
+  const lista = await Agendamento.find({ data: req.params.data });
+  res.json(lista);
+});
+
+// ================= LISTAR CLIENTE (AGRUPADO) =================
+app.get('/agendamentos/cliente/:id', async (req, res) => {
+  const lista = await Agendamento.find({ clienteId: req.params.id });
+
   const grupos = {};
 
-  lista.forEach(a=>{
+  lista.forEach(a => {
     if (!grupos[a.grupoId]) {
-      grupos[a.grupoId] = [];
+      grupos[a.grupoId] = {
+        grupoId: a.grupoId,
+        itens: [],
+        total: 0
+      };
     }
-    grupos[a.grupoId].push(a);
+
+    grupos[a.grupoId].itens.push(a);
+
+    if (a.status !== 'cancelado') {
+      grupos[a.grupoId].total += a.valor || 0;
+    }
   });
 
-  return Object.values(grupos);
-}
-
-// ================= RENDER AGENDA =================
-function renderAgenda(lista){
-  const container = document.getElementById('listaPedidos');
-  container.innerHTML='';
-
-  const grupos = agrupar(lista);
-
-  grupos.forEach(grupo=>{
-    let total=0;
-
-    const div = document.createElement('div');
-    div.className='pedido';
-
-    let html = `<b>🧾 Pedido</b><br>`;
-
-    grupo.forEach(a=>{
-      if (a.status !== 'cancelado') total += a.valor || 0;
-
-      html += `
-        <div class="${a.status==='cancelado'?'cancelado':''}">
-          ${a.nomeCliente} - ${a.servico} - ${a.data} ${a.hora}
-          ${a.status!=='cancelado'
-            ? `<button class="btn-cancelar" onclick="cancelar('${a._id}')">Cancelar</button>`
-            : ''
-          }
-        </div>
-      `;
-    });
-
-    html += `<br><b>💰 Total: R$ ${total}</b>`;
-
-    div.innerHTML = html;
-    container.appendChild(div);
-  });
-}
-
-// ================= DASHBOARD =================
-function renderDashboard(lista){
-  const ativos = lista.filter(a=>a.status!=='cancelado');
-
-  document.getElementById('totalAgendamentos').innerText =
-    `📅 ${ativos.length} atendimentos`;
-
-  const total = ativos.reduce((sum,a)=>sum+(a.valor||0),0);
-
-  document.getElementById('faturamento').innerText =
-    `💰 R$ ${total}`;
-
-  const contagem = {};
-  ativos.forEach(a=>{
-    contagem[a.servico] = (contagem[a.servico]||0)+1;
-  });
-
-  let top = Object.entries(contagem).sort((a,b)=>b[1]-a[1])[0];
-
-  document.getElementById('maisVendido').innerText =
-    `🔥 ${top ? top[0] : 'Nenhum'}`;
-}
+  res.json(Object.values(grupos));
+});
 
 // ================= CANCELAR =================
-async function cancelar(id){
-  if (!confirm('Cancelar serviço?')) return;
+app.put('/agendamentos/:id/cancelar', async (req, res) => {
+  const ag = await Agendamento.findByIdAndUpdate(
+    req.params.id,
+    { status: 'cancelado' },
+    { new: true }
+  );
 
-  await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{
-    method:'PUT'
-  });
+  res.json(ag);
+});
 
-  carregarAgendamentos();
-}
+// ================= START =================
+const PORT = process.env.PORT || 3001;
 
-// ================= INIT =================
-carregarBarbeiros();
-carregarServicos();
-carregarAgendamentos();
-
-</script>
-
-</body>
-</html>
+app.listen(PORT, () => {
+  console.log(`🚀 Rodando na porta ${PORT}`);
+});
