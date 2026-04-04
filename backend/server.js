@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
@@ -26,18 +25,23 @@ app.get('/', (req, res) => {
 
 // ================= LOGIN =================
 app.post('/clientes/login', async (req, res) => {
-  const { email, senha } = req.body;
+  try {
+    const { email, senha } = req.body;
 
-  const usuario = await Usuario.findOne({ email, senha });
+    const usuario = await Usuario.findOne({ email, senha });
 
-  if (!usuario) {
-    return res.status(401).json({ erro: 'Login inválido' });
+    if (!usuario) {
+      return res.status(401).json({ erro: 'Login inválido' });
+    }
+
+    res.json({ usuario });
+
+  } catch {
+    res.status(500).json({ erro: 'Erro no login' });
   }
-
-  res.json({ usuario });
 });
 
-// ================= AGENDAMENTO EM LOTE (🔥 NOVO) =================
+// ================= AGENDAMENTO EM LOTE =================
 app.post('/agendamentos/lote', async (req, res) => {
   try {
     const { clienteId, nomeCliente, telefone, itens } = req.body;
@@ -48,20 +52,23 @@ app.post('/agendamentos/lote', async (req, res) => {
 
     const pedidoId = Date.now();
 
+    // 🔥 valida conflito com banco
     for (let item of itens) {
       const conflito = await Agendamento.findOne({
         data: item.data,
         hora: item.hora,
-        barbeiro: item.barbeiro
+        barbeiro: item.barbeiro,
+        status: { $ne: 'cancelado' }
       });
 
       if (conflito) {
         return res.status(400).json({
-          erro: `Horário ocupado: ${item.data} ${item.hora}`
+          erro: `Horário já ocupado: ${item.data} ${item.hora}`
         });
       }
     }
 
+    // 🔥 cria todos
     const agendamentos = await Promise.all(
       itens.map(item =>
         Agendamento.create({
@@ -78,53 +85,84 @@ app.post('/agendamentos/lote', async (req, res) => {
     res.json(agendamentos);
 
   } catch (err) {
-    res.status(500).json({ erro: 'Erro ao criar lote' });
+    res.status(500).json({ erro: 'Erro ao criar agendamento em lote' });
   }
 });
 
-// ================= LISTAR AGRUPADO =================
-app.get('/agendamentos/cliente/:id', async (req, res) => {
-  const lista = await Agendamento.find({ clienteId: req.params.id });
-
-  const grupos = {};
-
-  lista.forEach(a => {
-    if (!grupos[a.pedidoId]) {
-      grupos[a.pedidoId] = {
-        pedidoId: a.pedidoId,
-        itens: [],
-        total: 0
-      };
-    }
-
-    grupos[a.pedidoId].itens.push(a);
-    grupos[a.pedidoId].total += a.valor || 0;
-  });
-
-  res.json(Object.values(grupos));
+// ================= LISTAR TODOS (ADMIN) =================
+app.get('/agendamentos', async (req, res) => {
+  try {
+    const lista = await Agendamento.find().sort({ data: 1, hora: 1 });
+    res.json(lista);
+  } catch {
+    res.status(500).json({ erro: 'Erro ao listar agendamentos' });
+  }
 });
 
-// ================= CANCELAR =================
-app.put('/agendamentos/:id/cancelar', async (req, res) => {
-  const ag = await Agendamento.findByIdAndUpdate(
-    req.params.id,
-    { status: 'cancelado' },
-    { new: true }
-  );
+// ================= LISTAR POR CLIENTE (AGRUPADO) =================
+app.get('/agendamentos/cliente/:id', async (req, res) => {
+  try {
+    const lista = await Agendamento.find({ clienteId: req.params.id });
 
-  res.json(ag);
+    const grupos = {};
+
+    lista.forEach(a => {
+      if (!grupos[a.pedidoId]) {
+        grupos[a.pedidoId] = {
+          pedidoId: a.pedidoId,
+          itens: [],
+          total: 0
+        };
+      }
+
+      grupos[a.pedidoId].itens.push(a);
+
+      if (a.status !== 'cancelado') {
+        grupos[a.pedidoId].total += a.valor || 0;
+      }
+    });
+
+    res.json(Object.values(grupos));
+
+  } catch {
+    res.status(500).json({ erro: 'Erro ao listar cliente' });
+  }
+});
+
+// ================= CANCELAR ITEM =================
+app.put('/agendamentos/:id/cancelar', async (req, res) => {
+  try {
+    const ag = await Agendamento.findByIdAndUpdate(
+      req.params.id,
+      { status: 'cancelado' },
+      { new: true }
+    );
+
+    res.json(ag);
+
+  } catch {
+    res.status(500).json({ erro: 'Erro ao cancelar' });
+  }
 });
 
 // ================= SERVIÇOS =================
 app.get('/servicos', async (req, res) => {
-  const lista = await Servico.find();
-  res.json(lista);
+  try {
+    const lista = await Servico.find();
+    res.json(lista);
+  } catch {
+    res.status(500).json({ erro: 'Erro ao buscar serviços' });
+  }
 });
 
 // ================= BARBEIROS =================
 app.get('/barbeiros', async (req, res) => {
-  const lista = await Barbeiro.find();
-  res.json(lista);
+  try {
+    const lista = await Barbeiro.find();
+    res.json(lista);
+  } catch {
+    res.status(500).json({ erro: 'Erro ao buscar barbeiros' });
+  }
 });
 
 // ================= START =================

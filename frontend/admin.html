@@ -11,8 +11,26 @@
       padding: 20px;
     }
 
-    h2 {
-      margin-top: 40px;
+    h1 { margin-bottom: 10px; }
+
+    .menu {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .menu button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: #1e1e1e;
+      color: white;
+      cursor: pointer;
+    }
+
+    .menu button:hover {
+      background: #00c853;
     }
 
     .card {
@@ -35,15 +53,31 @@
       cursor: pointer;
     }
 
-    table {
-      width: 100%;
-      margin-top: 10px;
-      border-collapse: collapse;
+    .dashboard {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
-    td, th {
+    .box {
+      flex: 1;
+      min-width: 150px;
+      background: #2a2a2a;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .pedido {
+      background: #2a2a2a;
       padding: 10px;
-      border-bottom: 1px solid #333;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+
+    .cancelado {
+      color: red;
+      text-decoration: line-through;
     }
   </style>
 </head>
@@ -52,191 +86,226 @@
 
 <h1>💈 Painel Admin</h1>
 
-<div class="card">
+<div class="menu">
+  <button onclick="mostrar('dashboard')">📊 Dashboard</button>
+  <button onclick="mostrar('barbeiros')">✂️ Barbeiros</button>
+  <button onclick="mostrar('servicos')">💰 Serviços</button>
+  <button onclick="mostrar('agenda')">📅 Agenda</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="card">
+  <h2>📊 Visão Geral</h2>
+
+  <div class="dashboard">
+    <div class="box" id="totalAgendamentos"></div>
+    <div class="box" id="faturamento"></div>
+    <div class="box" id="maisVendido"></div>
+  </div>
+</div>
+
+<!-- BARBEIROS -->
+<div id="barbeiros" class="card" style="display:none;">
   <h2>Barbeiros</h2>
 
-  <input id="nomeBarbeiro" placeholder="Nome do barbeiro">
+  <input id="nomeBarbeiro" placeholder="Nome">
   <button onclick="cadastrarBarbeiro()">Cadastrar</button>
 
   <ul id="listaBarbeiros"></ul>
 </div>
 
-<div class="card">
+<!-- SERVIÇOS -->
+<div id="servicos" class="card" style="display:none;">
   <h2>Serviços</h2>
 
-  <input id="nomeServico" placeholder="Nome do serviço">
+  <input id="nomeServico" placeholder="Nome">
   <input id="precoServico" placeholder="Preço">
   <button onclick="cadastrarServico()">Cadastrar</button>
 
   <ul id="listaServicos"></ul>
 </div>
 
-<div class="card">
+<!-- AGENDA -->
+<div id="agenda" class="card" style="display:none;">
   <h2>Agendamentos</h2>
 
-  <input type="date" id="filtroData">
-  <button onclick="filtrarData()">Filtrar</button>
+  <input type="date" id="filtroData" onchange="filtrar()">
 
-  <button onclick="carregarAgendamentos()">Atualizar</button>
-
-  <h3 id="totalHoje"></h3>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Cliente</th>
-        <th>Serviço</th>
-        <th>Barbeiro</th>
-        <th>Data</th>
-        <th>Hora</th>
-        <th>Status</th>
-        <th>Ação</th>
-      </tr>
-    </thead>
-    <tbody id="tabelaAgendamentos"></tbody>
-  </table>
+  <div id="listaPedidos"></div>
 </div>
 
 <script src="config.js"></script>
 
 <script>
-
-// ================= BARBEIRO =================
-async function cadastrarBarbeiro() {
-  const nome = document.getElementById('nomeBarbeiro').value;
-
-  await fetch(`${API_URL}/barbeiros`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ nome })
+// ================= MENU =================
+function mostrar(secao){
+  ['dashboard','barbeiros','servicos','agenda'].forEach(id=>{
+    document.getElementById(id).style.display = 'none';
   });
 
-  document.getElementById('nomeBarbeiro').value = '';
+  document.getElementById(secao).style.display = 'block';
+}
+
+// ================= BARBEIROS =================
+async function cadastrarBarbeiro(){
+  await fetch(`${API_URL}/barbeiros`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ nome:nomeBarbeiro.value })
+  });
+
+  nomeBarbeiro.value='';
   carregarBarbeiros();
 }
 
-async function carregarBarbeiros() {
-  const res = await fetch(`${API_URL}/barbeiros`);
-  const lista = await res.json();
+async function carregarBarbeiros(){
+  let lista = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
 
-  const ul = document.getElementById('listaBarbeiros');
-  ul.innerHTML = '';
+  listaBarbeiros.innerHTML='';
 
-  lista.forEach(b => {
-    const li = document.createElement('li');
-    li.innerHTML = `${b.nome}
-      <button onclick="excluirBarbeiro('${b._id}')">❌</button>`;
-    ul.appendChild(li);
+  lista.forEach(b=>{
+    let li=document.createElement('li');
+    li.innerHTML = `${b.nome}`;
+    listaBarbeiros.appendChild(li);
   });
-}
-
-async function excluirBarbeiro(id) {
-  await fetch(`${API_URL}/barbeiros/${id}`, { method: 'DELETE' });
-  carregarBarbeiros();
 }
 
 // ================= SERVIÇOS =================
-async function cadastrarServico() {
-  const nome = document.getElementById('nomeServico').value;
-  const preco = document.getElementById('precoServico').value;
-
-  await fetch(`${API_URL}/servicos`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ nome, preco })
+async function cadastrarServico(){
+  await fetch(`${API_URL}/servicos`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      nome:nomeServico.value,
+      preco:precoServico.value
+    })
   });
 
-  document.getElementById('nomeServico').value = '';
-  document.getElementById('precoServico').value = '';
-
+  nomeServico.value='';
+  precoServico.value='';
   carregarServicos();
 }
 
-async function carregarServicos() {
-  const res = await fetch(`${API_URL}/servicos`);
-  const lista = await res.json();
+async function carregarServicos(){
+  let lista = await fetch(`${API_URL}/servicos`).then(r=>r.json());
 
-  const ul = document.getElementById('listaServicos');
-  ul.innerHTML = '';
+  listaServicos.innerHTML='';
 
-  lista.forEach(s => {
-    const li = document.createElement('li');
-    li.innerHTML = `${s.nome} - R$ ${s.preco}
-      <button onclick="excluirServico('${s._id}')">❌</button>`;
-    ul.appendChild(li);
+  lista.forEach(s=>{
+    let li=document.createElement('li');
+    li.innerHTML = `${s.nome} - R$ ${s.preco}`;
+    listaServicos.appendChild(li);
   });
-}
-
-async function excluirServico(id) {
-  await fetch(`${API_URL}/servicos/${id}`, { method: 'DELETE' });
-  carregarServicos();
 }
 
 // ================= AGENDAMENTOS =================
-async function carregarAgendamentos() {
-  const res = await fetch(`${API_URL}/agendamentos`);
-  const lista = await res.json();
-  renderizarTabela(lista);
+let agendamentosGlobal = [];
+
+async function carregarAgendamentos(){
+  agendamentosGlobal = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
+
+  renderAgenda(agendamentosGlobal);
+  renderDashboard(agendamentosGlobal);
 }
 
-async function filtrarData() {
-  const data = document.getElementById('filtroData').value;
-  const res = await fetch(`${API_URL}/agendamentos/${data}`);
-  const lista = await res.json();
-  renderizarTabela(lista);
+function filtrar(){
+  const data = filtroData.value;
+
+  if (!data) return renderAgenda(agendamentosGlobal);
+
+  const filtrados = agendamentosGlobal.filter(a => a.data === data);
+
+  renderAgenda(filtrados);
 }
 
-async function carregarDashboard() {
-  const hoje = new Date().toISOString().split('T')[0];
-  const res = await fetch(`${API_URL}/agendamentos/${hoje}`);
-  const lista = await res.json();
+// ================= AGRUPAMENTO =================
+function agrupar(lista){
+  const grupos = {};
 
-  document.getElementById('totalHoje').innerText =
-    `📊 Atendimentos hoje: ${lista.length}`;
+  lista.forEach(a=>{
+    if (!grupos[a.pedidoId]) {
+      grupos[a.pedidoId] = [];
+    }
+    grupos[a.pedidoId].push(a);
+  });
+
+  return Object.values(grupos);
 }
 
-function renderizarTabela(lista) {
-  const tabela = document.getElementById('tabelaAgendamentos');
-  tabela.innerHTML = '';
+// ================= RENDER AGENDA =================
+function renderAgenda(lista){
+  const container = document.getElementById('listaPedidos');
+  container.innerHTML='';
 
-  lista.forEach(a => {
-    const tr = document.createElement('tr');
+  const grupos = agrupar(lista);
 
-    tr.innerHTML = `
-      <td>${a.nomeCliente}</td>
-      <td>${a.servico}</td>
-      <td>${a.barbeiro}</td>
-      <td>${a.data}</td>
-      <td>${a.hora}</td>
-      <td style="color:${a.status === 'cancelado' ? 'red' : 'lightgreen'}">
-        ${a.status || 'ativo'}
-      </td>
-      <td>
-        ${a.status !== 'cancelado'
-          ? `<button onclick="cancelar('${a._id}')">❌</button>`
-          : '-'}
-      </td>
-    `;
+  grupos.forEach(grupo=>{
+    let total=0;
 
-    tabela.appendChild(tr);
+    const div = document.createElement('div');
+    div.className='pedido';
+
+    let html = `<b>Pedido</b><br>`;
+
+    grupo.forEach(a=>{
+      if (a.status !== 'cancelado') total += a.valor || 0;
+
+      html += `
+        <div class="${a.status==='cancelado'?'cancelado':''}">
+          ${a.nomeCliente} - ${a.servico} - ${a.data} ${a.hora}
+          ${a.status!=='cancelado'
+            ? `<button onclick="cancelar('${a._id}')">❌</button>`
+            : ''
+          }
+        </div>
+      `;
+    });
+
+    html += `<br><b>Total: R$ ${total}</b>`;
+
+    div.innerHTML = html;
+    container.appendChild(div);
   });
 }
 
-async function cancelar(id) {
-  if (!confirm('Cancelar agendamento?')) return;
+// ================= DASHBOARD =================
+function renderDashboard(lista){
+  const ativos = lista.filter(a=>a.status!=='cancelado');
 
-  await fetch(`${API_URL}/agendamentos/${id}/cancelar`, {
-    method: 'PUT'
+  document.getElementById('totalAgendamentos').innerText =
+    `📅 ${ativos.length} atendimentos`;
+
+  const total = ativos.reduce((sum,a)=>sum+(a.valor||0),0);
+
+  document.getElementById('faturamento').innerText =
+    `💰 R$ ${total}`;
+
+  const contagem = {};
+  ativos.forEach(a=>{
+    contagem[a.servico] = (contagem[a.servico]||0)+1;
+  });
+
+  let top = Object.entries(contagem).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('maisVendido').innerText =
+    `🔥 ${top ? top[0] : '-'}`;
+}
+
+// ================= CANCELAR =================
+async function cancelar(id){
+  if (!confirm('Cancelar serviço?')) return;
+
+  await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{
+    method:'PUT'
   });
 
   carregarAgendamentos();
 }
 
-// INIT
+// ================= INIT =================
 carregarBarbeiros();
 carregarServicos();
 carregarAgendamentos();
-carregarDashboard();
 
 </script>
 

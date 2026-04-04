@@ -1,22 +1,55 @@
 const mongoose = require('mongoose');
 
 const AgendamentoSchema = new mongoose.Schema({
-  clienteId: String,
+  clienteId: {
+    type: String,
+    required: true
+  },
+
   nomeCliente: String,
   telefone: String,
 
-  pedidoId: Number, // 🔥 agrupa pedidos
+  // 🔥 AGRUPAMENTO (tipo pedido iFood)
+  grupoId: {
+    type: String,
+    required: true
+  },
 
-  servico: String,
-  barbeiro: String,
-  data: String,
-  hora: String,
+  servico: {
+    type: String,
+    required: true
+  },
 
-  valor: Number,
+  barbeiro: {
+    type: String,
+    required: true
+  },
 
+  data: {
+    type: String,
+    required: true
+  },
+
+  hora: {
+    type: String,
+    required: true
+  },
+
+  valor: {
+    type: Number,
+    default: 0
+  },
+
+  // 🔥 STATUS DO SERVIÇO (individual)
   status: {
     type: String,
-    default: 'ativo'
+    default: 'ativo' // ativo | cancelado
+  },
+
+  // 🔥 PAGAMENTO
+  statusPagamento: {
+    type: String,
+    default: 'pendente' // pendente | pago
   }
 
 }, {

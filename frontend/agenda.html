@@ -10,7 +10,7 @@
       background:#1e1e1e;
       padding:20px;
       margin:20px auto;
-      width:350px;
+      width:360px;
       border-radius:12px;
     }
 
@@ -18,7 +18,7 @@
       width:100%;
       padding:10px;
       margin:5px 0;
-      border-radius:5px;
+      border-radius:6px;
       border:none;
     }
 
@@ -34,6 +34,7 @@
     }
 
     .selecionado { background:#00c853 !important; }
+    .bloqueado { background:#555 !important; cursor:not-allowed; }
 
     .item-carrinho {
       background:#2a2a2a;
@@ -50,6 +51,16 @@
       border-radius:8px;
       text-align:left;
     }
+
+    .cancelado {
+      opacity:0.5;
+      text-decoration:line-through;
+    }
+
+    .btn-cancelar {
+      background:#ff5252;
+      margin-top:5px;
+    }
   </style>
 </head>
 
@@ -61,27 +72,26 @@
 <div class="card">
   <button onclick="logout()">Sair</button>
 
-  <input id="nome" placeholder="Nome">
-  <input id="telefone" placeholder="Telefone">
+  <input id="telefone" placeholder="📱 WhatsApp">
 
   <select id="servico"></select>
   <select id="barbeiro"></select>
-  <input type="date" id="data">
+  <input type="date" id="data" onchange="gerarHorarios()">
 
   <div id="horarios"></div>
 
-  <button onclick="add()">Adicionar</button>
+  <button onclick="add()">➕ Adicionar ao carrinho</button>
 </div>
 
 <div class="card">
-  <h3>Carrinho</h3>
+  <h3>🛒 Carrinho</h3>
   <div id="carrinho"></div>
   <h3 id="total"></h3>
-  <button onclick="finalizar()">Finalizar</button>
+  <button onclick="finalizar()">✅ Finalizar Pedido</button>
 </div>
 
 <div class="card">
-  <h3>Meus pedidos</h3>
+  <h3>📅 Meus pedidos</h3>
   <div id="lista"></div>
 </div>
 
@@ -89,13 +99,21 @@
 
 <script>
 let user = JSON.parse(localStorage.getItem('usuario'));
-document.getElementById('boasVindas').innerText = user.nome;
+
+if (!user) {
+  alert('Faça login');
+  location = 'usuario.html';
+}
+
+document.getElementById('boasVindas').innerText = `👋 ${user.nome}`;
 
 let hora = null;
 let carrinho = [];
+let horariosOcupados = [];
 
-function horarios(){
-  let h = ["09:00","10:00","11:00","14:00","15:00","16:00"];
+// ================= HORÁRIOS =================
+function gerarHorarios(){
+  let h = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
   let div = document.getElementById('horarios');
   div.innerHTML='';
 
@@ -103,29 +121,44 @@ function horarios(){
     let el=document.createElement('div');
     el.innerText=x;
     el.className='hora';
-    el.onclick=()=>{
-      hora=x;
-      document.querySelectorAll('.hora').forEach(e=>e.classList.remove('selecionado'));
-      el.classList.add('selecionado');
-    };
+
+    // 🔥 BLOQUEIO (banco + carrinho)
+    if (horariosOcupados.includes(x) || carrinho.find(i=>i.hora===x && i.data===data.value)) {
+      el.classList.add('bloqueado');
+    } else {
+      el.onclick=()=>{
+        hora=x;
+        document.querySelectorAll('.hora').forEach(e=>e.classList.remove('selecionado'));
+        el.classList.add('selecionado');
+      };
+    }
+
     div.appendChild(el);
   });
 }
 
+// ================= ADD =================
 function add(){
+  if (!hora || !data.value || !barbeiro.value) {
+    return alert('Preencha tudo');
+  }
+
   let s = servico.options[servico.selectedIndex];
-  let item = {
+
+  carrinho.push({
     servico: s.text,
     valor: Number(s.value),
     barbeiro: barbeiro.value,
     data: data.value,
     hora
-  };
+  });
 
-  carrinho.push(item);
+  hora = null;
+  gerarHorarios();
   render();
 }
 
+// ================= CARRINHO =================
 function render(){
   let div = document.getElementById('carrinho');
   div.innerHTML='';
@@ -133,22 +166,34 @@ function render(){
 
   carrinho.forEach((i,idx)=>{
     total+=i.valor;
+
     let el=document.createElement('div');
     el.className='item-carrinho';
-    el.innerHTML = `${i.servico} - ${i.data} ${i.hora} <br> R$${i.valor}
-    <button onclick="rem(${idx})">X</button>`;
+
+    el.innerHTML = `
+      <b>${i.servico}</b><br>
+      🧑 ${i.barbeiro}<br>
+      📅 ${i.data} ${i.hora}<br>
+      💰 R$${i.valor}
+      <button onclick="rem(${idx})">Remover</button>
+    `;
+
     div.appendChild(el);
   });
 
-  document.getElementById('total').innerText = "Total: "+total;
+  document.getElementById('total').innerText = "💰 Total: R$ "+total;
 }
 
 function rem(i){
   carrinho.splice(i,1);
+  gerarHorarios();
   render();
 }
 
+// ================= FINALIZAR =================
 async function finalizar(){
+  if (carrinho.length === 0) return alert('Carrinho vazio');
+
   await fetch(`${API_URL}/agendamentos/lote`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -160,11 +205,15 @@ async function finalizar(){
     })
   });
 
+  alert('✅ Pedido realizado!');
+
   carrinho=[];
   render();
   load();
+  gerarHorarios();
 }
 
+// ================= LISTA =================
 async function load(){
   let res = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`);
   let lista = await res.json();
@@ -176,10 +225,15 @@ async function load(){
     let el=document.createElement('div');
     el.className='agendamento';
 
-    let html = `<b>Pedido</b><br>Total: ${p.total}<br><br>`;
+    let html = `<b>🧾 Pedido</b><br>💰 Total: R$ ${p.total}<br><br>`;
 
     p.itens.forEach(i=>{
-      html+=`${i.servico} - ${i.data} ${i.hora}<br>`;
+      html+=`
+        <div class="${i.status==='cancelado'?'cancelado':''}">
+          ${i.servico} - ${i.data} ${i.hora}
+          ${i.status==='ativo' ? `<button class="btn-cancelar" onclick="cancelar('${i._id}')">Cancelar</button>`:''}
+        </div>
+      `;
     });
 
     el.innerHTML=html;
@@ -187,14 +241,28 @@ async function load(){
   });
 }
 
+// ================= CANCELAR =================
+async function cancelar(id){
+  await fetch(`${API_URL}/agendamentos/${id}/cancelar`, {
+    method:'PUT'
+  });
+
+  load();
+  gerarHorarios();
+}
+
+// ================= DADOS =================
 async function carregar(){
   let s = await fetch(`${API_URL}/servicos`).then(r=>r.json());
   let b = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
 
+  servico.innerHTML='';
+  barbeiro.innerHTML='';
+
   s.forEach(x=>{
     let o=document.createElement('option');
     o.value=x.preco;
-    o.text=x.nome;
+    o.text=`${x.nome} - R$ ${x.preco}`;
     servico.appendChild(o);
   });
 
@@ -205,6 +273,22 @@ async function carregar(){
     barbeiro.appendChild(o);
   });
 }
+
+// ================= HORÁRIOS OCUPADOS =================
+async function carregarOcupados(){
+  let res = await fetch(`${API_URL}/agendamentos`);
+  let lista = await res.json();
+
+  horariosOcupados = lista
+    .filter(a => a.data === data.value && a.status !== 'cancelado')
+    .map(a => a.hora);
+
+  gerarHorarios();
+}
+
+// ================= INIT =================
+data.addEventListener('change', carregarOcupados);
+barbeiro.addEventListener('change', carregarOcupados);
 
 function logout(){
   localStorage.clear();
