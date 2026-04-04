@@ -73,10 +73,19 @@ app.delete('/servicos/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
+// ================= GERAR PIX (SIMULADO) =================
+function gerarPixSimulado(valor) {
+  return {
+    qrCode: `PIX-CODE-${Date.now()}`,
+    copiaCola: `000201PIX${valor}${Date.now()}`,
+    valor
+  };
+}
+
 // ================= AGENDAMENTO EM LOTE =================
 app.post('/agendamentos/lote', async (req, res) => {
   try {
-    const { clienteId, nomeCliente, telefone, itens } = req.body;
+    const { clienteId, nomeCliente, telefone, itens, formaPagamento } = req.body;
 
     if (!itens || itens.length === 0) {
       return res.status(400).json({ erro: 'Carrinho vazio' });
@@ -84,7 +93,7 @@ app.post('/agendamentos/lote', async (req, res) => {
 
     const grupoId = Date.now().toString();
 
-    // valida conflito
+    // 🔥 valida conflito
     for (let item of itens) {
       const conflito = await Agendamento.findOne({
         data: item.data,
@@ -100,6 +109,20 @@ app.post('/agendamentos/lote', async (req, res) => {
       }
     }
 
+    // 🔥 calcula total
+    const total = itens.reduce((sum, i) => sum + (i.valor || 0), 0);
+
+    // 🔥 cria PIX se necessário
+    let pix = null;
+    let statusPagamento = 'pendente';
+
+    if (formaPagamento === 'pix') {
+      pix = gerarPixSimulado(total);
+    } else {
+      statusPagamento = 'pendente';
+    }
+
+    // 🔥 cria agendamentos
     const agendamentos = await Promise.all(
       itens.map(item =>
         Agendamento.create({
@@ -107,13 +130,18 @@ app.post('/agendamentos/lote', async (req, res) => {
           nomeCliente,
           telefone,
           grupoId,
+          formaPagamento,
+          statusPagamento,
           ...item,
           status: 'ativo'
         })
       )
     );
 
-    res.json(agendamentos);
+    res.json({
+      agendamentos,
+      pix
+    });
 
   } catch (err) {
     res.status(500).json({ erro: 'Erro ao criar agendamento' });
@@ -143,7 +171,8 @@ app.get('/agendamentos/cliente/:id', async (req, res) => {
       grupos[a.grupoId] = {
         grupoId: a.grupoId,
         itens: [],
-        total: 0
+        total: 0,
+        statusPagamento: a.statusPagamento
       };
     }
 
@@ -166,6 +195,16 @@ app.put('/agendamentos/:id/cancelar', async (req, res) => {
   );
 
   res.json(ag);
+});
+
+// ================= SIMULAR PAGAMENTO PIX =================
+app.post('/pagamentos/:grupoId/pagar', async (req, res) => {
+  await Agendamento.updateMany(
+    { grupoId: req.params.grupoId },
+    { statusPagamento: 'pago' }
+  );
+
+  res.json({ ok: true });
 });
 
 // ================= START =================

@@ -61,6 +61,13 @@
       background:#ff5252;
       margin-top:5px;
     }
+
+    .pix-box {
+      background:#2a2a2a;
+      padding:10px;
+      margin-top:10px;
+      border-radius:8px;
+    }
   </style>
 </head>
 
@@ -87,7 +94,17 @@
   <h3>🛒 Carrinho</h3>
   <div id="carrinho"></div>
   <h3 id="total"></h3>
+
+  <!-- 🔥 PAGAMENTO -->
+  <select id="tipoPagamento">
+    <option value="local">💈 Pagar no local</option>
+    <option value="pix">⚡ Pagar com PIX</option>
+  </select>
+
   <button onclick="finalizar()">✅ Finalizar Pedido</button>
+
+  <!-- 🔥 PIX AREA -->
+  <div id="pixArea" class="pix-box" style="display:none;"></div>
 </div>
 
 <div class="card">
@@ -202,6 +219,8 @@ async function finalizar(){
   if (!telefone.value) return alert('Informe o telefone');
   if (carrinho.length === 0) return alert('Carrinho vazio');
 
+  const tipoPagamento = document.getElementById('tipoPagamento').value;
+
   await fetch(`${API_URL}/agendamentos/lote`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -209,9 +228,23 @@ async function finalizar(){
       clienteId:user._id,
       nomeCliente:user.nome,
       telefone:telefone.value,
+      tipoPagamento,
       itens:carrinho
     })
   });
+
+  // 🔥 PIX SIMULADO
+  if (tipoPagamento === 'pix') {
+    const total = carrinho.reduce((sum,i)=>sum+i.valor,0);
+
+    document.getElementById('pixArea').style.display = 'block';
+    document.getElementById('pixArea').innerHTML = `
+      <h3>⚡ Pagamento PIX</h3>
+      <p>Valor: <b>R$ ${total}</b></p>
+      <p>Chave PIX: <b>barbearia@email.com</b></p>
+      <p>📱 Faça o pagamento e aguarde confirmação</p>
+    `;
+  }
 
   alert('✅ Pedido realizado!');
 
