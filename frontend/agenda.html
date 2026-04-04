@@ -36,10 +36,18 @@
     .selecionado { background:#00c853 !important; }
     .bloqueado { background:#555 !important; cursor:not-allowed; }
 
-    .item-carrinho, .agendamento {
+    .item-carrinho {
       background:#2a2a2a;
       padding:10px;
       margin:5px;
+      border-radius:8px;
+      text-align:left;
+    }
+
+    .agendamento {
+      background:#2a2a2a;
+      margin:10px;
+      padding:10px;
       border-radius:8px;
       text-align:left;
     }
@@ -53,18 +61,6 @@
       background:#ff5252;
       margin-top:5px;
     }
-
-    .pix-box {
-      background:#000;
-      padding:10px;
-      margin-top:10px;
-      border-radius:8px;
-      font-size:12px;
-      word-break:break-all;
-    }
-
-    .status-pago { color: lightgreen; }
-    .status-pendente { color: orange; }
   </style>
 </head>
 
@@ -84,14 +80,14 @@
 
   <div id="horarios"></div>
 
-  <button onclick="add()">➕ Adicionar</button>
+  <button onclick="add()">➕ Adicionar ao carrinho</button>
 </div>
 
 <div class="card">
   <h3>🛒 Carrinho</h3>
   <div id="carrinho"></div>
   <h3 id="total"></h3>
-  <button onclick="finalizar()">✅ Finalizar</button>
+  <button onclick="finalizar()">✅ Finalizar Pedido</button>
 </div>
 
 <div class="card">
@@ -102,6 +98,7 @@
 <script src="config.js"></script>
 
 <script>
+// ================= USER =================
 let user = JSON.parse(localStorage.getItem('usuario'));
 
 if (!user) {
@@ -109,41 +106,50 @@ if (!user) {
   location = 'usuario.html';
 }
 
-boasVindas.innerText = `👋 ${user.nome}`;
+document.getElementById('boasVindas').innerText = `👋 ${user.nome}`;
 
+// ================= STATE =================
 let hora = null;
 let carrinho = [];
 let horariosOcupados = [];
 
 // ================= HORÁRIOS =================
 function gerarHorarios(){
-  let h = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
-  horarios.innerHTML='';
+  const horas = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
 
-  h.forEach(x=>{
-    let el=document.createElement('div');
-    el.innerText=x;
-    el.className='hora';
+  const div = document.getElementById('horarios');
+  div.innerHTML = '';
 
-    if (horariosOcupados.includes(x) || carrinho.find(i=>i.hora===x && i.data===data.value)) {
+  horas.forEach(h => {
+    const el = document.createElement('div');
+    el.innerText = h;
+    el.className = 'hora';
+
+    const ocupadoBanco = horariosOcupados.includes(h);
+    const ocupadoCarrinho = carrinho.find(i => i.hora === h && i.data === data.value);
+
+    if (ocupadoBanco || ocupadoCarrinho) {
       el.classList.add('bloqueado');
     } else {
-      el.onclick=()=>{
-        hora=x;
-        document.querySelectorAll('.hora').forEach(e=>e.classList.remove('selecionado'));
+      el.onclick = () => {
+        hora = h;
+        document.querySelectorAll('.hora').forEach(e => e.classList.remove('selecionado'));
         el.classList.add('selecionado');
       };
     }
 
-    horarios.appendChild(el);
+    div.appendChild(el);
   });
 }
 
 // ================= ADD =================
 function add(){
-  if (!hora || !data.value || !barbeiro.value) return alert('Preencha tudo');
+  if (!hora || !data.value || !barbeiro.value) {
+    alert('Preencha tudo');
+    return;
+  }
 
-  let s = servico.options[servico.selectedIndex];
+  const s = servico.options[servico.selectedIndex];
 
   carrinho.push({
     servico: s.text,
@@ -153,33 +159,36 @@ function add(){
     hora
   });
 
-  hora=null;
+  hora = null;
   gerarHorarios();
   render();
 }
 
 // ================= CARRINHO =================
 function render(){
-  carrinho.innerHTML='';
-  let total=0;
+  const div = document.getElementById('carrinho');
+  div.innerHTML = '';
+
+  let total = 0;
 
   carrinho.forEach((i,idx)=>{
-    total+=i.valor;
+    total += i.valor;
 
-    let el=document.createElement('div');
-    el.className='item-carrinho';
+    const el = document.createElement('div');
+    el.className = 'item-carrinho';
 
     el.innerHTML = `
       <b>${i.servico}</b><br>
-      ${i.data} ${i.hora}<br>
-      R$${i.valor}
+      🧑 ${i.barbeiro}<br>
+      📅 ${i.data} ${i.hora}<br>
+      💰 R$${i.valor}
       <button onclick="rem(${idx})">Remover</button>
     `;
 
-    carrinho.appendChild(el);
+    div.appendChild(el);
   });
 
-  totalEl.innerText = "💰 Total: R$ "+total;
+  document.getElementById('total').innerText = "💰 Total: R$ " + total;
 }
 
 function rem(i){
@@ -190,9 +199,10 @@ function rem(i){
 
 // ================= FINALIZAR =================
 async function finalizar(){
+  if (!telefone.value) return alert('Informe o telefone');
   if (carrinho.length === 0) return alert('Carrinho vazio');
 
-  const res = await fetch(`${API_URL}/agendamentos/lote`,{
+  await fetch(`${API_URL}/agendamentos/lote`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
@@ -203,95 +213,84 @@ async function finalizar(){
     })
   });
 
-  const dataRes = await res.json();
+  alert('✅ Pedido realizado!');
 
-  alert(`💳 PIX gerado!\n\n${dataRes.pix.copiaECola}`);
-
-  carrinho=[];
+  carrinho = [];
   render();
   load();
-}
-
-// ================= PAGAR =================
-async function pagar(grupoId){
-  await fetch(`${API_URL}/pagamentos/${grupoId}/pagar`, { method:'POST' });
-  alert('Pagamento confirmado!');
-  load();
+  carregarOcupados();
 }
 
 // ================= LISTA =================
 async function load(){
-  let res = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`);
-  let lista = await res.json();
+  const res = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`);
+  const lista = await res.json();
 
-  listaDiv.innerHTML='';
+  const div = document.getElementById('lista');
+  div.innerHTML = '';
 
   lista.forEach(p=>{
-    let el=document.createElement('div');
-    el.className='agendamento';
+    const el = document.createElement('div');
+    el.className = 'agendamento';
 
-    let status = p.statusPagamento === 'pago'
-      ? `<span class="status-pago">🟢 Pago</span>`
-      : `<span class="status-pendente">🟡 Pendente</span>`;
-
-    let html = `
-      <b>Pedido</b><br>
-      ${status}<br>
-      💰 Total: R$ ${p.total}<br><br>
-    `;
+    let html = `<b>🧾 Pedido</b><br>💰 Total: R$ ${p.total}<br><br>`;
 
     p.itens.forEach(i=>{
-      html+=`
+      html += `
         <div class="${i.status==='cancelado'?'cancelado':''}">
           ${i.servico} - ${i.data} ${i.hora}
           ${i.status==='ativo'
             ? `<button class="btn-cancelar" onclick="cancelar('${i._id}')">Cancelar</button>`
-            : ''}
+            : ''
+          }
         </div>
       `;
     });
 
-    if (p.statusPagamento !== 'pago') {
-      html += `
-        <button onclick="pagar('${p.grupoId}')">💳 Já paguei</button>
-      `;
-    }
-
-    el.innerHTML=html;
-    listaDiv.appendChild(el);
+    el.innerHTML = html;
+    div.appendChild(el);
   });
 }
 
 // ================= CANCELAR =================
 async function cancelar(id){
-  await fetch(`${API_URL}/agendamentos/${id}/cancelar`, { method:'PUT' });
+  await fetch(`${API_URL}/agendamentos/${id}/cancelar`, {
+    method:'PUT'
+  });
+
   load();
+  carregarOcupados();
 }
 
 // ================= DADOS =================
 async function carregar(){
-  let s = await fetch(`${API_URL}/servicos`).then(r=>r.json());
-  let b = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
+  const s = await fetch(`${API_URL}/servicos`).then(r=>r.json());
+  const b = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
+
+  servico.innerHTML = '';
+  barbeiro.innerHTML = '';
 
   s.forEach(x=>{
-    let o=document.createElement('option');
+    const o=document.createElement('option');
     o.value=x.preco;
     o.text=`${x.nome} - R$ ${x.preco}`;
     servico.appendChild(o);
   });
 
   b.forEach(x=>{
-    let o=document.createElement('option');
+    const o=document.createElement('option');
     o.value=x.nome;
     o.text=x.nome;
     barbeiro.appendChild(o);
   });
 }
 
-// ================= OCUPADOS =================
+// ================= HORÁRIOS OCUPADOS =================
 async function carregarOcupados(){
-  let res = await fetch(`${API_URL}/agendamentos`);
-  let lista = await res.json();
+  if (!data.value) return;
+
+  const res = await fetch(`${API_URL}/agendamentos`);
+  const lista = await res.json();
 
   horariosOcupados = lista
     .filter(a => a.data === data.value && a.status !== 'cancelado')
@@ -300,21 +299,20 @@ async function carregarOcupados(){
   gerarHorarios();
 }
 
-// ================= INIT =================
+// ================= EVENTS =================
 data.addEventListener('change', carregarOcupados);
 barbeiro.addEventListener('change', carregarOcupados);
 
+// ================= LOGOUT =================
 function logout(){
   localStorage.clear();
   location='usuario.html';
 }
 
-const totalEl = document.getElementById('total');
-const listaDiv = document.getElementById('lista');
-
+// ================= INIT =================
 carregar();
-gerarHorarios();
 load();
+gerarHorarios();
 </script>
 
 </body>
