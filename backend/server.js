@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-
 require('dotenv').config();
 
 const app = express();
@@ -19,7 +18,6 @@ mongoose.connect(process.env.MONGO_URL)
 // =========================
 // MODELS
 // =========================
-const Cliente = require('./models/Cliente');
 const Agendamento = require('./models/agendamentos');
 const Barbeiro = require('./models/Barbeiro');
 const Servico = require('./models/Servico');
@@ -27,16 +25,16 @@ const Usuario = require('./models/Usuario');
 const Plano = require('./models/Plano');
 
 // =========================
-// ROTA TESTE
+// ROOT
 // =========================
 app.get('/', (req, res) => {
-  res.send('API FUNCIONANDO 🚀');
+  res.send('🚀 API OK');
 });
 
 // =========================
 // LOGIN ADMIN
 // =========================
-const USUARIO = {
+const ADMIN = {
   email: 'admin@barbearia.com',
   senha: '123456'
 };
@@ -44,7 +42,7 @@ const USUARIO = {
 app.post('/login', (req, res) => {
   const { email, senha } = req.body;
 
-  if (email !== USUARIO.email || senha !== USUARIO.senha) {
+  if (email !== ADMIN.email || senha !== ADMIN.senha) {
     return res.status(401).json({ erro: 'Login inválido' });
   }
 
@@ -53,52 +51,38 @@ app.post('/login', (req, res) => {
 });
 
 // =========================
-// USUÁRIO CLIENTE
+// CLIENTE
 // =========================
 app.post('/clientes/registro', async (req, res) => {
-  try {
-    const { nome, email, senha } = req.body;
+  const { nome, email, senha } = req.body;
 
-    const existe = await Usuario.findOne({ email });
+  const existe = await Usuario.findOne({ email });
+  if (existe) return res.status(400).json({ erro: 'Email já existe' });
 
-    if (existe) {
-      return res.status(400).json({ erro: 'Email já cadastrado' });
-    }
-
-    const usuario = await Usuario.create({ nome, email, senha });
-    res.json(usuario);
-
-  } catch {
-    res.status(500).json({ erro: 'Erro ao cadastrar' });
-  }
+  const usuario = await Usuario.create({ nome, email, senha });
+  res.json(usuario);
 });
 
 app.post('/clientes/login', async (req, res) => {
-  try {
-    const { email, senha } = req.body;
+  const { email, senha } = req.body;
 
-    const usuario = await Usuario.findOne({ email, senha });
+  const usuario = await Usuario.findOne({ email, senha });
+  if (!usuario) return res.status(401).json({ erro: 'Login inválido' });
 
-    if (!usuario) {
-      return res.status(401).json({ erro: 'Login inválido' });
-    }
+  const token = jwt.sign({ id: usuario._id }, 'segredo');
 
-    const token = jwt.sign({ id: usuario._id }, 'segredo');
-
-    res.json({ token, usuario });
-
-  } catch {
-    res.status(500).json({ erro: 'Erro no login' });
-  }
+  res.json({ token, usuario });
 });
 
-// criar ou atualizar plano
-app.post('/plano', async (req, res) => {
-  const { nome, valor, limiteMensal, ativo } = req.body;
+// =========================
+// 🔥 PLANO
+// =========================
 
+// criar / atualizar plano
+app.post('/plano', async (req, res) => {
   const plano = await Plano.findOneAndUpdate(
     {},
-    { nome, valor, limiteMensal, ativo },
+    req.body,
     { upsert: true, new: true }
   );
 
@@ -111,111 +95,103 @@ app.get('/plano', async (req, res) => {
   res.json(plano);
 });
 
-//pagar plano fidelidade
+// assinar plano
 app.post('/plano/assinar/:id', async (req, res) => {
-  try {
-    const usuario = await Usuario.findByIdAndUpdate(
-      req.params.id,
-      { planoAtivo: true },
-      { new: true }
-    );
+  const usuario = await Usuario.findByIdAndUpdate(
+    req.params.id,
+    {
+      planoAtivo: true,
+      validadePlano: new Date(new Date().setMonth(new Date().getMonth() + 1))
+    },
+    { new: true }
+  );
 
-    res.json(usuario);
-
-  } catch {
-    res.status(500).json({ erro: 'Erro ao ativar plano' });
-  }
+  res.json(usuario);
 });
 
 // =========================
-// AGENDAMENTOS
+// 🔥 AGENDAMENTOS (COM GRUPO)
 // =========================
 
-// CRIAR
-app.post('/agendamentos', async (req, res) => {
+// CRIAR EM LOTE (CARRINHO)
+app.post('/agendamentos/lote', async (req, res) => {
   try {
-    const { data, hora, barbeiro, clienteId, valor } = req.body;
+    const { clienteId, nomeCliente, telefone, itens } = req.body;
 
-    if (!data || !hora || !barbeiro) {
-      return res.status(400).json({ erro: 'Dados incompletos' });
-    }
+    const pedidoId = new mongoose.Types.ObjectId(); // 🔥 AGRUPADOR
 
-    const conflito = await Agendamento.findOne({ data, hora, barbeiro });
+    let agendamentosCriados = [];
 
-    if (conflito) {
-      return res.status(400).json({ erro: 'Horário já ocupado' });
-    }
+    for (let item of itens) {
 
-    // 🔥 BUSCA USUÁRIO
-    let valorFinal = valor;
+      // conflito
+      const conflito = await Agendamento.findOne({
+        data: item.data,
+        hora: item.hora,
+        barbeiro: item.barbeiro
+      });
 
-    if (clienteId) {
+      if (conflito) {
+        return res.status(400).json({
+          erro: `Horário ocupado: ${item.data} ${item.hora}`
+        });
+      }
+
+      let valorFinal = item.valor;
+
+      // plano fidelidade
       const usuario = await Usuario.findById(clienteId);
 
-      if (usuario && usuario.planoAtivo) {
-        // verifica validade
-        if (!usuario.validadePlano || usuario.validadePlano >= new Date()) {
-          valorFinal = 0;
-        } else {
-          // plano expirou
-          usuario.planoAtivo = false;
-          await usuario.save();
-        }
+      if (usuario?.planoAtivo && usuario.validadePlano > new Date()) {
+        valorFinal = 0;
       }
+
+      const novo = await Agendamento.create({
+        clienteId,
+        nomeCliente,
+        telefone,
+        pedidoId, // 🔥 chave do grupo
+        ...item,
+        valor: valorFinal,
+        status: 'ativo'
+      });
+
+      agendamentosCriados.push(novo);
     }
 
-    const agendamento = await Agendamento.create({
-      ...req.body,
-      valor: valorFinal,
-      status: 'ativo'
+    res.json({
+      pedidoId,
+      agendamentos: agendamentosCriados
     });
-
-    res.json(agendamento);
 
   } catch (err) {
-    res.status(500).json({ erro: 'Erro ao criar agendamento' });
+    res.status(500).json({ erro: 'Erro ao criar lote' });
   }
 });
 
-// REMARCAR
-app.put('/agendamentos/:id/remarcar', async (req, res) => {
-  try {
-    const { data, hora, barbeiro } = req.body;
-
-    const conflito = await Agendamento.findOne({
-      data,
-      hora,
-      barbeiro,
-      _id: { $ne: req.params.id }
-    });
-
-    if (conflito) {
-      return res.status(400).json({ erro: 'Horário já ocupado' });
-    }
-
-    const atualizado = await Agendamento.findByIdAndUpdate(
-      req.params.id,
-      { data, hora },
-      { new: true }
-    );
-
-    res.json(atualizado);
-
-  } catch {
-    res.status(500).json({ erro: 'Erro ao remarcar' });
-  }
-});
-
-// LISTAR
-app.get('/agendamentos', async (req, res) => {
-  const lista = await Agendamento.find().sort({ data: 1, hora: 1 });
-  res.json(lista);
-});
-
-// POR CLIENTE
+// LISTAR AGRUPADO
 app.get('/agendamentos/cliente/:id', async (req, res) => {
   const lista = await Agendamento.find({ clienteId: req.params.id });
-  res.json(lista);
+
+  // 🔥 AGRUPAR POR PEDIDO
+  const agrupado = {};
+
+  lista.forEach(a => {
+    const key = a.pedidoId || 'sem-grupo';
+
+    if (!agrupado[key]) {
+      agrupado[key] = {
+        pedidoId: key,
+        itens: [],
+        total: 0
+      };
+    }
+
+    agrupado[key].itens.push(a);
+    agrupado[key].total += a.valor || 0;
+  });
+
+  res.json(Object.values(agrupado));
 });
 
 // CANCELAR
@@ -233,8 +209,8 @@ app.put('/agendamentos/:id/cancelar', async (req, res) => {
 // SERVIÇOS
 // =========================
 app.post('/servicos', async (req, res) => {
-  const servico = await Servico.create(req.body);
-  res.json(servico);
+  const s = await Servico.create(req.body);
+  res.json(s);
 });
 
 app.get('/servicos', async (req, res) => {
@@ -246,8 +222,8 @@ app.get('/servicos', async (req, res) => {
 // BARBEIROS
 // =========================
 app.post('/barbeiros', async (req, res) => {
-  const barbeiro = await Barbeiro.create(req.body);
-  res.json(barbeiro);
+  const b = await Barbeiro.create(req.body);
+  res.json(b);
 });
 
 app.get('/barbeiros', async (req, res) => {
@@ -256,42 +232,10 @@ app.get('/barbeiros', async (req, res) => {
 });
 
 // =========================
-// PLANO FIDELIDADE
-// =========================
-
-// ATIVAR / DESATIVAR
-app.put('/clientes/:id/plano', async (req, res) => {
-  try {
-    const { ativo, dias } = req.body;
-
-    let validade = null;
-
-    if (ativo && dias) {
-      validade = new Date();
-      validade.setDate(validade.getDate() + dias);
-    }
-
-    const usuario = await Usuario.findByIdAndUpdate(
-      req.params.id,
-      {
-        planoAtivo: ativo,
-        validadePlano: validade
-      },
-      { new: true }
-    );
-
-    res.json(usuario);
-
-  } catch (err) {
-    res.status(500).json({ erro: 'Erro ao atualizar plano' });
-  }
-});
-
-// =========================
 // START
 // =========================
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`🚀 Rodando na porta ${PORT}`);
 });
