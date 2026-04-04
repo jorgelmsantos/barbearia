@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const AgendamentoSchema = new mongoose.Schema({
   clienteId: String,
-  grupoId: String, // 🔥 AGRUPADOR
-
   nomeCliente: String,
   telefone: String,
+
+  pedidoId: Number, // 🔥 agrupa pedidos
 
   servico: String,
   barbeiro: String,
@@ -17,11 +17,6 @@ const AgendamentoSchema = new mongoose.Schema({
   status: {
     type: String,
     default: 'ativo'
-  },
-
-  statusPagamento: {
-    type: String,
-    default: 'pendente'
   }
 
 }, {

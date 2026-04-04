@@ -4,51 +4,51 @@
   <title>Barbearia</title>
 
   <style>
-    body { background: #111; color: white; font-family: Arial; text-align: center; }
+    body { background:#111; color:white; font-family:Arial; text-align:center; }
 
     .card {
-      background: #1e1e1e;
-      padding: 20px;
-      margin: 20px auto;
-      width: 350px;
-      border-radius: 12px;
+      background:#1e1e1e;
+      padding:20px;
+      margin:20px auto;
+      width:350px;
+      border-radius:12px;
     }
 
     input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 5px;
-      border: none;
+      width:100%;
+      padding:10px;
+      margin:5px 0;
+      border-radius:5px;
+      border:none;
     }
 
-    button { background: #00c853; color: white; cursor: pointer; }
+    button { background:#00c853; color:white; cursor:pointer; }
 
     .hora {
-      display: inline-block;
-      padding: 10px;
-      margin: 5px;
-      background: #2a2a2a;
-      cursor: pointer;
-      border-radius: 8px;
+      display:inline-block;
+      padding:10px;
+      margin:5px;
+      background:#2a2a2a;
+      cursor:pointer;
+      border-radius:8px;
     }
 
-    .selecionado { background: #00c853 !important; }
+    .selecionado { background:#00c853 !important; }
 
     .item-carrinho {
-      background: #2a2a2a;
-      padding: 10px;
-      margin: 5px;
-      border-radius: 8px;
-      text-align: left;
+      background:#2a2a2a;
+      padding:10px;
+      margin:5px;
+      border-radius:8px;
+      text-align:left;
     }
 
     .agendamento {
-      background: #2a2a2a;
-      margin: 10px;
-      padding: 10px;
-      border-radius: 8px;
-      text-align: left;
+      background:#2a2a2a;
+      margin:10px;
+      padding:10px;
+      border-radius:8px;
+      text-align:left;
     }
   </style>
 </head>
@@ -61,234 +61,159 @@
 <div class="card">
   <button onclick="logout()">Sair</button>
 
-  <input id="nome" placeholder="👤 Nome completo">
-  <input id="telefone" placeholder="📱 WhatsApp">
+  <input id="nome" placeholder="Nome">
+  <input id="telefone" placeholder="Telefone">
 
-  <select id="servico" onchange="atualizarPreco()"></select>
-  <p id="preco">Valor: R$0</p>
-
+  <select id="servico"></select>
   <select id="barbeiro"></select>
   <input type="date" id="data">
 
   <div id="horarios"></div>
 
-  <button onclick="adicionarCarrinho()">➕ Adicionar ao carrinho</button>
+  <button onclick="add()">Adicionar</button>
 </div>
 
 <div class="card">
-  <h3>🛒 Carrinho</h3>
+  <h3>Carrinho</h3>
   <div id="carrinho"></div>
-  <h3 id="total">Total: R$ 0</h3>
-
-  <button onclick="finalizarAgendamentos()">✅ Finalizar Pedido</button>
+  <h3 id="total"></h3>
+  <button onclick="finalizar()">Finalizar</button>
 </div>
 
 <div class="card">
-  <h3>📅 Meus Agendamentos</h3>
-  <div id="meusAgendamentos"></div>
+  <h3>Meus pedidos</h3>
+  <div id="lista"></div>
 </div>
 
 <script src="config.js"></script>
 
 <script>
-let usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
+let user = JSON.parse(localStorage.getItem('usuario'));
+document.getElementById('boasVindas').innerText = user.nome;
 
-if (!usuarioLogado) {
-  alert('Faça login');
-  window.location.href = 'usuario.html';
-}
-
-document.getElementById('boasVindas').innerHTML =
-  `👋 Bem-vindo, <b>${usuarioLogado.nome}</b>`;
-
-function logout() {
-  localStorage.removeItem('usuario');
-  window.location.href = 'usuario.html';
-}
-
-let horaSelecionada = null;
+let hora = null;
 let carrinho = [];
-let grupoIdAtual = Date.now();
 
-// horários
-function gerarHorarios() {
-  const container = document.getElementById('horarios');
-  container.innerHTML = '';
+function horarios(){
+  let h = ["09:00","10:00","11:00","14:00","15:00","16:00"];
+  let div = document.getElementById('horarios');
+  div.innerHTML='';
 
-  ["09:00","09:30","10:00","10:30","11:00","11:30","14:00","14:30","15:00","15:30","16:00"]
-  .forEach(h => {
-    const div = document.createElement('div');
-    div.innerText = h;
-    div.className = 'hora';
-
-    div.onclick = () => {
-      document.querySelectorAll('.hora').forEach(el => el.classList.remove('selecionado'));
-      div.classList.add('selecionado');
-      horaSelecionada = h;
+  h.forEach(x=>{
+    let el=document.createElement('div');
+    el.innerText=x;
+    el.className='hora';
+    el.onclick=()=>{
+      hora=x;
+      document.querySelectorAll('.hora').forEach(e=>e.classList.remove('selecionado'));
+      el.classList.add('selecionado');
     };
-
-    container.appendChild(div);
+    div.appendChild(el);
   });
 }
 
-// carrinho
-function adicionarCarrinho() {
-  const barbeiro = document.getElementById('barbeiro').value;
-  const data = document.getElementById('data').value;
+function add(){
+  let s = servico.options[servico.selectedIndex];
+  let item = {
+    servico: s.text,
+    valor: Number(s.value),
+    barbeiro: barbeiro.value,
+    data: data.value,
+    hora
+  };
 
-  const servicoSelect = document.getElementById('servico');
-  const servicoTexto = servicoSelect.options[servicoSelect.selectedIndex].text;
-  const valor = Number(servicoSelect.value);
-
-  if (!data || !barbeiro || !horaSelecionada) {
-    return alert('Preencha tudo');
-  }
-
-  carrinho.push({ servico: servicoTexto, valor, barbeiro, data, hora: horaSelecionada });
-
-  renderCarrinho();
+  carrinho.push(item);
+  render();
 }
 
-function renderCarrinho() {
-  const div = document.getElementById('carrinho');
-  div.innerHTML = '';
+function render(){
+  let div = document.getElementById('carrinho');
+  div.innerHTML='';
+  let total=0;
 
-  let total = 0;
-
-  carrinho.forEach((item, index) => {
-    total += item.valor;
-
-    const el = document.createElement('div');
-    el.className = 'item-carrinho';
-
-    el.innerHTML = `
-      <b>${item.servico}</b><br>
-      🧑 ${item.barbeiro}<br>
-      📅 ${item.data} ${item.hora}<br>
-      💰 R$ ${item.valor}
-      <button onclick="removerItem(${index})">Remover</button>
-    `;
-
+  carrinho.forEach((i,idx)=>{
+    total+=i.valor;
+    let el=document.createElement('div');
+    el.className='item-carrinho';
+    el.innerHTML = `${i.servico} - ${i.data} ${i.hora} <br> R$${i.valor}
+    <button onclick="rem(${idx})">X</button>`;
     div.appendChild(el);
   });
 
-  document.getElementById('total').innerText =
-    `💰 Total do pedido: R$ ${total}`;
+  document.getElementById('total').innerText = "Total: "+total;
 }
 
-function removerItem(index) {
-  carrinho.splice(index, 1);
-  renderCarrinho();
+function rem(i){
+  carrinho.splice(i,1);
+  render();
 }
 
-// finalizar
-async function finalizarAgendamentos() {
-  const telefone = document.getElementById('telefone').value;
-
-  if (!telefone) return alert('Informe telefone');
-  if (carrinho.length === 0) return alert('Carrinho vazio');
-
-  for (let item of carrinho) {
-    await fetch(`${API_URL}/agendamentos`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        clienteId: usuarioLogado._id,
-        nomeCliente: usuarioLogado.nome,
-        telefone,
-        grupoId: grupoIdAtual,
-        ...item
-      })
-    });
-  }
-
-  alert('✅ Pedido realizado!');
-
-  carrinho = [];
-  grupoIdAtual = Date.now();
-
-  renderCarrinho();
-  carregarMeusAgendamentos();
-}
-
-// AGRUPADO
-async function carregarMeusAgendamentos() {
-  const res = await fetch(`${API_URL}/agendamentos/cliente/${usuarioLogado._id}`);
-  const lista = await res.json();
-
-  const container = document.getElementById('meusAgendamentos');
-  container.innerHTML = '';
-
-  const grupos = {};
-
-  lista.forEach(a => {
-    if (!grupos[a.grupoId]) grupos[a.grupoId] = [];
-    grupos[a.grupoId].push(a);
+async function finalizar(){
+  await fetch(`${API_URL}/agendamentos/lote`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      clienteId:user._id,
+      nomeCliente:user.nome,
+      telefone:telefone.value,
+      itens:carrinho
+    })
   });
 
-  Object.values(grupos).forEach(grupo => {
-    let total = 0;
+  carrinho=[];
+  render();
+  load();
+}
 
-    const div = document.createElement('div');
-    div.className = 'agendamento';
+async function load(){
+  let res = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`);
+  let lista = await res.json();
 
-    grupo.forEach(a => {
-      total += a.valor || 0;
+  let div=document.getElementById('lista');
+  div.innerHTML='';
 
-      const item = document.createElement('div');
-      item.innerHTML = `${a.servico} - ${a.data} ${a.hora}`;
-      div.appendChild(item);
+  lista.forEach(p=>{
+    let el=document.createElement('div');
+    el.className='agendamento';
+
+    let html = `<b>Pedido</b><br>Total: ${p.total}<br><br>`;
+
+    p.itens.forEach(i=>{
+      html+=`${i.servico} - ${i.data} ${i.hora}<br>`;
     });
 
-    div.innerHTML += `<br><b>💰 Total: R$ ${total}</b>`;
-
-    container.appendChild(div);
+    el.innerHTML=html;
+    div.appendChild(el);
   });
 }
 
-// dados
-async function carregarServicos() {
-  const res = await fetch(`${API_URL}/servicos`);
-  const lista = await res.json();
+async function carregar(){
+  let s = await fetch(`${API_URL}/servicos`).then(r=>r.json());
+  let b = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
 
-  const select = document.getElementById('servico');
-  select.innerHTML = '';
-
-  lista.forEach(s => {
-    const option = document.createElement('option');
-    option.value = s.preco;
-    option.text = `${s.nome} - R$ ${s.preco}`;
-    select.appendChild(option);
+  s.forEach(x=>{
+    let o=document.createElement('option');
+    o.value=x.preco;
+    o.text=x.nome;
+    servico.appendChild(o);
   });
 
-  atualizarPreco();
-}
-
-function atualizarPreco() {
-  document.getElementById('preco').innerText =
-    `Valor: R$ ${document.getElementById('servico').value}`;
-}
-
-async function carregarBarbeiros() {
-  const res = await fetch(`${API_URL}/barbeiros`);
-  const lista = await res.json();
-
-  const select = document.getElementById('barbeiro');
-  select.innerHTML = '';
-
-  lista.forEach(b => {
-    const option = document.createElement('option');
-    option.value = b.nome;
-    option.text = b.nome;
-    select.appendChild(option);
+  b.forEach(x=>{
+    let o=document.createElement('option');
+    o.value=x.nome;
+    o.text=x.nome;
+    barbeiro.appendChild(o);
   });
 }
 
-// init
-carregarBarbeiros();
-carregarServicos();
-gerarHorarios();
-carregarMeusAgendamentos();
+function logout(){
+  localStorage.clear();
+  location='usuario.html';
+}
+
+carregar();
+horarios();
+load();
 </script>
 
 </body>
