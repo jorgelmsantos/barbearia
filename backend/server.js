@@ -50,9 +50,9 @@ app.post('/agendamentos/lote', async (req, res) => {
       return res.status(400).json({ erro: 'Carrinho vazio' });
     }
 
-    const pedidoId = Date.now();
+    const grupoId = Date.now().toString();
 
-    // 🔥 valida conflito com banco
+    // 🔥 valida conflito
     for (let item of itens) {
       const conflito = await Agendamento.findOne({
         data: item.data,
@@ -63,19 +63,18 @@ app.post('/agendamentos/lote', async (req, res) => {
 
       if (conflito) {
         return res.status(400).json({
-          erro: `Horário já ocupado: ${item.data} ${item.hora}`
+          erro: `Horário ocupado: ${item.data} ${item.hora}`
         });
       }
     }
 
-    // 🔥 cria todos
     const agendamentos = await Promise.all(
       itens.map(item =>
         Agendamento.create({
           clienteId,
           nomeCliente,
           telefone,
-          pedidoId,
+          grupoId,
           ...item,
           status: 'ativo'
         })
@@ -89,80 +88,64 @@ app.post('/agendamentos/lote', async (req, res) => {
   }
 });
 
-// ================= LISTAR TODOS (ADMIN) =================
+// ================= LISTAR TODOS =================
 app.get('/agendamentos', async (req, res) => {
-  try {
-    const lista = await Agendamento.find().sort({ data: 1, hora: 1 });
-    res.json(lista);
-  } catch {
-    res.status(500).json({ erro: 'Erro ao listar agendamentos' });
-  }
+  const lista = await Agendamento.find().sort({ data: 1, hora: 1 });
+  res.json(lista);
 });
 
-// ================= LISTAR POR CLIENTE (AGRUPADO) =================
+// ================= LISTAR POR DATA =================
+app.get('/agendamentos/data/:data', async (req, res) => {
+  const lista = await Agendamento.find({ data: req.params.data });
+  res.json(lista);
+});
+
+// ================= LISTAR CLIENTE (AGRUPADO) =================
 app.get('/agendamentos/cliente/:id', async (req, res) => {
-  try {
-    const lista = await Agendamento.find({ clienteId: req.params.id });
+  const lista = await Agendamento.find({ clienteId: req.params.id });
 
-    const grupos = {};
+  const grupos = {};
 
-    lista.forEach(a => {
-      if (!grupos[a.pedidoId]) {
-        grupos[a.pedidoId] = {
-          pedidoId: a.pedidoId,
-          itens: [],
-          total: 0
-        };
-      }
+  lista.forEach(a => {
+    if (!grupos[a.grupoId]) {
+      grupos[a.grupoId] = {
+        grupoId: a.grupoId,
+        itens: [],
+        total: 0
+      };
+    }
 
-      grupos[a.pedidoId].itens.push(a);
+    grupos[a.grupoId].itens.push(a);
 
-      if (a.status !== 'cancelado') {
-        grupos[a.pedidoId].total += a.valor || 0;
-      }
-    });
+    if (a.status !== 'cancelado') {
+      grupos[a.grupoId].total += a.valor || 0;
+    }
+  });
 
-    res.json(Object.values(grupos));
-
-  } catch {
-    res.status(500).json({ erro: 'Erro ao listar cliente' });
-  }
+  res.json(Object.values(grupos));
 });
 
-// ================= CANCELAR ITEM =================
+// ================= CANCELAR =================
 app.put('/agendamentos/:id/cancelar', async (req, res) => {
-  try {
-    const ag = await Agendamento.findByIdAndUpdate(
-      req.params.id,
-      { status: 'cancelado' },
-      { new: true }
-    );
+  const ag = await Agendamento.findByIdAndUpdate(
+    req.params.id,
+    { status: 'cancelado' },
+    { new: true }
+  );
 
-    res.json(ag);
-
-  } catch {
-    res.status(500).json({ erro: 'Erro ao cancelar' });
-  }
+  res.json(ag);
 });
 
 // ================= SERVIÇOS =================
 app.get('/servicos', async (req, res) => {
-  try {
-    const lista = await Servico.find();
-    res.json(lista);
-  } catch {
-    res.status(500).json({ erro: 'Erro ao buscar serviços' });
-  }
+  const lista = await Servico.find();
+  res.json(lista);
 });
 
 // ================= BARBEIROS =================
 app.get('/barbeiros', async (req, res) => {
-  try {
-    const lista = await Barbeiro.find();
-    res.json(lista);
-  } catch {
-    res.status(500).json({ erro: 'Erro ao buscar barbeiros' });
-  }
+  const lista = await Barbeiro.find();
+  res.json(lista);
 });
 
 // ================= START =================

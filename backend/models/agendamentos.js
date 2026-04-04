@@ -15,6 +15,12 @@ const AgendamentoSchema = new mongoose.Schema({
     required: true
   },
 
+  // 🔥 MULTI BARBEARIA (fase futura já preparado)
+  barbeariaId: {
+    type: String,
+    default: 'default'
+  },
+
   servico: {
     type: String,
     required: true
@@ -43,13 +49,27 @@ const AgendamentoSchema = new mongoose.Schema({
   // 🔥 STATUS DO SERVIÇO (individual)
   status: {
     type: String,
-    default: 'ativo' // ativo | cancelado
+    enum: ['ativo', 'cancelado'],
+    default: 'ativo'
   },
 
-  // 🔥 PAGAMENTO
+  // 🔥 PAGAMENTO DO SERVIÇO (PIX)
   statusPagamento: {
     type: String,
-    default: 'pendente' // pendente | pago
+    enum: ['pendente', 'pago'],
+    default: 'pendente'
+  },
+
+  // 🔥 DADOS DO PIX
+  pagamento: {
+    tipo: {
+      type: String,
+      default: 'pix'
+    },
+    txid: String, // id do pagamento (futuro gateway)
+    qrCode: String, // base64 ou texto PIX copia e cola
+    valorPago: Number,
+    dataPagamento: Date
   }
 
 }, {

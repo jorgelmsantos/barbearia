@@ -79,6 +79,11 @@
       color: red;
       text-decoration: line-through;
     }
+
+    .btn-cancelar {
+      background: #ff5252;
+      margin-top: 5px;
+    }
   </style>
 </head>
 
@@ -137,6 +142,7 @@
 <script src="config.js"></script>
 
 <script>
+
 // ================= MENU =================
 function mostrar(secao){
   ['dashboard','barbeiros','servicos','agenda'].forEach(id=>{
@@ -218,15 +224,15 @@ function filtrar(){
   renderAgenda(filtrados);
 }
 
-// ================= AGRUPAMENTO =================
+// ================= AGRUPAR (🔥 CORRIGIDO) =================
 function agrupar(lista){
   const grupos = {};
 
   lista.forEach(a=>{
-    if (!grupos[a.pedidoId]) {
-      grupos[a.pedidoId] = [];
+    if (!grupos[a.grupoId]) {
+      grupos[a.grupoId] = [];
     }
-    grupos[a.pedidoId].push(a);
+    grupos[a.grupoId].push(a);
   });
 
   return Object.values(grupos);
@@ -245,7 +251,7 @@ function renderAgenda(lista){
     const div = document.createElement('div');
     div.className='pedido';
 
-    let html = `<b>Pedido</b><br>`;
+    let html = `<b>🧾 Pedido</b><br>`;
 
     grupo.forEach(a=>{
       if (a.status !== 'cancelado') total += a.valor || 0;
@@ -254,14 +260,14 @@ function renderAgenda(lista){
         <div class="${a.status==='cancelado'?'cancelado':''}">
           ${a.nomeCliente} - ${a.servico} - ${a.data} ${a.hora}
           ${a.status!=='cancelado'
-            ? `<button onclick="cancelar('${a._id}')">❌</button>`
+            ? `<button class="btn-cancelar" onclick="cancelar('${a._id}')">Cancelar</button>`
             : ''
           }
         </div>
       `;
     });
 
-    html += `<br><b>Total: R$ ${total}</b>`;
+    html += `<br><b>💰 Total: R$ ${total}</b>`;
 
     div.innerHTML = html;
     container.appendChild(div);
@@ -288,7 +294,7 @@ function renderDashboard(lista){
   let top = Object.entries(contagem).sort((a,b)=>b[1]-a[1])[0];
 
   document.getElementById('maisVendido').innerText =
-    `🔥 ${top ? top[0] : '-'}`;
+    `🔥 ${top ? top[0] : 'Nenhum'}`;
 }
 
 // ================= CANCELAR =================
