@@ -18,6 +18,16 @@ const Barbeiro = require('./models/Barbeiro');
 const Servico = require('./models/Servico');
 const Usuario = require('./models/Usuario');
 
+// 🔥 NOVO MODEL DESPESA
+const Despesa = mongoose.model('despesas', new mongoose.Schema({
+  descricao: String,
+  valor: Number,
+  data: {
+    type: String,
+    default: () => new Date().toISOString().split('T')[0]
+  }
+}, { timestamps: true }));
+
 // ================= TESTE =================
 app.get('/', (req, res) => {
   res.send('API FUNCIONANDO 🚀');
@@ -73,7 +83,70 @@ app.delete('/servicos/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
-// ================= GERAR PIX (SIMULADO) =================
+// ================= DESPESAS =================
+app.get('/despesas', async (req, res) => {
+  try {
+    const lista = await Despesa.find().sort({ createdAt: -1 });
+    res.json(lista);
+  } catch {
+    res.status(500).json({ erro: 'Erro ao listar despesas' });
+  }
+});
+
+app.post('/despesas', async (req, res) => {
+  try {
+    const nova = await Despesa.create({
+      descricao: req.body.descricao,
+      valor: Number(req.body.valor)
+    });
+
+    res.json(nova);
+  } catch {
+    res.status(500).json({ erro: 'Erro ao criar despesa' });
+  }
+});
+
+app.delete('/despesas/:id', async (req, res) => {
+  try {
+    await Despesa.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch {
+    res.status(500).json({ erro: 'Erro ao deletar despesa' });
+  }
+});
+
+// ================= FINANCEIRO =================
+app.get('/financeiro/resumo', async (req, res) => {
+  try {
+    const ag = await Agendamento.find();
+    const despesas = await Despesa.find();
+
+    const receita = ag
+      .filter(a => a.status !== 'cancelado')
+      .reduce((s, a) => s + (a.valor || 0), 0);
+
+    const totalDespesas = despesas
+      .reduce((s, d) => s + (d.valor || 0), 0);
+
+    const hoje = new Date().toISOString().split('T')[0];
+
+    const receitaHoje = ag
+      .filter(a => a.data === hoje && a.status !== 'cancelado')
+      .reduce((s, a) => s + (a.valor || 0), 0);
+
+    res.json({
+      receita,
+      despesas: totalDespesas,
+      saldo: receita - totalDespesas,
+      receitaHoje
+    });
+
+  } catch {
+    res.status(500).json({ erro: 'Erro no financeiro' });
+  }
+});
+
+// ================= PIX SIMULADO =================
 function gerarPixSimulado(valor) {
   return {
     qrCode: `PIX-CODE-${Date.now()}`,
@@ -82,7 +155,7 @@ function gerarPixSimulado(valor) {
   };
 }
 
-// ================= AGENDAMENTO EM LOTE =================
+// ================= AGENDAMENTO =================
 app.post('/agendamentos/lote', async (req, res) => {
   try {
     const { clienteId, nomeCliente, telefone, itens, formaPagamento } = req.body;
@@ -93,7 +166,6 @@ app.post('/agendamentos/lote', async (req, res) => {
 
     const grupoId = Date.now().toString();
 
-    // 🔥 valida conflito
     for (let item of itens) {
       const conflito = await Agendamento.findOne({
         data: item.data,
@@ -109,20 +181,15 @@ app.post('/agendamentos/lote', async (req, res) => {
       }
     }
 
-    // 🔥 calcula total
-    const total = itens.reduce((sum, i) => sum + (i.valor || 0), 0);
+    const total = itens.reduce((s, i) => s + (i.valor || 0), 0);
 
-    // 🔥 cria PIX se necessário
     let pix = null;
     let statusPagamento = 'pendente';
 
     if (formaPagamento === 'pix') {
       pix = gerarPixSimulado(total);
-    } else {
-      statusPagamento = 'pendente';
     }
 
-    // 🔥 cria agendamentos
     const agendamentos = await Promise.all(
       itens.map(item =>
         Agendamento.create({
@@ -138,29 +205,19 @@ app.post('/agendamentos/lote', async (req, res) => {
       )
     );
 
-    res.json({
-      agendamentos,
-      pix
-    });
+    res.json({ agendamentos, pix });
 
-  } catch (err) {
+  } catch {
     res.status(500).json({ erro: 'Erro ao criar agendamento' });
   }
 });
 
-// ================= LISTAR TODOS =================
+// ================= LISTAR =================
 app.get('/agendamentos', async (req, res) => {
   const lista = await Agendamento.find().sort({ data: 1, hora: 1 });
   res.json(lista);
 });
 
-// ================= FILTRAR POR DATA =================
-app.get('/agendamentos/data/:data', async (req, res) => {
-  const lista = await Agendamento.find({ data: req.params.data });
-  res.json(lista);
-});
-
-// ================= LISTAR CLIENTE (AGRUPADO) =================
 app.get('/agendamentos/cliente/:id', async (req, res) => {
   const lista = await Agendamento.find({ clienteId: req.params.id });
 
@@ -197,7 +254,7 @@ app.put('/agendamentos/:id/cancelar', async (req, res) => {
   res.json(ag);
 });
 
-// ================= SIMULAR PAGAMENTO PIX =================
+// ================= PAGAMENTO =================
 app.post('/pagamentos/:grupoId/pagar', async (req, res) => {
   await Agendamento.updateMany(
     { grupoId: req.params.grupoId },

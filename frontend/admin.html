@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Painel Barbearia</title>
+  <title>Painel Barbearia PRO</title>
 
   <style>
     body {
@@ -11,7 +11,7 @@
       padding: 20px;
     }
 
-    h1 { margin-bottom: 10px; }
+    h1 { margin-bottom: 15px; }
 
     .menu {
       display: flex;
@@ -22,15 +22,22 @@
     .menu button {
       flex: 1;
       padding: 12px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: none;
       background: #1e1e1e;
       color: white;
       cursor: pointer;
+      font-weight: bold;
     }
 
     .menu button:hover {
       background: #00c853;
+    }
+
+    .subMenu {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
     }
 
     .card {
@@ -38,6 +45,20 @@
       padding: 20px;
       border-radius: 12px;
       margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .box {
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 18px;
     }
 
     input, button {
@@ -53,54 +74,35 @@
       cursor: pointer;
     }
 
-    .dashboard {
+    .list-card {
+      background: #2a2a2a;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 5px 0;
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .box {
-      flex: 1;
-      min-width: 150px;
-      background: #2a2a2a;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 18px;
+    .danger {
+      background: #ff5252;
     }
 
-    .pedido {
-      background: #2a2a2a;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 10px;
-    }
+    .receita { color: #00e676; }
+    .despesa { color: #ff5252; }
 
-    .cancelado {
-      opacity: 0.5;
-      text-decoration: line-through;
-    }
-
-    .status {
-      font-size: 12px;
-      padding: 3px 6px;
-      border-radius: 5px;
-      margin-left: 5px;
-    }
-
-    .ativo { background: #00c853; }
-    .cancelado-status { background: red; }
   </style>
 </head>
 
 <body>
 
-<h1>💈 Painel Admin PRO</h1>
+<h1>💈 Painel Barbearia PRO</h1>
 
 <div class="menu">
   <button onclick="mostrar('dashboard')">📊 Dashboard</button>
+  <button onclick="mostrar('financeiro')">💰 Financeiro</button>
   <button onclick="mostrar('barbeiros')">✂️ Barbeiros</button>
-  <button onclick="mostrar('servicos')">💰 Serviços</button>
+  <button onclick="mostrar('servicos')">💼 Serviços</button>
   <button onclick="mostrar('agenda')">📅 Agenda</button>
 </div>
 
@@ -108,11 +110,38 @@
 <div id="dashboard" class="card">
   <h2>📊 Visão Geral</h2>
 
-  <div class="dashboard">
-    <div class="box" id="totalAgendamentos"></div>
-    <div class="box" id="faturamento"></div>
-    <div class="box" id="cancelados"></div>
-    <div class="box" id="maisVendido"></div>
+  <div class="grid">
+    <div class="box" id="dia"></div>
+    <div class="box" id="mes"></div>
+    <div class="box" id="atendimentos"></div>
+    <div class="box" id="topServico"></div>
+  </div>
+</div>
+
+<!-- FINANCEIRO -->
+<div id="financeiro" class="card" style="display:none;">
+  <h2>💰 Financeiro</h2>
+
+  <div class="subMenu">
+    <button onclick="sub('receitas')">Receitas</button>
+    <button onclick="sub('despesas')">Despesas</button>
+  </div>
+
+  <!-- RECEITAS -->
+  <div id="receitas">
+    <h3>Entradas (Agendamentos)</h3>
+    <div id="listaReceitas"></div>
+  </div>
+
+  <!-- DESPESAS -->
+  <div id="despesas" style="display:none;">
+    <h3>Contas a pagar</h3>
+
+    <input id="descDespesa" placeholder="Descrição">
+    <input id="valorDespesa" placeholder="Valor">
+    <button onclick="addDespesa()">Adicionar</button>
+
+    <div id="listaDespesas"></div>
   </div>
 </div>
 
@@ -123,7 +152,7 @@
   <input id="nomeBarbeiro" placeholder="Nome">
   <button onclick="cadastrarBarbeiro()">Cadastrar</button>
 
-  <ul id="listaBarbeiros"></ul>
+  <div id="listaBarbeiros"></div>
 </div>
 
 <!-- SERVIÇOS -->
@@ -134,16 +163,13 @@
   <input id="precoServico" placeholder="Preço">
   <button onclick="cadastrarServico()">Cadastrar</button>
 
-  <ul id="listaServicos"></ul>
+  <div id="listaServicos"></div>
 </div>
 
 <!-- AGENDA -->
 <div id="agenda" class="card" style="display:none;">
-  <h2>Agenda em Tempo Real</h2>
-
-  <input type="date" id="filtroData" onchange="filtrar()">
-
-  <div id="listaPedidos"></div>
+  <h2>Agenda</h2>
+  <div id="listaAgenda"></div>
 </div>
 
 <script src="config.js"></script>
@@ -151,11 +177,18 @@
 <script>
 
 // ================= MENU =================
-function mostrar(secao){
-  ['dashboard','barbeiros','servicos','agenda'].forEach(id=>{
-    document.getElementById(id).style.display = 'none';
-  });
-  document.getElementById(secao).style.display = 'block';
+function mostrar(id){
+  ['dashboard','financeiro','barbeiros','servicos','agenda']
+    .forEach(x => document.getElementById(x).style.display='none');
+
+  document.getElementById(id).style.display='block';
+}
+
+function sub(id){
+  ['receitas','despesas']
+    .forEach(x => document.getElementById(x).style.display='none');
+
+  document.getElementById(id).style.display='block';
 }
 
 // ================= BARBEIROS =================
@@ -176,10 +209,18 @@ async function carregarBarbeiros(){
   listaBarbeiros.innerHTML='';
 
   lista.forEach(b=>{
-    let li=document.createElement('li');
-    li.innerHTML = `${b.nome}`;
-    listaBarbeiros.appendChild(li);
+    listaBarbeiros.innerHTML += `
+      <div class="list-card">
+        ${b.nome}
+        <button class="danger" onclick="delBarbeiro('${b._id}')">X</button>
+      </div>
+    `;
   });
+}
+
+async function delBarbeiro(id){
+  await fetch(`${API_URL}/barbeiros/${id}`,{method:'DELETE'});
+  carregarBarbeiros();
 }
 
 // ================= SERVIÇOS =================
@@ -204,128 +245,107 @@ async function carregarServicos(){
   listaServicos.innerHTML='';
 
   lista.forEach(s=>{
-    let li=document.createElement('li');
-    li.innerHTML = `${s.nome} - R$ ${s.preco}`;
-    listaServicos.appendChild(li);
+    listaServicos.innerHTML += `
+      <div class="list-card">
+        ${s.nome} - R$ ${s.preco}
+        <button class="danger" onclick="delServico('${s._id}')">X</button>
+      </div>
+    `;
   });
 }
 
-// ================= AGENDAMENTOS =================
-let agendamentosGlobal = [];
-
-async function carregarAgendamentos(){
-  agendamentosGlobal = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
-
-  renderAgenda(agendamentosGlobal);
-  renderDashboard(agendamentosGlobal);
+async function delServico(id){
+  await fetch(`${API_URL}/servicos/${id}`,{method:'DELETE'});
+  carregarServicos();
 }
 
-function filtrar(){
-  const data = filtroData.value;
+// ================= FINANCEIRO =================
+async function carregarFinanceiro(){
+  let ag = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
 
-  if (!data) return renderAgenda(agendamentosGlobal);
+  listaReceitas.innerHTML='';
 
-  const filtrados = agendamentosGlobal.filter(a => a.data === data);
+  ag.filter(a=>a.status!=='cancelado').forEach(a=>{
+    listaReceitas.innerHTML += `
+      <div class="list-card receita">
+        ${a.servico} - R$ ${a.valor}
+      </div>
+    `;
+  });
 
-  renderAgenda(filtrados);
+  // DASHBOARD
+  let hoje = new Date().toISOString().split('T')[0];
+
+  let receitaDia = ag
+    .filter(a=>a.data===hoje && a.status!=='cancelado')
+    .reduce((s,a)=>s+a.valor,0);
+
+  let receitaMes = ag
+    .filter(a=>a.status!=='cancelado')
+    .reduce((s,a)=>s+a.valor,0);
+
+  dia.innerText = `Hoje: R$ ${receitaDia}`;
+  mes.innerText = `Mês: R$ ${receitaMes}`;
+  atendimentos.innerText = `Atendimentos: ${ag.length}`;
 }
 
-// ================= AGRUPAR =================
-function agrupar(lista){
-  const grupos = {};
+// ================= DESPESAS =================
+async function addDespesa(){
+  await fetch(`${API_URL}/despesas`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      descricao:descDespesa.value,
+      valor:valorDespesa.value
+    })
+  });
+
+  descDespesa.value='';
+  valorDespesa.value='';
+
+  carregarDespesas();
+}
+
+async function carregarDespesas(){
+  let lista = await fetch(`${API_URL}/despesas`).then(r=>r.json());
+
+  listaDespesas.innerHTML='';
+
+  lista.forEach(d=>{
+    listaDespesas.innerHTML += `
+      <div class="list-card despesa">
+        ${d.descricao} - R$ ${d.valor}
+      </div>
+    `;
+  });
+}
+
+// ================= AGENDA =================
+async function carregarAgenda(){
+  let lista = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
+
+  listaAgenda.innerHTML='';
 
   lista.forEach(a=>{
-    if (!grupos[a.grupoId]) grupos[a.grupoId]=[];
-    grupos[a.grupoId].push(a);
-  });
-
-  return Object.values(grupos);
-}
-
-// ================= RENDER =================
-function renderAgenda(lista){
-  const container = document.getElementById('listaPedidos');
-  container.innerHTML='';
-
-  const grupos = agrupar(lista);
-
-  grupos.forEach(grupo=>{
-    let total=0;
-
-    const div = document.createElement('div');
-    div.className='pedido';
-
-    let html = `<b>🧾 Pedido</b><br>`;
-
-    grupo.forEach(a=>{
-      if (a.status !== 'cancelado') total += a.valor || 0;
-
-      html += `
-        <div class="${a.status==='cancelado'?'cancelado':''}">
-          ${a.nomeCliente} - ${a.servico} - ${a.data} ${a.hora}
-          <span class="status ${a.status==='cancelado'?'cancelado-status':'ativo'}">
-            ${a.status}
-          </span>
-          ${a.status!=='cancelado'
-            ? `<button onclick="cancelar('${a._id}')">❌</button>`
-            : ''
-          }
-        </div>
-      `;
-    });
-
-    html += `<br><b>Total: R$ ${total}</b>`;
-
-    div.innerHTML = html;
-    container.appendChild(div);
+    listaAgenda.innerHTML += `
+      <div class="list-card">
+        ${a.nomeCliente} - ${a.servico} - ${a.data} ${a.hora}
+      </div>
+    `;
   });
 }
-
-// ================= DASHBOARD =================
-function renderDashboard(lista){
-  const ativos = lista.filter(a=>a.status!=='cancelado');
-  const cancelados = lista.filter(a=>a.status==='cancelado');
-
-  document.getElementById('totalAgendamentos').innerText =
-    `📅 ${ativos.length} ativos`;
-
-  document.getElementById('cancelados').innerText =
-    `❌ ${cancelados.length} cancelados`;
-
-  const total = ativos.reduce((sum,a)=>sum+(a.valor||0),0);
-
-  document.getElementById('faturamento').innerText =
-    `💰 R$ ${total}`;
-
-  const contagem = {};
-  ativos.forEach(a=>{
-    contagem[a.servico] = (contagem[a.servico]||0)+1;
-  });
-
-  let top = Object.entries(contagem).sort((a,b)=>b[1]-a[1])[0];
-
-  document.getElementById('maisVendido').innerText =
-    `🔥 ${top ? top[0] : '-'}`;
-}
-
-// ================= CANCELAR =================
-async function cancelar(id){
-  if (!confirm('Cancelar serviço?')) return;
-
-  await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{
-    method:'PUT'
-  });
-
-  await carregarAgendamentos(); // 🔥 FORÇA UPDATE
-}
-
-// ================= AUTO UPDATE =================
-setInterval(carregarAgendamentos, 5000); // 🔥 tempo real
 
 // ================= INIT =================
 carregarBarbeiros();
 carregarServicos();
-carregarAgendamentos();
+carregarFinanceiro();
+carregarDespesas();
+carregarAgenda();
+
+setInterval(()=>{
+  carregarFinanceiro();
+  carregarAgenda();
+},5000);
 
 </script>
 
