@@ -5,68 +5,39 @@
 
   <style>
     body {
-      margin: 0;
-      font-family: Arial;
-      background: #0f172a;
+      background: #0f0f0f;
       color: white;
+      font-family: Arial;
+      padding: 20px;
     }
 
-    header {
-      background: #020617;
-      padding: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 20px;
-    }
+    h1 { margin-bottom: 10px; }
 
     .menu {
       display: flex;
       gap: 10px;
-      background: #020617;
-      padding: 10px;
+      margin-bottom: 20px;
     }
 
     .menu button {
       flex: 1;
       padding: 12px;
-      background: #1e293b;
-      border: none;
       border-radius: 8px;
+      border: none;
+      background: #1e1e1e;
       color: white;
       cursor: pointer;
     }
 
     .menu button:hover {
-      background: #22c55e;
-    }
-
-    .container {
-      padding: 20px;
-    }
-
-    .dashboard {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
+      background: #00c853;
     }
 
     .card {
-      background: #1e293b;
+      background: #1e1e1e;
       padding: 20px;
       border-radius: 12px;
-      flex: 1;
-      min-width: 200px;
-      text-align: center;
-    }
-
-    .section {
-      display: none;
-      margin-top: 20px;
+      margin-bottom: 20px;
     }
 
     input, button {
@@ -77,205 +48,114 @@
     }
 
     button {
-      background: #22c55e;
+      background: #00c853;
       color: white;
       cursor: pointer;
     }
 
+    .dashboard {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .box {
+      flex: 1;
+      min-width: 150px;
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 18px;
+    }
+
     .pedido {
-      background: #1e293b;
+      background: #2a2a2a;
       padding: 15px;
-      margin-top: 15px;
+      margin: 10px 0;
       border-radius: 10px;
     }
 
-    .item {
-      margin: 5px 0;
-      padding: 8px;
-      border-radius: 6px;
-      background: #334155;
-    }
-
     .cancelado {
-      background: #7f1d1d;
+      opacity: 0.5;
       text-decoration: line-through;
     }
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .status {
+      font-size: 12px;
+      padding: 3px 6px;
+      border-radius: 5px;
+      margin-left: 5px;
     }
+
+    .ativo { background: #00c853; }
+    .cancelado-status { background: red; }
   </style>
 </head>
 
 <body>
 
-<header>
-  <h1>💈 Painel Barbearia</h1>
-</header>
+<h1>💈 Painel Admin PRO</h1>
 
 <div class="menu">
   <button onclick="mostrar('dashboard')">📊 Dashboard</button>
-  <button onclick="mostrar('agenda')">📅 Agenda</button>
-  <button onclick="mostrar('servicos')">💰 Serviços</button>
   <button onclick="mostrar('barbeiros')">✂️ Barbeiros</button>
+  <button onclick="mostrar('servicos')">💰 Serviços</button>
+  <button onclick="mostrar('agenda')">📅 Agenda</button>
 </div>
 
-<div class="container">
+<!-- DASHBOARD -->
+<div id="dashboard" class="card">
+  <h2>📊 Visão Geral</h2>
 
-  <!-- DASHBOARD -->
-  <div id="dashboard" class="section">
-    <div class="dashboard">
-      <div class="card" id="totalAgendamentos">0</div>
-      <div class="card" id="faturamento">R$ 0</div>
-      <div class="card" id="maisVendido">-</div>
-    </div>
+  <div class="dashboard">
+    <div class="box" id="totalAgendamentos"></div>
+    <div class="box" id="faturamento"></div>
+    <div class="box" id="cancelados"></div>
+    <div class="box" id="maisVendido"></div>
   </div>
+</div>
 
-  <!-- AGENDA -->
-  <div id="agenda" class="section">
-    <div class="top-bar">
-      <h2>Agendamentos</h2>
-      <input type="date" id="filtroData" onchange="filtrar()">
-    </div>
+<!-- BARBEIROS -->
+<div id="barbeiros" class="card" style="display:none;">
+  <h2>Barbeiros</h2>
 
-    <div id="listaPedidos"></div>
-  </div>
+  <input id="nomeBarbeiro" placeholder="Nome">
+  <button onclick="cadastrarBarbeiro()">Cadastrar</button>
 
-  <!-- SERVIÇOS -->
-  <div id="servicos" class="section">
-    <h2>Serviços</h2>
+  <ul id="listaBarbeiros"></ul>
+</div>
 
-    <input id="nomeServico" placeholder="Nome">
-    <input id="precoServico" placeholder="Preço">
-    <button onclick="cadastrarServico()">Cadastrar</button>
+<!-- SERVIÇOS -->
+<div id="servicos" class="card" style="display:none;">
+  <h2>Serviços</h2>
 
-    <ul id="listaServicos"></ul>
-  </div>
+  <input id="nomeServico" placeholder="Nome">
+  <input id="precoServico" placeholder="Preço">
+  <button onclick="cadastrarServico()">Cadastrar</button>
 
-  <!-- BARBEIROS -->
-  <div id="barbeiros" class="section">
-    <h2>Barbeiros</h2>
+  <ul id="listaServicos"></ul>
+</div>
 
-    <input id="nomeBarbeiro" placeholder="Nome">
-    <button onclick="cadastrarBarbeiro()">Cadastrar</button>
+<!-- AGENDA -->
+<div id="agenda" class="card" style="display:none;">
+  <h2>Agenda em Tempo Real</h2>
 
-    <ul id="listaBarbeiros"></ul>
-  </div>
+  <input type="date" id="filtroData" onchange="filtrar()">
 
+  <div id="listaPedidos"></div>
 </div>
 
 <script src="config.js"></script>
 
 <script>
+
 // ================= MENU =================
 function mostrar(secao){
-  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  ['dashboard','barbeiros','servicos','agenda'].forEach(id=>{
+    document.getElementById(id).style.display = 'none';
+  });
   document.getElementById(secao).style.display = 'block';
-}
-
-mostrar('dashboard');
-
-// ================= DADOS =================
-let agendamentosGlobal = [];
-
-// ================= LOAD =================
-async function carregarAgendamentos(){
-  agendamentosGlobal = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
-
-  renderAgenda(agendamentosGlobal);
-  renderDashboard(agendamentosGlobal);
-}
-
-// ================= AGRUPAR =================
-function agrupar(lista){
-  const grupos = {};
-
-  lista.forEach(a=>{
-    if (!grupos[a.grupoId]) grupos[a.grupoId] = [];
-    grupos[a.grupoId].push(a);
-  });
-
-  return Object.values(grupos);
-}
-
-// ================= RENDER AGENDA =================
-function renderAgenda(lista){
-  const container = document.getElementById('listaPedidos');
-  container.innerHTML='';
-
-  const grupos = agrupar(lista);
-
-  grupos.forEach(grupo=>{
-    let total = 0;
-
-    const div = document.createElement('div');
-    div.className='pedido';
-
-    let html = `<b>Pedido</b><br>`;
-
-    grupo.forEach(a=>{
-      if (a.status !== 'cancelado') total += a.valor || 0;
-
-      html += `
-        <div class="item ${a.status==='cancelado'?'cancelado':''}">
-          ${a.nomeCliente} - ${a.servico} - ${a.data} ${a.hora}
-          ${a.status !== 'cancelado'
-            ? `<button onclick="cancelar('${a._id}')">Cancelar</button>`
-            : ''
-          }
-        </div>
-      `;
-    });
-
-    html += `<br><b>Total: R$ ${total}</b>`;
-
-    div.innerHTML = html;
-    container.appendChild(div);
-  });
-}
-
-// ================= DASHBOARD =================
-function renderDashboard(lista){
-  const ativos = lista.filter(a => a.status !== 'cancelado');
-
-  document.getElementById('totalAgendamentos').innerText =
-    `📅 ${ativos.length} agendamentos`;
-
-  const total = ativos.reduce((s,a)=>s+(a.valor||0),0);
-
-  document.getElementById('faturamento').innerText =
-    `💰 R$ ${total}`;
-
-  const cont = {};
-  ativos.forEach(a=>{
-    cont[a.servico] = (cont[a.servico]||0)+1;
-  });
-
-  const top = Object.entries(cont).sort((a,b)=>b[1]-a[1])[0];
-
-  document.getElementById('maisVendido').innerText =
-    `🔥 ${top ? top[0] : '-'}`;
-}
-
-// ================= FILTRO =================
-function filtrar(){
-  const data = filtroData.value;
-
-  if (!data) return renderAgenda(agendamentosGlobal);
-
-  const filtrados = agendamentosGlobal.filter(a => a.data === data);
-  renderAgenda(filtrados);
-}
-
-// ================= CANCELAR =================
-async function cancelar(id){
-  await fetch(`${API_URL}/agendamentos/${id}/cancelar`, {
-    method:'PUT'
-  });
-
-  carregarAgendamentos();
 }
 
 // ================= BARBEIROS =================
@@ -297,7 +177,7 @@ async function carregarBarbeiros(){
 
   lista.forEach(b=>{
     let li=document.createElement('li');
-    li.innerText = b.nome;
+    li.innerHTML = `${b.nome}`;
     listaBarbeiros.appendChild(li);
   });
 }
@@ -325,10 +205,122 @@ async function carregarServicos(){
 
   lista.forEach(s=>{
     let li=document.createElement('li');
-    li.innerText = `${s.nome} - R$ ${s.preco}`;
+    li.innerHTML = `${s.nome} - R$ ${s.preco}`;
     listaServicos.appendChild(li);
   });
 }
+
+// ================= AGENDAMENTOS =================
+let agendamentosGlobal = [];
+
+async function carregarAgendamentos(){
+  agendamentosGlobal = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
+
+  renderAgenda(agendamentosGlobal);
+  renderDashboard(agendamentosGlobal);
+}
+
+function filtrar(){
+  const data = filtroData.value;
+
+  if (!data) return renderAgenda(agendamentosGlobal);
+
+  const filtrados = agendamentosGlobal.filter(a => a.data === data);
+
+  renderAgenda(filtrados);
+}
+
+// ================= AGRUPAR =================
+function agrupar(lista){
+  const grupos = {};
+
+  lista.forEach(a=>{
+    if (!grupos[a.grupoId]) grupos[a.grupoId]=[];
+    grupos[a.grupoId].push(a);
+  });
+
+  return Object.values(grupos);
+}
+
+// ================= RENDER =================
+function renderAgenda(lista){
+  const container = document.getElementById('listaPedidos');
+  container.innerHTML='';
+
+  const grupos = agrupar(lista);
+
+  grupos.forEach(grupo=>{
+    let total=0;
+
+    const div = document.createElement('div');
+    div.className='pedido';
+
+    let html = `<b>🧾 Pedido</b><br>`;
+
+    grupo.forEach(a=>{
+      if (a.status !== 'cancelado') total += a.valor || 0;
+
+      html += `
+        <div class="${a.status==='cancelado'?'cancelado':''}">
+          ${a.nomeCliente} - ${a.servico} - ${a.data} ${a.hora}
+          <span class="status ${a.status==='cancelado'?'cancelado-status':'ativo'}">
+            ${a.status}
+          </span>
+          ${a.status!=='cancelado'
+            ? `<button onclick="cancelar('${a._id}')">❌</button>`
+            : ''
+          }
+        </div>
+      `;
+    });
+
+    html += `<br><b>Total: R$ ${total}</b>`;
+
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+}
+
+// ================= DASHBOARD =================
+function renderDashboard(lista){
+  const ativos = lista.filter(a=>a.status!=='cancelado');
+  const cancelados = lista.filter(a=>a.status==='cancelado');
+
+  document.getElementById('totalAgendamentos').innerText =
+    `📅 ${ativos.length} ativos`;
+
+  document.getElementById('cancelados').innerText =
+    `❌ ${cancelados.length} cancelados`;
+
+  const total = ativos.reduce((sum,a)=>sum+(a.valor||0),0);
+
+  document.getElementById('faturamento').innerText =
+    `💰 R$ ${total}`;
+
+  const contagem = {};
+  ativos.forEach(a=>{
+    contagem[a.servico] = (contagem[a.servico]||0)+1;
+  });
+
+  let top = Object.entries(contagem).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('maisVendido').innerText =
+    `🔥 ${top ? top[0] : '-'}`;
+}
+
+// ================= CANCELAR =================
+async function cancelar(id){
+  if (!confirm('Cancelar serviço?')) return;
+
+  await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{
+    method:'PUT'
+  });
+
+  await carregarAgendamentos(); // 🔥 FORÇA UPDATE
+}
+
+// ================= AUTO UPDATE =================
+setInterval(carregarAgendamentos, 5000); // 🔥 tempo real
 
 // ================= INIT =================
 carregarBarbeiros();
