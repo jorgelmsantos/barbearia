@@ -1,175 +1,163 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Painel Barbearia PRO</title>
+  <title>Painel Admin</title>
 
   <style>
     body {
-      background: #0f0f0f;
-      color: white;
-      font-family: Arial;
-      padding: 20px;
+      margin:0;
+      font-family:Arial;
+      background:#0f0f0f;
+      color:white;
     }
 
-    h1 { margin-bottom: 15px; }
+    .topbar {
+      background:#1e1e1e;
+      padding:15px;
+      font-size:20px;
+      text-align:center;
+    }
 
     .menu {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
+      display:flex;
+      background:#181818;
     }
 
     .menu button {
-      flex: 1;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      background: #1e1e1e;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
+      flex:1;
+      padding:15px;
+      border:none;
+      background:none;
+      color:white;
+      cursor:pointer;
     }
 
     .menu button:hover {
-      background: #00c853;
+      background:#00c853;
     }
 
-    .subMenu {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    .card {
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
+    .container {
+      padding:20px;
     }
 
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
+      display:flex;
+      gap:15px;
+      flex-wrap:wrap;
     }
 
-    .box {
-      background: #2a2a2a;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 18px;
+    .card {
+      background:#1e1e1e;
+      padding:15px;
+      border-radius:10px;
+      flex:1;
+      min-width:200px;
+      text-align:center;
     }
 
     input, button {
-      padding: 10px;
-      margin: 5px;
-      border-radius: 6px;
-      border: none;
+      padding:10px;
+      margin:5px;
+      border-radius:6px;
+      border:none;
     }
 
     button {
-      background: #00c853;
-      color: white;
-      cursor: pointer;
+      background:#00c853;
+      color:white;
+      cursor:pointer;
     }
 
-    .list-card {
-      background: #2a2a2a;
-      padding: 10px;
-      border-radius: 8px;
-      margin: 5px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .lista-item {
+      background:#2a2a2a;
+      padding:10px;
+      margin:5px 0;
+      border-radius:8px;
+      display:flex;
+      justify-content:space-between;
     }
 
-    .danger {
-      background: #ff5252;
+    .pedido {
+      background:#2a2a2a;
+      padding:10px;
+      margin:10px 0;
+      border-radius:8px;
     }
 
-    .receita { color: #00e676; }
-    .despesa { color: #ff5252; }
-
+    .cancelado {
+      text-decoration:line-through;
+      color:red;
+    }
   </style>
 </head>
 
 <body>
 
-<h1>💈 Painel Barbearia PRO</h1>
+<div class="topbar">💈 Painel Admin</div>
 
 <div class="menu">
   <button onclick="mostrar('dashboard')">📊 Dashboard</button>
   <button onclick="mostrar('financeiro')">💰 Financeiro</button>
-  <button onclick="mostrar('barbeiros')">✂️ Barbeiros</button>
-  <button onclick="mostrar('servicos')">💼 Serviços</button>
   <button onclick="mostrar('agenda')">📅 Agenda</button>
+  <button onclick="mostrar('cadastros')">⚙️ Cadastros</button>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="card">
-  <h2>📊 Visão Geral</h2>
+<div class="container">
 
+<!-- DASHBOARD -->
+<div id="dashboard">
   <div class="grid">
-    <div class="box" id="dia"></div>
-    <div class="box" id="mes"></div>
-    <div class="box" id="atendimentos"></div>
-    <div class="box" id="topServico"></div>
+    <div class="card" id="totalAtendimentos"></div>
+    <div class="card" id="faturamento"></div>
+    <div class="card" id="ticketMedio"></div>
+    <div class="card" id="maisVendido"></div>
   </div>
 </div>
 
 <!-- FINANCEIRO -->
-<div id="financeiro" class="card" style="display:none;">
-  <h2>💰 Financeiro</h2>
+<div id="financeiro" style="display:none;">
 
-  <div class="subMenu">
-    <button onclick="sub('receitas')">Receitas</button>
-    <button onclick="sub('despesas')">Despesas</button>
+  <h2>💰 Fluxo de Caixa</h2>
+
+  <div class="grid">
+    <div class="card" id="receitas"></div>
+    <div class="card" id="despesas"></div>
+    <div class="card" id="saldo"></div>
   </div>
 
-  <!-- RECEITAS -->
-  <div id="receitas">
-    <h3>Entradas (Agendamentos)</h3>
-    <div id="listaReceitas"></div>
-  </div>
+  <h3>Cadastrar despesa</h3>
+  <input id="descDespesa" placeholder="Descrição">
+  <input id="valorDespesa" placeholder="Valor">
+  <button onclick="addDespesa()">Adicionar</button>
 
-  <!-- DESPESAS -->
-  <div id="despesas" style="display:none;">
-    <h3>Contas a pagar</h3>
-
-    <input id="descDespesa" placeholder="Descrição">
-    <input id="valorDespesa" placeholder="Valor">
-    <button onclick="addDespesa()">Adicionar</button>
-
-    <div id="listaDespesas"></div>
-  </div>
-</div>
-
-<!-- BARBEIROS -->
-<div id="barbeiros" class="card" style="display:none;">
-  <h2>Barbeiros</h2>
-
-  <input id="nomeBarbeiro" placeholder="Nome">
-  <button onclick="cadastrarBarbeiro()">Cadastrar</button>
-
-  <div id="listaBarbeiros"></div>
-</div>
-
-<!-- SERVIÇOS -->
-<div id="servicos" class="card" style="display:none;">
-  <h2>Serviços</h2>
-
-  <input id="nomeServico" placeholder="Nome">
-  <input id="precoServico" placeholder="Preço">
-  <button onclick="cadastrarServico()">Cadastrar</button>
-
-  <div id="listaServicos"></div>
+  <div id="listaDespesas"></div>
 </div>
 
 <!-- AGENDA -->
-<div id="agenda" class="card" style="display:none;">
-  <h2>Agenda</h2>
-  <div id="listaAgenda"></div>
+<div id="agenda" style="display:none;">
+  <h2>📅 Agendamentos</h2>
+
+  <input type="date" id="filtroData" onchange="filtrar()">
+
+  <div id="listaPedidos"></div>
+</div>
+
+<!-- CADASTROS -->
+<div id="cadastros" style="display:none;">
+
+  <h2>✂️ Barbeiros</h2>
+  <input id="nomeBarbeiro" placeholder="Nome">
+  <button onclick="cadastrarBarbeiro()">Cadastrar</button>
+  <div id="listaBarbeiros"></div>
+
+  <h2>💰 Serviços</h2>
+  <input id="nomeServico" placeholder="Nome">
+  <input id="precoServico" placeholder="Preço">
+  <button onclick="cadastrarServico()">Cadastrar</button>
+  <div id="listaServicos"></div>
+
+</div>
+
 </div>
 
 <script src="config.js"></script>
@@ -177,53 +165,142 @@
 <script>
 
 // ================= MENU =================
-function mostrar(id){
-  ['dashboard','financeiro','barbeiros','servicos','agenda']
-    .forEach(x => document.getElementById(x).style.display='none');
-
-  document.getElementById(id).style.display='block';
+function mostrar(sec){
+  ['dashboard','financeiro','agenda','cadastros'].forEach(id=>{
+    document.getElementById(id).style.display='none';
+  });
+  document.getElementById(sec).style.display='block';
 }
 
-function sub(id){
-  ['receitas','despesas']
-    .forEach(x => document.getElementById(x).style.display='none');
+// ================= GLOBAL =================
+let agendamentos = [];
+let despesas = [];
 
-  document.getElementById(id).style.display='block';
+// ================= DASHBOARD =================
+function renderDashboard(){
+  const ativos = agendamentos.filter(a=>a.status !== 'cancelado');
+
+  const total = ativos.length;
+  const faturamento = ativos.reduce((s,a)=>s+(a.valor||0),0);
+  const ticket = total ? (faturamento/total).toFixed(2) : 0;
+
+  const cont = {};
+  ativos.forEach(a=>{
+    cont[a.servico]=(cont[a.servico]||0)+1;
+  });
+
+  let top = Object.entries(cont).sort((a,b)=>b[1]-a[1])[0];
+
+  totalAtendimentos.innerText = `📅 ${total}`;
+  faturamento.innerText = `💰 R$ ${faturamento}`;
+  ticketMedio.innerText = `🎯 R$ ${ticket}`;
+  maisVendido.innerText = `🔥 ${top ? top[0] : '-'}`;
 }
 
-// ================= BARBEIROS =================
+// ================= FINANCEIRO =================
+function renderFinanceiro(){
+  const receitas = agendamentos
+    .filter(a=>a.status !== 'cancelado')
+    .reduce((s,a)=>s+(a.valor||0),0);
+
+  const totalDespesas = despesas.reduce((s,d)=>s+d.valor,0);
+
+  receitasDiv.innerText = `Receitas: R$ ${receitas}`;
+  despesasDiv.innerText = `Despesas: R$ ${totalDespesas}`;
+  saldoDiv.innerText = `Saldo: R$ ${receitas - totalDespesas}`;
+
+  listaDespesas.innerHTML='';
+  despesas.forEach(d=>{
+    let div=document.createElement('div');
+    div.className='lista-item';
+    div.innerText = `${d.desc} - R$ ${d.valor}`;
+    listaDespesas.appendChild(div);
+  });
+}
+
+function addDespesa(){
+  despesas.push({
+    desc: descDespesa.value,
+    valor: Number(valorDespesa.value)
+  });
+
+  descDespesa.value='';
+  valorDespesa.value='';
+
+  renderFinanceiro();
+}
+
+// refs
+const receitasDiv = document.getElementById('receitas');
+const despesasDiv = document.getElementById('despesas');
+const saldoDiv = document.getElementById('saldo');
+
+// ================= AGENDA =================
+function agrupar(lista){
+  const g={};
+  lista.forEach(a=>{
+    if(!g[a.grupoId]) g[a.grupoId]=[];
+    g[a.grupoId].push(a);
+  });
+  return Object.values(g);
+}
+
+function renderAgenda(lista){
+  listaPedidos.innerHTML='';
+
+  agrupar(lista).forEach(grupo=>{
+    let total=0;
+
+    let div=document.createElement('div');
+    div.className='pedido';
+
+    let html='';
+
+    grupo.forEach(a=>{
+      if(a.status!=='cancelado') total+=a.valor||0;
+
+      html+=`
+        <div class="${a.status==='cancelado'?'cancelado':''}">
+          ${a.nomeCliente} - ${a.servico} - ${a.data} ${a.hora}
+          ${a.status!=='cancelado'
+            ? `<button onclick="cancelar('${a._id}')">❌</button>`
+            : ''
+          }
+        </div>
+      `;
+    });
+
+    html+=`<b>Total: R$ ${total}</b>`;
+
+    div.innerHTML=html;
+    listaPedidos.appendChild(div);
+  });
+}
+
+function filtrar(){
+  const d = filtroData.value;
+  if(!d) return renderAgenda(agendamentos);
+
+  renderAgenda(agendamentos.filter(a=>a.data===d));
+}
+
+// ================= CANCELAR =================
+async function cancelar(id){
+  await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{method:'PUT'});
+  carregar();
+}
+
+// ================= CADASTROS =================
 async function cadastrarBarbeiro(){
   await fetch(`${API_URL}/barbeiros`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ nome:nomeBarbeiro.value })
+    body:JSON.stringify({nome:nomeBarbeiro.value})
   });
-
   nomeBarbeiro.value='';
   carregarBarbeiros();
 }
 
-async function carregarBarbeiros(){
-  let lista = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
-
-  listaBarbeiros.innerHTML='';
-
-  lista.forEach(b=>{
-    listaBarbeiros.innerHTML += `
-      <div class="list-card">
-        ${b.nome}
-        <button class="danger" onclick="delBarbeiro('${b._id}')">X</button>
-      </div>
-    `;
-  });
-}
-
-async function delBarbeiro(id){
-  await fetch(`${API_URL}/barbeiros/${id}`,{method:'DELETE'});
-  carregarBarbeiros();
-}
-
-// ================= SERVIÇOS =================
 async function cadastrarServico(){
   await fetch(`${API_URL}/servicos`,{
     method:'POST',
@@ -233,119 +310,46 @@ async function cadastrarServico(){
       preco:precoServico.value
     })
   });
-
   nomeServico.value='';
   precoServico.value='';
   carregarServicos();
 }
 
+async function carregarBarbeiros(){
+  let lista = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
+  listaBarbeiros.innerHTML='';
+  lista.forEach(b=>{
+    let div=document.createElement('div');
+    div.className='lista-item';
+    div.innerText=b.nome;
+    listaBarbeiros.appendChild(div);
+  });
+}
+
 async function carregarServicos(){
   let lista = await fetch(`${API_URL}/servicos`).then(r=>r.json());
-
   listaServicos.innerHTML='';
-
   lista.forEach(s=>{
-    listaServicos.innerHTML += `
-      <div class="list-card">
-        ${s.nome} - R$ ${s.preco}
-        <button class="danger" onclick="delServico('${s._id}')">X</button>
-      </div>
-    `;
+    let div=document.createElement('div');
+    div.className='lista-item';
+    div.innerText=`${s.nome} - R$ ${s.preco}`;
+    listaServicos.appendChild(div);
   });
 }
 
-async function delServico(id){
-  await fetch(`${API_URL}/servicos/${id}`,{method:'DELETE'});
-  carregarServicos();
-}
+// ================= LOAD =================
+async function carregar(){
+  agendamentos = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
 
-// ================= FINANCEIRO =================
-async function carregarFinanceiro(){
-  let ag = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
-
-  listaReceitas.innerHTML='';
-
-  ag.filter(a=>a.status!=='cancelado').forEach(a=>{
-    listaReceitas.innerHTML += `
-      <div class="list-card receita">
-        ${a.servico} - R$ ${a.valor}
-      </div>
-    `;
-  });
-
-  // DASHBOARD
-  let hoje = new Date().toISOString().split('T')[0];
-
-  let receitaDia = ag
-    .filter(a=>a.data===hoje && a.status!=='cancelado')
-    .reduce((s,a)=>s+a.valor,0);
-
-  let receitaMes = ag
-    .filter(a=>a.status!=='cancelado')
-    .reduce((s,a)=>s+a.valor,0);
-
-  dia.innerText = `Hoje: R$ ${receitaDia}`;
-  mes.innerText = `Mês: R$ ${receitaMes}`;
-  atendimentos.innerText = `Atendimentos: ${ag.length}`;
-}
-
-// ================= DESPESAS =================
-async function addDespesa(){
-  await fetch(`${API_URL}/despesas`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      descricao:descDespesa.value,
-      valor:valorDespesa.value
-    })
-  });
-
-  descDespesa.value='';
-  valorDespesa.value='';
-
-  carregarDespesas();
-}
-
-async function carregarDespesas(){
-  let lista = await fetch(`${API_URL}/despesas`).then(r=>r.json());
-
-  listaDespesas.innerHTML='';
-
-  lista.forEach(d=>{
-    listaDespesas.innerHTML += `
-      <div class="list-card despesa">
-        ${d.descricao} - R$ ${d.valor}
-      </div>
-    `;
-  });
-}
-
-// ================= AGENDA =================
-async function carregarAgenda(){
-  let lista = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
-
-  listaAgenda.innerHTML='';
-
-  lista.forEach(a=>{
-    listaAgenda.innerHTML += `
-      <div class="list-card">
-        ${a.nomeCliente} - ${a.servico} - ${a.data} ${a.hora}
-      </div>
-    `;
-  });
+  renderAgenda(agendamentos);
+  renderDashboard();
+  renderFinanceiro();
 }
 
 // ================= INIT =================
+carregar();
 carregarBarbeiros();
 carregarServicos();
-carregarFinanceiro();
-carregarDespesas();
-carregarAgenda();
-
-setInterval(()=>{
-  carregarFinanceiro();
-  carregarAgenda();
-},5000);
 
 </script>
 

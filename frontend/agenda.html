@@ -4,57 +4,121 @@
   <title>Barbearia</title>
 
   <style>
-    body { background:#111; color:white; font-family:Arial; text-align:center; }
+    body {
+      background:#111;
+      color:white;
+      font-family:Arial;
+      margin:0;
+    }
+
+    h1, h2, h3 {
+      text-align:center;
+    }
+
+    .container {
+      max-width:900px;
+      margin:auto;
+      padding:20px;
+    }
 
     .card {
       background:#1e1e1e;
       padding:20px;
-      margin:20px auto;
-      width:360px;
       border-radius:12px;
+      margin-bottom:20px;
     }
 
-    input, select, button {
-      width:100%;
+    button {
       padding:10px;
-      margin:5px 0;
-      border-radius:6px;
       border:none;
+      border-radius:8px;
+      cursor:pointer;
+      background:#00c853;
+      color:white;
+      width:100%;
+      margin-top:10px;
     }
 
-    button { background:#00c853; color:white; cursor:pointer; }
+    /* SERVIÇOS */
+    .grid {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .item {
+      flex:1;
+      min-width:120px;
+      background:#2a2a2a;
+      padding:15px;
+      border-radius:10px;
+      cursor:pointer;
+      text-align:center;
+    }
+
+    .item.selected {
+      background:#00c853;
+    }
+
+    /* BARBEIROS */
+    .barbeiro {
+      flex:1;
+      min-width:120px;
+      background:#2a2a2a;
+      padding:15px;
+      border-radius:10px;
+      text-align:center;
+      cursor:pointer;
+    }
+
+    .barbeiro.selected {
+      background:#00c853;
+    }
+
+    /* HORÁRIOS */
+    .horarios {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:center;
+    }
 
     .hora {
-      display:inline-block;
-      padding:10px;
-      margin:5px;
       background:#2a2a2a;
-      cursor:pointer;
+      padding:10px;
       border-radius:8px;
+      cursor:pointer;
+      min-width:70px;
+      text-align:center;
     }
 
-    .selecionado { background:#00c853 !important; }
-    .bloqueado { background:#555 !important; cursor:not-allowed; }
+    .hora.selected {
+      background:#00c853;
+    }
 
+    .hora.blocked {
+      background:#555;
+      cursor:not-allowed;
+    }
+
+    /* CARRINHO */
     .item-carrinho {
       background:#2a2a2a;
       padding:10px;
-      margin:5px;
       border-radius:8px;
-      text-align:left;
+      margin:5px 0;
     }
 
     .agendamento {
       background:#2a2a2a;
-      margin:10px;
       padding:10px;
       border-radius:8px;
-      text-align:left;
+      margin:10px 0;
     }
 
     .cancelado {
-      opacity:0.5;
       text-decoration:line-through;
+      opacity:0.5;
     }
 
     .btn-cancelar {
@@ -62,16 +126,19 @@
       margin-top:5px;
     }
 
-    .pix-box {
-      background:#2a2a2a;
+    input {
+      width:100%;
       padding:10px;
-      margin-top:10px;
+      margin:10px 0;
       border-radius:8px;
+      border:none;
     }
   </style>
 </head>
 
 <body>
+
+<div class="container">
 
 <h1>💈 Barbearia</h1>
 <h2 id="boasVindas"></h2>
@@ -81,11 +148,17 @@
 
   <input id="telefone" placeholder="📱 WhatsApp">
 
-  <select id="servico"></select>
-  <select id="barbeiro"></select>
+  <h3>Escolha o serviço</h3>
+  <div id="servicos" class="grid"></div>
+
+  <h3>Escolha o barbeiro</h3>
+  <div id="barbeiros" class="grid"></div>
+
+  <h3>Escolha a data</h3>
   <input type="date" id="data">
 
-  <div id="horarios"></div>
+  <h3>Horários</h3>
+  <div id="horarios" class="horarios"></div>
 
   <button onclick="add()">➕ Adicionar ao carrinho</button>
 </div>
@@ -95,21 +168,19 @@
   <div id="carrinho"></div>
   <h3 id="total"></h3>
 
-  <!-- 🔥 PAGAMENTO -->
-  <select id="tipoPagamento">
-    <option value="local">💈 Pagar no local</option>
-    <option value="pix">⚡ Pagar com PIX</option>
+  <select id="pagamento">
+    <option value="local">Pagar no local</option>
+    <option value="pix">Pagar com PIX</option>
   </select>
 
-  <button onclick="finalizar()">✅ Finalizar Pedido</button>
-
-  <!-- 🔥 PIX AREA -->
-  <div id="pixArea" class="pix-box" style="display:none;"></div>
+  <button onclick="finalizar()">✅ Finalizar</button>
 </div>
 
 <div class="card">
   <h3>📅 Meus pedidos</h3>
   <div id="lista"></div>
+</div>
+
 </div>
 
 <script src="config.js"></script>
@@ -123,89 +194,120 @@ if (!user) {
   location = 'usuario.html';
 }
 
-document.getElementById('boasVindas').innerText = `👋 ${user.nome}`;
+boasVindas.innerText = `👋 ${user.nome}`;
 
 // ================= STATE =================
-let hora = null;
+let servicoSelecionado = null;
+let barbeiroSelecionado = null;
+let horaSelecionada = null;
 let carrinho = [];
 let horariosOcupados = [];
+
+// ================= SERVIÇOS =================
+async function carregar(){
+  let s = await fetch(`${API_URL}/servicos`).then(r=>r.json());
+  let b = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
+
+  servicos.innerHTML='';
+  barbeiros.innerHTML='';
+
+  s.forEach(x=>{
+    let div=document.createElement('div');
+    div.className='item';
+    div.innerHTML=`${x.nome}<br>R$ ${x.preco}`;
+
+    div.onclick=()=>{
+      servicoSelecionado = x;
+      document.querySelectorAll('.item').forEach(e=>e.classList.remove('selected'));
+      div.classList.add('selected');
+    };
+
+    servicos.appendChild(div);
+  });
+
+  b.forEach(x=>{
+    let div=document.createElement('div');
+    div.className='barbeiro';
+    div.innerHTML=x.nome;
+
+    div.onclick=()=>{
+      barbeiroSelecionado = x;
+      document.querySelectorAll('.barbeiro').forEach(e=>e.classList.remove('selected'));
+      div.classList.add('selected');
+    };
+
+    barbeiros.appendChild(div);
+  });
+}
 
 // ================= HORÁRIOS =================
 function gerarHorarios(){
   const horas = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
 
-  const div = document.getElementById('horarios');
-  div.innerHTML = '';
+  horarios.innerHTML='';
 
-  horas.forEach(h => {
-    const el = document.createElement('div');
-    el.innerText = h;
-    el.className = 'hora';
+  horas.forEach(h=>{
+    let div=document.createElement('div');
+    div.className='hora';
+    div.innerText=h;
 
     const ocupadoBanco = horariosOcupados.includes(h);
-    const ocupadoCarrinho = carrinho.find(i => i.hora === h && i.data === data.value);
+    const ocupadoCarrinho = carrinho.find(i=>i.hora===h && i.data===data.value);
 
     if (ocupadoBanco || ocupadoCarrinho) {
-      el.classList.add('bloqueado');
+      div.classList.add('blocked');
     } else {
-      el.onclick = () => {
-        hora = h;
-        document.querySelectorAll('.hora').forEach(e => e.classList.remove('selecionado'));
-        el.classList.add('selecionado');
+      div.onclick=()=>{
+        horaSelecionada=h;
+        document.querySelectorAll('.hora').forEach(e=>e.classList.remove('selected'));
+        div.classList.add('selected');
       };
     }
 
-    div.appendChild(el);
+    horarios.appendChild(div);
   });
 }
 
 // ================= ADD =================
 function add(){
-  if (!hora || !data.value || !barbeiro.value) {
-    alert('Preencha tudo');
-    return;
+  if (!servicoSelecionado || !barbeiroSelecionado || !horaSelecionada || !data.value) {
+    return alert('Preencha tudo');
   }
 
-  const s = servico.options[servico.selectedIndex];
-
   carrinho.push({
-    servico: s.text,
-    valor: Number(s.value),
-    barbeiro: barbeiro.value,
+    servico: servicoSelecionado.nome,
+    valor: servicoSelecionado.preco,
+    barbeiro: barbeiroSelecionado.nome,
     data: data.value,
-    hora
+    hora: horaSelecionada
   });
 
-  hora = null;
+  horaSelecionada=null;
   gerarHorarios();
   render();
 }
 
 // ================= CARRINHO =================
 function render(){
-  const div = document.getElementById('carrinho');
-  div.innerHTML = '';
-
-  let total = 0;
+  carrinhoDiv.innerHTML='';
+  let total=0;
 
   carrinho.forEach((i,idx)=>{
-    total += i.valor;
+    total+=i.valor;
 
-    const el = document.createElement('div');
-    el.className = 'item-carrinho';
+    let div=document.createElement('div');
+    div.className='item-carrinho';
 
-    el.innerHTML = `
-      <b>${i.servico}</b><br>
-      🧑 ${i.barbeiro}<br>
-      📅 ${i.data} ${i.hora}<br>
-      💰 R$${i.valor}
+    div.innerHTML=`
+      ${i.servico} - ${i.data} ${i.hora}<br>
+      R$ ${i.valor}
       <button onclick="rem(${idx})">Remover</button>
     `;
 
-    div.appendChild(el);
+    carrinhoDiv.appendChild(div);
   });
 
-  document.getElementById('total').innerText = "💰 Total: R$ " + total;
+  totalDiv.innerText="💰 Total: R$ "+total;
 }
 
 function rem(i){
@@ -216,60 +318,46 @@ function rem(i){
 
 // ================= FINALIZAR =================
 async function finalizar(){
-  if (!telefone.value) return alert('Informe o telefone');
-  if (carrinho.length === 0) return alert('Carrinho vazio');
+  let formaPagamento = pagamento.value;
 
-  const tipoPagamento = document.getElementById('tipoPagamento').value;
-
-  await fetch(`${API_URL}/agendamentos/lote`,{
+  let res = await fetch(`${API_URL}/agendamentos/lote`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       clienteId:user._id,
       nomeCliente:user.nome,
       telefone:telefone.value,
-      tipoPagamento,
+      formaPagamento,
       itens:carrinho
     })
   });
 
-  // 🔥 PIX SIMULADO
-  if (tipoPagamento === 'pix') {
-    const total = carrinho.reduce((sum,i)=>sum+i.valor,0);
+  let dataRes = await res.json();
 
-    document.getElementById('pixArea').style.display = 'block';
-    document.getElementById('pixArea').innerHTML = `
-      <h3>⚡ Pagamento PIX</h3>
-      <p>Valor: <b>R$ ${total}</b></p>
-      <p>Chave PIX: <b>barbearia@email.com</b></p>
-      <p>📱 Faça o pagamento e aguarde confirmação</p>
-    `;
+  if (formaPagamento === 'pix' && dataRes.pix) {
+    alert(`PIX gerado:\n${dataRes.pix.copiaCola}`);
   }
 
-  alert('✅ Pedido realizado!');
-
-  carrinho = [];
+  carrinho=[];
   render();
   load();
-  carregarOcupados();
 }
 
 // ================= LISTA =================
 async function load(){
-  const res = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`);
-  const lista = await res.json();
+  let res = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`);
+  let lista = await res.json();
 
-  const div = document.getElementById('lista');
-  div.innerHTML = '';
+  listaDiv.innerHTML='';
 
   lista.forEach(p=>{
-    const el = document.createElement('div');
-    el.className = 'agendamento';
+    let div=document.createElement('div');
+    div.className='agendamento';
 
-    let html = `<b>🧾 Pedido</b><br>💰 Total: R$ ${p.total}<br><br>`;
+    let html=`<b>Pedido</b><br>Total: R$ ${p.total}<br><br>`;
 
     p.itens.forEach(i=>{
-      html += `
+      html+=`
         <div class="${i.status==='cancelado'?'cancelado':''}">
           ${i.servico} - ${i.data} ${i.hora}
           ${i.status==='ativo'
@@ -280,50 +368,23 @@ async function load(){
       `;
     });
 
-    el.innerHTML = html;
-    div.appendChild(el);
+    div.innerHTML=html;
+    listaDiv.appendChild(div);
   });
 }
 
 // ================= CANCELAR =================
 async function cancelar(id){
-  await fetch(`${API_URL}/agendamentos/${id}/cancelar`, {
-    method:'PUT'
-  });
-
+  await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{method:'PUT'});
   load();
-  carregarOcupados();
 }
 
-// ================= DADOS =================
-async function carregar(){
-  const s = await fetch(`${API_URL}/servicos`).then(r=>r.json());
-  const b = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
-
-  servico.innerHTML = '';
-  barbeiro.innerHTML = '';
-
-  s.forEach(x=>{
-    const o=document.createElement('option');
-    o.value=x.preco;
-    o.text=`${x.nome} - R$ ${x.preco}`;
-    servico.appendChild(o);
-  });
-
-  b.forEach(x=>{
-    const o=document.createElement('option');
-    o.value=x.nome;
-    o.text=x.nome;
-    barbeiro.appendChild(o);
-  });
-}
-
-// ================= HORÁRIOS OCUPADOS =================
+// ================= OCUPADOS =================
 async function carregarOcupados(){
   if (!data.value) return;
 
-  const res = await fetch(`${API_URL}/agendamentos`);
-  const lista = await res.json();
+  let res = await fetch(`${API_URL}/agendamentos`);
+  let lista = await res.json();
 
   horariosOcupados = lista
     .filter(a => a.data === data.value && a.status !== 'cancelado')
@@ -332,9 +393,7 @@ async function carregarOcupados(){
   gerarHorarios();
 }
 
-// ================= EVENTS =================
 data.addEventListener('change', carregarOcupados);
-barbeiro.addEventListener('change', carregarOcupados);
 
 // ================= LOGOUT =================
 function logout(){
@@ -346,6 +405,11 @@ function logout(){
 carregar();
 load();
 gerarHorarios();
+
+// refs
+const carrinhoDiv = document.getElementById('carrinho');
+const totalDiv = document.getElementById('total');
+const listaDiv = document.getElementById('lista');
 </script>
 
 </body>
