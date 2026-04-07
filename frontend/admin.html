@@ -116,7 +116,6 @@
 
 <!-- FINANCEIRO -->
 <div id="financeiro" style="display:none;">
-
   <h2>💰 Fluxo de Caixa</h2>
 
   <div class="grid">
@@ -144,7 +143,6 @@
 
 <!-- CADASTROS -->
 <div id="cadastros" style="display:none;">
-
   <h2>✂️ Barbeiros</h2>
   <input id="nomeBarbeiro" placeholder="Nome">
   <button onclick="cadastrarBarbeiro()">Cadastrar</button>
@@ -155,7 +153,6 @@
   <input id="precoServico" placeholder="Preço">
   <button onclick="cadastrarServico()">Cadastrar</button>
   <div id="listaServicos"></div>
-
 </div>
 
 </div>
@@ -191,9 +188,9 @@ function renderDashboard(){
 
   let top = Object.entries(cont).sort((a,b)=>b[1]-a[1])[0];
 
-  totalAtendimentos.innerText = `📅 ${total}`;
+  totalAtendimentos.innerText = `📅 ${total} atendimentos`;
   faturamento.innerText = `💰 R$ ${faturamento}`;
-  ticketMedio.innerText = `🎯 R$ ${ticket}`;
+  ticketMedio.innerText = `🎯 Ticket médio: R$ ${ticket}`;
   maisVendido.innerText = `🔥 ${top ? top[0] : '-'}`;
 }
 
@@ -219,6 +216,8 @@ function renderFinanceiro(){
 }
 
 function addDespesa(){
+  if (!descDespesa.value || !valorDespesa.value) return;
+
   despesas.push({
     desc: descDespesa.value,
     valor: Number(valorDespesa.value)
@@ -235,20 +234,27 @@ const receitasDiv = document.getElementById('receitas');
 const despesasDiv = document.getElementById('despesas');
 const saldoDiv = document.getElementById('saldo');
 
-// ================= AGENDA =================
+// ================= AGRUPAMENTO =================
 function agrupar(lista){
   const g={};
+
   lista.forEach(a=>{
-    if(!g[a.grupoId]) g[a.grupoId]=[];
-    g[a.grupoId].push(a);
+    const chave = a.grupoId || a.pedidoId || 'sem-grupo';
+
+    if(!g[chave]) g[chave]=[];
+    g[chave].push(a);
   });
+
   return Object.values(g);
 }
 
+// ================= AGENDA =================
 function renderAgenda(lista){
   listaPedidos.innerHTML='';
 
-  agrupar(lista).forEach(grupo=>{
+  const grupos = agrupar(lista);
+
+  grupos.forEach(grupo=>{
     let total=0;
 
     let div=document.createElement('div');
@@ -257,9 +263,9 @@ function renderAgenda(lista){
     let html='';
 
     grupo.forEach(a=>{
-      if(a.status!=='cancelado') total+=a.valor||0;
+      if(a.status !== 'cancelado') total += a.valor || 0;
 
-      html+=`
+      html += `
         <div class="${a.status==='cancelado'?'cancelado':''}">
           ${a.nomeCliente} - ${a.servico} - ${a.data} ${a.hora}
           ${a.status!=='cancelado'
@@ -270,38 +276,48 @@ function renderAgenda(lista){
       `;
     });
 
-    html+=`<b>Total: R$ ${total}</b>`;
+    html += `<br><b>Total: R$ ${total}</b>`;
 
-    div.innerHTML=html;
+    div.innerHTML = html;
     listaPedidos.appendChild(div);
   });
 }
 
 function filtrar(){
   const d = filtroData.value;
+
   if(!d) return renderAgenda(agendamentos);
 
-  renderAgenda(agendamentos.filter(a=>a.data===d));
+  const filtrados = agendamentos.filter(a=>a.data === d);
+  renderAgenda(filtrados);
 }
 
 // ================= CANCELAR =================
 async function cancelar(id){
-  await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{method:'PUT'});
+  await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{
+    method:'PUT'
+  });
+
   carregar();
 }
 
 // ================= CADASTROS =================
 async function cadastrarBarbeiro(){
+  if (!nomeBarbeiro.value) return;
+
   await fetch(`${API_URL}/barbeiros`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({nome:nomeBarbeiro.value})
   });
+
   nomeBarbeiro.value='';
   carregarBarbeiros();
 }
 
 async function cadastrarServico(){
+  if (!nomeServico.value || !precoServico.value) return;
+
   await fetch(`${API_URL}/servicos`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -310,6 +326,7 @@ async function cadastrarServico(){
       preco:precoServico.value
     })
   });
+
   nomeServico.value='';
   precoServico.value='';
   carregarServicos();
@@ -317,6 +334,7 @@ async function cadastrarServico(){
 
 async function carregarBarbeiros(){
   let lista = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
+
   listaBarbeiros.innerHTML='';
   lista.forEach(b=>{
     let div=document.createElement('div');
@@ -328,6 +346,7 @@ async function carregarBarbeiros(){
 
 async function carregarServicos(){
   let lista = await fetch(`${API_URL}/servicos`).then(r=>r.json());
+
   listaServicos.innerHTML='';
   lista.forEach(s=>{
     let div=document.createElement('div');
@@ -339,12 +358,18 @@ async function carregarServicos(){
 
 // ================= LOAD =================
 async function carregar(){
-  agendamentos = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
+  const res = await fetch(`${API_URL}/agendamentos`);
+  agendamentos = await res.json();
+
+  console.log('AGENDAMENTOS:', agendamentos); // 🔥 debug
 
   renderAgenda(agendamentos);
   renderDashboard();
   renderFinanceiro();
 }
+
+// 🔥 AUTO UPDATE
+setInterval(carregar, 5000);
 
 // ================= INIT =================
 carregar();
