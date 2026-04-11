@@ -1,416 +1,623 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <title>Barbearia</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barbearia — Agendamento</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      background:#111;
-      color:white;
-      font-family:Arial;
-      margin:0;
+    :root {
+      --bg:#0a0a0a;--bg2:#161616;--bg3:#202020;
+      --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+      --text:#f2f2f2;--text2:#888;--text3:#555;
+      --accent:#c9a84c;--accent2:#a8883a;--accent-bg:rgba(201,168,76,0.12);
+      --danger:#e05555;--success:#3dba74;--warning:#e09c3d;
+      --radius:10px;--radius-lg:14px;
     }
+    [data-theme="preto-ouro"]     { --bg:#0a0a0a;--bg2:#161616;--bg3:#202020;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#f2f2f2;--text2:#888;--text3:#555;--accent:#c9a84c;--accent2:#a8883a;--accent-bg:rgba(201,168,76,0.12); }
+    [data-theme="preto-vermelho"] { --bg:#0c0a0a;--bg2:#1a1010;--bg3:#241616;--border:rgba(255,255,255,0.07);--border2:rgba(255,100,100,0.2);--text:#f2efef;--text2:#8a7a7a;--text3:#5a4a4a;--accent:#e05555;--accent2:#b83f3f;--accent-bg:rgba(224,85,85,0.12); }
+    [data-theme="preto-verde"]    { --bg:#090c0a;--bg2:#101a12;--bg3:#172019;--border:rgba(255,255,255,0.07);--border2:rgba(61,186,116,0.2);--text:#edf2ef;--text2:#7a8a7d;--text3:#4a5a4d;--accent:#3dba74;--accent2:#2f9a5d;--accent-bg:rgba(61,186,116,0.12); }
+    [data-theme="cinza-azul"]     { --bg:#0e1014;--bg2:#181c22;--bg3:#21262f;--border:rgba(255,255,255,0.07);--border2:rgba(80,140,220,0.2);--text:#e8edf5;--text2:#7a8a9a;--text3:#4a5a6a;--accent:#508cdc;--accent2:#3a70c0;--accent-bg:rgba(80,140,220,0.12); }
+    [data-theme="marrom-creme"]   { --bg:#f7f3ee;--bg2:#ede8e0;--bg3:#e3ddd4;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--text:#2a1f14;--text2:#6b5a48;--text3:#9a8a78;--accent:#8b5e3c;--accent2:#6e4a2e;--accent-bg:rgba(139,94,60,0.1);--danger:#c0392b;--success:#27ae60;--warning:#d68910; }
 
-    h1, h2, h3 {
-      text-align:center;
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;transition:background 0.3s,color 0.3s}
 
-    .container {
-      max-width:900px;
-      margin:auto;
-      padding:20px;
-    }
+    /* TOPBAR */
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .topbar-left{display:flex;align-items:center;gap:12px}
+    .brand-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .brand-icon svg{width:17px;height:17px}
+    .brand-name{font-size:15px;font-weight:600;color:var(--text)}
+    .topbar-right{display:flex;align-items:center;gap:10px}
+    .user-badge{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--text)}
+    .user-avatar{width:24px;height:24px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
 
-    .card {
-      background:#1e1e1e;
-      padding:20px;
-      border-radius:12px;
-      margin-bottom:20px;
-    }
+    /* LAYOUT */
+    .container{max-width:960px;margin:0 auto;padding:28px 20px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+    .col-left{display:flex;flex-direction:column;gap:16px}
+    .col-right{display:flex;flex-direction:column;gap:16px;position:sticky;top:76px}
 
-    button {
-      padding:10px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      background:#00c853;
-      color:white;
-      width:100%;
-      margin-top:10px;
-    }
+    /* CARDS */
+    .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color 0.2s}
+    .card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+    .card-header-icon{width:28px;height:28px;border-radius:7px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center}
+    .card-header-icon svg{width:14px;height:14px;stroke:var(--accent)}
+    .card-title{font-size:13px;font-weight:500;color:var(--text)}
+    .card-step{font-size:11px;color:var(--text3);margin-left:auto}
+    .card-body{padding:16px 18px}
 
     /* SERVIÇOS */
-    .grid {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .item {
-      flex:1;
-      min-width:120px;
-      background:#2a2a2a;
-      padding:15px;
-      border-radius:10px;
-      cursor:pointer;
-      text-align:center;
-    }
-
-    .item.selected {
-      background:#00c853;
-    }
+    .servicos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+    .servico-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 12px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:center}
+    .servico-item:hover{border-color:var(--border2)}
+    .servico-item.selected{border-color:var(--accent);background:var(--accent-bg)}
+    .servico-nome{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+    .servico-preco{font-size:13px;color:var(--accent);font-family:'DM Mono',monospace}
 
     /* BARBEIROS */
-    .barbeiro {
-      flex:1;
-      min-width:120px;
-      background:#2a2a2a;
-      padding:15px;
-      border-radius:10px;
-      text-align:center;
-      cursor:pointer;
-    }
+    .barbeiros-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+    .barbeiro-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px 12px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .barbeiro-item:hover{border-color:var(--border2)}
+    .barbeiro-item.selected{border-color:var(--accent);background:var(--accent-bg)}
+    .barbeiro-avatar{width:44px;height:44px;border-radius:50%;background:var(--bg2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--text2)}
+    .barbeiro-item.selected .barbeiro-avatar{background:var(--accent-bg);color:var(--accent);border-color:var(--accent)}
+    .barbeiro-nome{font-size:13px;font-weight:500;color:var(--text)}
 
-    .barbeiro.selected {
-      background:#00c853;
-    }
+    /* INPUTS */
+    .input{height:40px;padding:0 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;transition:border-color 0.15s}
+    .input:focus{border-color:var(--accent)}
+    .input::placeholder{color:var(--text3)}
+    .input-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
 
     /* HORÁRIOS */
-    .horarios {
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      justify-content:center;
-    }
+    .horarios-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+    .hora-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center;font-size:13px;font-weight:500;font-family:'DM Mono',monospace;color:var(--text);cursor:pointer;transition:border-color 0.15s,background 0.15s}
+    .hora-item:hover:not(.blocked){border-color:var(--border2)}
+    .hora-item.selected{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+    .hora-item.blocked{opacity:0.3;cursor:not-allowed;text-decoration:line-through}
 
-    .hora {
-      background:#2a2a2a;
-      padding:10px;
-      border-radius:8px;
-      cursor:pointer;
-      min-width:70px;
-      text-align:center;
-    }
-
-    .hora.selected {
-      background:#00c853;
-    }
-
-    .hora.blocked {
-      background:#555;
-      cursor:not-allowed;
-    }
+    /* BOTÕES */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:opacity 0.15s,transform 0.1s;width:100%}
+    .btn:active{transform:scale(0.97)}
+    .btn-primary{background:var(--accent);color:#0a0a0a}
+    .btn-primary:hover{opacity:0.9}
+    .btn-ghost{background:none;color:var(--text2);border:1px solid var(--border2)}
+    .btn-ghost:hover{background:var(--bg3);color:var(--text)}
+    .btn-danger{background:none;color:var(--danger);border:1px solid rgba(224,85,85,0.3);font-size:12px;padding:5px 10px;width:auto}
+    .btn-danger:hover{background:rgba(224,85,85,0.1)}
+    .btn-sm{padding:6px 12px;font-size:12px;width:auto}
 
     /* CARRINHO */
-    .item-carrinho {
-      background:#2a2a2a;
-      padding:10px;
-      border-radius:8px;
-      margin:5px 0;
-    }
+    .carrinho-empty{text-align:center;padding:28px 16px;color:var(--text3);font-size:13px}
+    .cart-item{padding:12px 0;border-bottom:1px solid var(--border)}
+    .cart-item:last-child{border-bottom:none}
+    .cart-item-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+    .cart-item-nome{font-size:13px;font-weight:500;color:var(--text)}
+    .cart-item-preco{font-size:13px;font-family:'DM Mono',monospace;color:var(--accent)}
+    .cart-item-sub{font-size:12px;color:var(--text2)}
+    .cart-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px;border-top:1px solid var(--border);font-size:14px;font-weight:500}
+    .cart-total-val{font-family:'DM Mono',monospace;color:var(--accent);font-size:16px}
 
-    .agendamento {
-      background:#2a2a2a;
-      padding:10px;
-      border-radius:8px;
-      margin:10px 0;
-    }
+    /* SELECT */
+    .select{height:40px;padding:0 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+    .select:focus{border-color:var(--accent)}
 
-    .cancelado {
-      text-decoration:line-through;
-      opacity:0.5;
-    }
+    /* PEDIDOS */
+    .pedido-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+    .pedido-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .pedido-id{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace}
+    .pedido-total{font-size:13px;font-weight:500;color:var(--accent);font-family:'DM Mono',monospace}
+    .pedido-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border)}
+    .pedido-item-info{font-size:13px;color:var(--text)}
+    .pedido-item-sub{font-size:12px;color:var(--text2);margin-top:2px}
+    .pedido-item.cancelado .pedido-item-info{text-decoration:line-through;opacity:0.5}
 
-    .btn-cancelar {
-      background:#ff5252;
-      margin-top:5px;
-    }
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px}
+    .badge::before{content:'';width:5px;height:5px;border-radius:50%}
+    .badge-green{background:rgba(61,186,116,0.15);color:#3dba74}
+    .badge-green::before{background:#3dba74}
+    .badge-red{background:rgba(224,85,85,0.15);color:#e05555}
+    .badge-red::before{background:#e05555}
 
-    input {
-      width:100%;
-      padding:10px;
-      margin:10px 0;
-      border-radius:8px;
-      border:none;
+    /* STEPS */
+    .steps{display:flex;align-items:center;gap:0;margin-bottom:20px;padding:0 4px}
+    .step{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
+    .step.done{color:var(--success)}
+    .step.active{color:var(--accent);font-weight:500}
+    .step-num{width:20px;height:20px;border-radius:50%;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+    .step.done .step-num{background:var(--success);border-color:var(--success);color:#fff}
+    .step-line{flex:1;height:1px;background:var(--border);margin:0 8px;min-width:20px}
+
+    /* PALETTE */
+    .palette-btn{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;z-index:200}
+    .palette-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;text-align:center}
+    .palette-dots{display:flex;gap:5px}
+    .pdot{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform 0.15s,border-color 0.15s}
+    .pdot:hover{transform:scale(1.2)}
+    .pdot.selected{border-color:var(--text)}
+    .pdot[data-p="preto-ouro"]    {background:linear-gradient(135deg,#0a0a0a 50%,#c9a84c 50%)}
+    .pdot[data-p="preto-vermelho"]{background:linear-gradient(135deg,#0c0a0a 50%,#e05555 50%)}
+    .pdot[data-p="preto-verde"]   {background:linear-gradient(135deg,#090c0a 50%,#3dba74 50%)}
+    .pdot[data-p="cinza-azul"]    {background:linear-gradient(135deg,#0e1014 50%,#508cdc 50%)}
+    .pdot[data-p="marrom-creme"]  {background:linear-gradient(135deg,#f7f3ee 50%,#8b5e3c 50%)}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 20px;font-size:13px;color:var(--text);opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;z-index:300;white-space:nowrap}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.success{border-color:rgba(61,186,116,0.4);color:#3dba74}
+    .toast.error{border-color:rgba(224,85,85,0.4);color:#e05555}
+
+    @media(max-width:700px){
+      .container{grid-template-columns:1fr;padding:16px}
+      .col-right{position:static}
+      .steps{display:none}
     }
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
   </style>
 </head>
+<body data-theme="preto-ouro">
 
-<body>
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.2">
+        <path d="M6 3L6 14M6 14C6 16.2 7.8 18 10 18H14C16.2 18 18 16.2 18 14V9M18 9L18 3M18 9H6"/>
+        <path d="M10 21H14"/>
+      </svg>
+    </div>
+    <span class="brand-name">Barbearia</span>
+  </div>
+  <div class="topbar-right">
+    <div class="user-badge">
+      <div class="user-avatar" id="userInitials">—</div>
+      <span id="boasVindas">—</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="logout()" style="width:auto;padding:6px 14px">Sair</button>
+  </div>
+</header>
 
 <div class="container">
+  <div class="col-left">
 
-<h1>💈 Barbearia</h1>
-<h2 id="boasVindas"></h2>
+    <div class="steps" id="stepsBar">
+      <div class="step active" id="step1"><div class="step-num">1</div> Serviço</div>
+      <div class="step-line"></div>
+      <div class="step" id="step2"><div class="step-num">2</div> Barbeiro</div>
+      <div class="step-line"></div>
+      <div class="step" id="step3"><div class="step-num">3</div> Data &amp; Hora</div>
+      <div class="step-line"></div>
+      <div class="step" id="step4"><div class="step-num">4</div> Carrinho</div>
+    </div>
 
-<div class="card">
-  <button onclick="logout()">Sair</button>
+    <!-- SERVIÇOS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </div>
+        <span class="card-title">Escolha o serviço</span>
+        <span class="card-step">Passo 1</span>
+      </div>
+      <div class="card-body">
+        <div class="servicos-grid" id="servicos"></div>
+      </div>
+    </div>
 
-  <input id="telefone" placeholder="📱 WhatsApp">
+    <!-- BARBEIROS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <span class="card-title">Escolha o barbeiro</span>
+        <span class="card-step">Passo 2</span>
+      </div>
+      <div class="card-body">
+        <div class="barbeiros-grid" id="barbeiros"></div>
+      </div>
+    </div>
 
-  <h3>Escolha o serviço</h3>
-  <div id="servicos" class="grid"></div>
+    <!-- DATA & HORÁRIOS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <span class="card-title">Data &amp; Horário</span>
+        <span class="card-step">Passo 3</span>
+      </div>
+      <div class="card-body">
+        <div class="input-label">Selecione a data</div>
+        <input type="date" class="input" id="data" style="margin-bottom:16px">
+        <div class="input-label" style="margin-bottom:10px">Horários disponíveis</div>
+        <div class="horarios-grid" id="horarios"></div>
+      </div>
+    </div>
 
-  <h3>Escolha o barbeiro</h3>
-  <div id="barbeiros" class="grid"></div>
+    <!-- CONTATO -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>
+        </div>
+        <span class="card-title">Seu WhatsApp</span>
+        <span class="card-step">Opcional</span>
+      </div>
+      <div class="card-body">
+        <input class="input" id="telefone" placeholder="(00) 00000-0000">
+      </div>
+    </div>
 
-  <h3>Escolha a data</h3>
-  <input type="date" id="data">
+    <button class="btn btn-primary" onclick="add()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Adicionar ao carrinho
+    </button>
 
-  <h3>Horários</h3>
-  <div id="horarios" class="horarios"></div>
+    <!-- MEUS PEDIDOS -->
+    <div class="card" style="margin-top:8px">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <span class="card-title">Meus agendamentos</span>
+      </div>
+      <div class="card-body" id="lista">
+        <p style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">Carregando...</p>
+      </div>
+    </div>
 
-  <button onclick="add()">➕ Adicionar ao carrinho</button>
+  </div>
+
+  <!-- CARRINHO (direita) -->
+  <div class="col-right">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </div>
+        <span class="card-title">Carrinho</span>
+        <span class="card-step" id="cartCount">0 item</span>
+      </div>
+      <div class="card-body">
+        <div id="carrinho">
+          <div class="carrinho-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 10px;width:32px;height:32px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            Carrinho vazio
+          </div>
+        </div>
+        <div id="cartFooter" style="display:none">
+          <div class="cart-total">
+            <span>Total</span>
+            <span class="cart-total-val" id="total">R$ 0,00</span>
+          </div>
+          <div style="margin:12px 0">
+            <div class="input-label" style="margin-bottom:6px">Forma de pagamento</div>
+            <select class="select" id="pagamento">
+              <option value="local">Pagar no local</option>
+              <option value="pix">Pagar com PIX</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="finalizar()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            Confirmar agendamento
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<div class="card">
-  <h3>🛒 Carrinho</h3>
-  <div id="carrinho"></div>
-  <h3 id="total"></h3>
-
-  <select id="pagamento">
-    <option value="local">Pagar no local</option>
-    <option value="pix">Pagar com PIX</option>
-  </select>
-
-  <button onclick="finalizar()">✅ Finalizar</button>
+<!-- PALETTE FLUTUANTE -->
+<div class="palette-btn">
+  <div class="palette-label">Tema</div>
+  <div class="palette-dots">
+    <div class="pdot selected" data-p="preto-ouro"></div>
+    <div class="pdot" data-p="preto-vermelho"></div>
+    <div class="pdot" data-p="preto-verde"></div>
+    <div class="pdot" data-p="cinza-azul"></div>
+    <div class="pdot" data-p="marrom-creme"></div>
+  </div>
 </div>
 
-<div class="card">
-  <h3>📅 Meus pedidos</h3>
-  <div id="lista"></div>
-</div>
-
-</div>
+<div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-
 <script>
-// ================= USER =================
+
+// ===== USER =====
 let user = JSON.parse(localStorage.getItem('usuario'));
+if (!user) { alert('Faça login'); location = 'usuario.html'; }
 
-if (!user) {
-  alert('Faça login');
-  location = 'usuario.html';
+const initials = (user.nome||'?').split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase();
+document.getElementById('userInitials').textContent = initials;
+document.getElementById('boasVindas').textContent   = user.nome;
+
+// ===== TEMA =====
+document.querySelectorAll('.pdot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    document.querySelectorAll('.pdot').forEach(d => d.classList.remove('selected'));
+    dot.classList.add('selected');
+    document.body.dataset.theme = dot.dataset.p;
+    localStorage.setItem('theme', dot.dataset.p);
+  });
+});
+const savedTheme = localStorage.getItem('theme') || 'preto-ouro';
+document.body.dataset.theme = savedTheme;
+document.querySelectorAll('.pdot').forEach(d => d.classList.toggle('selected', d.dataset.p === savedTheme));
+
+// ===== TOAST =====
+function toast(msg, tipo='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + tipo;
+  setTimeout(() => el.className = 'toast', 2800);
 }
 
-boasVindas.innerText = `👋 ${user.nome}`;
-
-// ================= STATE =================
-let servicoSelecionado = null;
+// ===== STATE =====
+let servicoSelecionado  = null;
 let barbeiroSelecionado = null;
-let horaSelecionada = null;
-let carrinho = [];
-let horariosOcupados = [];
+let horaSelecionada     = null;
+let carrinho            = [];
+let horariosOcupados    = [];
 
-// ================= SERVIÇOS =================
-async function carregar(){
-  let s = await fetch(`${API_URL}/servicos`).then(r=>r.json());
-  let b = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
+// ===== STEPS =====
+function atualizarSteps() {
+  const s1 = !!servicoSelecionado;
+  const s2 = !!barbeiroSelecionado;
+  const s3 = !!horaSelecionada && !!document.getElementById('data').value;
+  const s4 = carrinho.length > 0;
+  const step = (id, done, active) => {
+    document.getElementById(id).className = 'step' + (done?' done':active?' active':'');
+  };
+  step('step1', s1, !s1);
+  step('step2', s2, s1&&!s2);
+  step('step3', s3, s2&&!s3);
+  step('step4', s4, s3&&!s4);
+}
 
-  servicos.innerHTML='';
-  barbeiros.innerHTML='';
+// ===== CARREGAR =====
+async function carregar() {
+  const [servList, barbList] = await Promise.all([
+    fetch(`${API_URL}/servicos`).then(r=>r.json()),
+    fetch(`${API_URL}/barbeiros`).then(r=>r.json())
+  ]);
 
-  s.forEach(x=>{
-    let div=document.createElement('div');
-    div.className='item';
-    div.innerHTML=`${x.nome}<br>R$ ${x.preco}`;
-
-    div.onclick=()=>{
+  const servEl = document.getElementById('servicos');
+  servEl.innerHTML = '';
+  servList.forEach(x => {
+    const div = document.createElement('div');
+    div.className = 'servico-item';
+    div.innerHTML = `<div class="servico-nome">${x.nome}</div><div class="servico-preco">R$ ${Number(x.preco).toFixed(2)}</div>`;
+    div.onclick = () => {
       servicoSelecionado = x;
-      document.querySelectorAll('.item').forEach(e=>e.classList.remove('selected'));
+      document.querySelectorAll('.servico-item').forEach(e=>e.classList.remove('selected'));
       div.classList.add('selected');
+      atualizarSteps();
     };
-
-    servicos.appendChild(div);
+    servEl.appendChild(div);
   });
 
-  b.forEach(x=>{
-    let div=document.createElement('div');
-    div.className='barbeiro';
-    div.innerHTML=x.nome;
-
-    div.onclick=()=>{
+  const barbEl = document.getElementById('barbeiros');
+  barbEl.innerHTML = '';
+  barbList.forEach(x => {
+    const ini = (x.nome||'?').substring(0,2).toUpperCase();
+    const div = document.createElement('div');
+    div.className = 'barbeiro-item';
+    div.innerHTML = `<div class="barbeiro-avatar">${ini}</div><div class="barbeiro-nome">${x.nome}</div>`;
+    div.onclick = () => {
       barbeiroSelecionado = x;
-      document.querySelectorAll('.barbeiro').forEach(e=>e.classList.remove('selected'));
+      document.querySelectorAll('.barbeiro-item').forEach(e=>e.classList.remove('selected'));
       div.classList.add('selected');
+      atualizarSteps();
     };
-
-    barbeiros.appendChild(div);
+    barbEl.appendChild(div);
   });
 }
 
-// ================= HORÁRIOS =================
-function gerarHorarios(){
-  const horas = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
+// ===== HORÁRIOS =====
+const HORAS = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
 
-  horarios.innerHTML='';
-
-  horas.forEach(h=>{
-    let div=document.createElement('div');
-    div.className='hora';
-    div.innerText=h;
-
-    const ocupadoBanco = horariosOcupados.includes(h);
-    const ocupadoCarrinho = carrinho.find(i=>i.hora===h && i.data===data.value);
-
+function gerarHorarios() {
+  const el = document.getElementById('horarios');
+  el.innerHTML = '';
+  const dataVal = document.getElementById('data').value;
+  if (!dataVal) {
+    el.innerHTML = '<p style="color:var(--text3);font-size:13px">Selecione uma data primeiro</p>';
+    return;
+  }
+  HORAS.forEach(h => {
+    const div = document.createElement('div');
+    div.className = 'hora-item';
+    div.textContent = h;
+    const ocupadoBanco    = horariosOcupados.includes(h);
+    const ocupadoCarrinho = carrinho.find(i=>i.hora===h&&i.data===dataVal);
     if (ocupadoBanco || ocupadoCarrinho) {
       div.classList.add('blocked');
     } else {
-      div.onclick=()=>{
-        horaSelecionada=h;
-        document.querySelectorAll('.hora').forEach(e=>e.classList.remove('selected'));
+      div.onclick = () => {
+        horaSelecionada = h;
+        document.querySelectorAll('.hora-item').forEach(e=>e.classList.remove('selected'));
         div.classList.add('selected');
+        atualizarSteps();
       };
     }
-
-    horarios.appendChild(div);
+    el.appendChild(div);
   });
 }
 
-// ================= ADD =================
-function add(){
-  if (!servicoSelecionado || !barbeiroSelecionado || !horaSelecionada || !data.value) {
-    return alert('Preencha tudo');
-  }
+async function carregarOcupados() {
+  const dataVal = document.getElementById('data').value;
+  if (!dataVal) return;
+  const lista = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
+  horariosOcupados = lista.filter(a=>a.data===dataVal&&a.status!=='cancelado').map(a=>a.hora);
+  gerarHorarios();
+}
+document.getElementById('data').addEventListener('change', () => {
+  horaSelecionada = null;
+  atualizarSteps();
+  carregarOcupados();
+});
+
+// ===== ADD =====
+function add() {
+  if (!servicoSelecionado)  return toast('Selecione um serviço','error');
+  if (!barbeiroSelecionado) return toast('Selecione um barbeiro','error');
+  if (!document.getElementById('data').value) return toast('Selecione uma data','error');
+  if (!horaSelecionada)     return toast('Selecione um horário','error');
 
   carrinho.push({
-    servico: servicoSelecionado.nome,
-    valor: servicoSelecionado.preco,
+    servico:  servicoSelecionado.nome,
+    valor:    Number(servicoSelecionado.preco),
     barbeiro: barbeiroSelecionado.nome,
-    data: data.value,
-    hora: horaSelecionada
+    data:     document.getElementById('data').value,
+    hora:     horaSelecionada
   });
 
-  horaSelecionada=null;
+  horaSelecionada = null;
+  document.querySelectorAll('.hora-item').forEach(e=>e.classList.remove('selected'));
   gerarHorarios();
-  render();
+  renderCarrinho();
+  atualizarSteps();
+  toast('Adicionado ao carrinho!','success');
 }
 
-// ================= CARRINHO =================
-function render(){
-  carrinhoDiv.innerHTML='';
-  let total=0;
+// ===== RENDER CARRINHO =====
+function renderCarrinho() {
+  const el     = document.getElementById('carrinho');
+  const footer = document.getElementById('cartFooter');
+  const count  = document.getElementById('cartCount');
+  count.textContent = carrinho.length + (carrinho.length===1?' item':' itens');
 
-  carrinho.forEach((i,idx)=>{
-    total+=i.valor;
-
-    let div=document.createElement('div');
-    div.className='item-carrinho';
-
-    div.innerHTML=`
-      ${i.servico} - ${i.data} ${i.hora}<br>
-      R$ ${i.valor}
-      <button onclick="rem(${idx})">Remover</button>
-    `;
-
-    carrinhoDiv.appendChild(div);
-  });
-
-  totalDiv.innerText="💰 Total: R$ "+total;
-}
-
-function rem(i){
-  carrinho.splice(i,1);
-  gerarHorarios();
-  render();
-}
-
-// ================= FINALIZAR =================
-async function finalizar(){
-  let formaPagamento = pagamento.value;
-
-  let res = await fetch(`${API_URL}/agendamentos/lote`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      clienteId:user._id,
-      nomeCliente:user.nome,
-      telefone:telefone.value,
-      formaPagamento,
-      itens:carrinho
-    })
-  });
-
-  let dataRes = await res.json();
-
-  if (formaPagamento === 'pix' && dataRes.pix) {
-    alert(`PIX gerado:\n${dataRes.pix.copiaCola}`);
+  if (!carrinho.length) {
+    el.innerHTML = `<div class="carrinho-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 10px;width:32px;height:32px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Carrinho vazio</div>`;
+    footer.style.display = 'none';
+    return;
   }
 
-  carrinho=[];
-  render();
-  load();
-}
-
-// ================= LISTA =================
-async function load(){
-  let res = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`);
-  let lista = await res.json();
-
-  listaDiv.innerHTML='';
-
-  lista.forEach(p=>{
-    let div=document.createElement('div');
-    div.className='agendamento';
-
-    let html=`<b>Pedido</b><br>Total: R$ ${p.total}<br><br>`;
-
-    p.itens.forEach(i=>{
-      html+=`
-        <div class="${i.status==='cancelado'?'cancelado':''}">
-          ${i.servico} - ${i.data} ${i.hora}
-          ${i.status==='ativo'
-            ? `<button class="btn-cancelar" onclick="cancelar('${i._id}')">Cancelar</button>`
-            : ''
-          }
-        </div>
-      `;
-    });
-
-    div.innerHTML=html;
-    listaDiv.appendChild(div);
+  let total = 0;
+  el.innerHTML = '';
+  carrinho.forEach((item, idx) => {
+    total += item.valor;
+    const div = document.createElement('div');
+    div.className = 'cart-item';
+    div.innerHTML = `
+      <div class="cart-item-top">
+        <span class="cart-item-nome">${item.servico}</span>
+        <span class="cart-item-preco">R$ ${item.valor.toFixed(2)}</span>
+      </div>
+      <div class="cart-item-sub">${item.barbeiro} · ${formatarData(item.data)} às ${item.hora}</div>
+      <div style="margin-top:8px"><button class="btn btn-danger" onclick="remover(${idx})">Remover</button></div>`;
+    el.appendChild(div);
   });
+  document.getElementById('total').textContent = `R$ ${total.toFixed(2)}`;
+  footer.style.display = 'block';
 }
 
-// ================= CANCELAR =================
-async function cancelar(id){
+function remover(idx) {
+  carrinho.splice(idx,1);
+  gerarHorarios();
+  renderCarrinho();
+  atualizarSteps();
+}
+
+// ===== FINALIZAR =====
+async function finalizar() {
+  if (!carrinho.length) return toast('Carrinho vazio','error');
+  const btn = document.querySelector('.btn-primary[onclick="finalizar()"]');
+  btn.textContent = 'Aguarde...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${API_URL}/agendamentos/lote`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        clienteId:      user._id,
+        nomeCliente:    user.nome,
+        telefone:       document.getElementById('telefone').value,
+        formaPagamento: document.getElementById('pagamento').value,
+        itens:          carrinho
+      })
+    });
+    const dataRes = await res.json();
+    if (document.getElementById('pagamento').value==='pix' && dataRes.pix) {
+      alert(`PIX gerado:\n${dataRes.pix.copiaCola}`);
+    }
+    carrinho = [];
+    renderCarrinho();
+    atualizarSteps();
+    load();
+    toast('Agendamento confirmado!','success');
+  } catch(e) {
+    toast('Erro ao finalizar. Tente novamente.','error');
+  } finally {
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Confirmar agendamento`;
+    btn.disabled = false;
+  }
+}
+
+// ===== PEDIDOS =====
+function formatarData(d) {
+  return new Date(d+'T00:00:00').toLocaleDateString('pt-BR');
+}
+
+async function load() {
+  const el = document.getElementById('lista');
+  el.innerHTML = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:12px 0">Carregando...</p>';
+  try {
+    const lista = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`).then(r=>r.json());
+    if (!lista.length) {
+      el.innerHTML = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">Nenhum agendamento ainda</p>';
+      return;
+    }
+    el.innerHTML = '';
+    lista.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'pedido-card';
+      let html = `<div class="pedido-header"><span class="pedido-id">Pedido #${(p._id||'').slice(-6).toUpperCase()}</span><span class="pedido-total">R$ ${Number(p.total||0).toFixed(2)}</span></div>`;
+      (p.itens||[]).forEach(i => {
+        const cancelado = i.status==='cancelado';
+        html += `
+          <div class="pedido-item ${cancelado?'cancelado':''}">
+            <div>
+              <div class="pedido-item-info">${i.servico} · ${i.barbeiro||''}</div>
+              <div class="pedido-item-sub">${formatarData(i.data)} às ${i.hora}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              ${cancelado
+                ? '<span class="badge badge-red">Cancelado</span>'
+                : `<span class="badge badge-green">Confirmado</span><button class="btn btn-danger" onclick="cancelar('${i._id}')">Cancelar</button>`
+              }
+            </div>
+          </div>`;
+      });
+      div.innerHTML = html;
+      el.appendChild(div);
+    });
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:12px 0">Erro ao carregar</p>';
+  }
+}
+
+async function cancelar(id) {
   await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{method:'PUT'});
   load();
+  toast('Agendamento cancelado');
 }
 
-// ================= OCUPADOS =================
-async function carregarOcupados(){
-  if (!data.value) return;
+function logout() { localStorage.clear(); location='usuario.html'; }
 
-  let res = await fetch(`${API_URL}/agendamentos`);
-  let lista = await res.json();
-
-  horariosOcupados = lista
-    .filter(a => a.data === data.value && a.status !== 'cancelado')
-    .map(a => a.hora);
-
-  gerarHorarios();
-}
-
-data.addEventListener('change', carregarOcupados);
-
-// ================= LOGOUT =================
-function logout(){
-  localStorage.clear();
-  location='usuario.html';
-}
-
-// ================= INIT =================
+// ===== INIT =====
 carregar();
 load();
 gerarHorarios();
+atualizarSteps();
 
-// refs
-const carrinhoDiv = document.getElementById('carrinho');
-const totalDiv = document.getElementById('total');
-const listaDiv = document.getElementById('lista');
 </script>
-
 </body>
 </html>
