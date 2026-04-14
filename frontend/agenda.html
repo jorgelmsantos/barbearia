@@ -24,6 +24,7 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;transition:background 0.3s,color 0.3s}
 
+    /* TOPBAR */
     .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
     .topbar-left{display:flex;align-items:center;gap:12px}
     .brand-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center}
@@ -33,10 +34,12 @@
     .user-badge{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--text)}
     .user-avatar{width:24px;height:24px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
 
+    /* LAYOUT */
     .container{max-width:960px;margin:0 auto;padding:28px 20px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
     .col-left{display:flex;flex-direction:column;gap:16px}
     .col-right{display:flex;flex-direction:column;gap:16px;position:sticky;top:76px}
 
+    /* CARDS */
     .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color 0.2s}
     .card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
     .card-header-icon{width:28px;height:28px;border-radius:7px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center}
@@ -45,6 +48,7 @@
     .card-step{font-size:11px;color:var(--text3);margin-left:auto}
     .card-body{padding:16px 18px}
 
+    /* SERVIÇOS */
     .servicos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
     .servico-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 12px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:center}
     .servico-item:hover{border-color:var(--border2)}
@@ -52,6 +56,7 @@
     .servico-nome{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
     .servico-preco{font-size:13px;color:var(--accent);font-family:'DM Mono',monospace}
 
+    /* BARBEIROS */
     .barbeiros-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
     .barbeiro-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px 12px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
     .barbeiro-item:hover{border-color:var(--border2)}
@@ -60,17 +65,20 @@
     .barbeiro-item.selected .barbeiro-avatar{background:var(--accent-bg);color:var(--accent);border-color:var(--accent)}
     .barbeiro-nome{font-size:13px;font-weight:500;color:var(--text)}
 
+    /* INPUTS */
     .input{height:40px;padding:0 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;transition:border-color 0.15s}
     .input:focus{border-color:var(--accent)}
     .input::placeholder{color:var(--text3)}
     .input-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
 
+    /* HORÁRIOS */
     .horarios-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
     .hora-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center;font-size:13px;font-weight:500;font-family:'DM Mono',monospace;color:var(--text);cursor:pointer;transition:border-color 0.15s,background 0.15s}
     .hora-item:hover:not(.blocked){border-color:var(--border2)}
     .hora-item.selected{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
     .hora-item.blocked{opacity:0.3;cursor:not-allowed;text-decoration:line-through}
 
+    /* BOTÕES */
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:opacity 0.15s,transform 0.1s;width:100%}
     .btn:active{transform:scale(0.97)}
     .btn-primary{background:var(--accent);color:#0a0a0a}
@@ -81,6 +89,7 @@
     .btn-danger:hover{background:rgba(224,85,85,0.1)}
     .btn-sm{padding:6px 12px;font-size:12px;width:auto}
 
+    /* CARRINHO */
     .carrinho-empty{text-align:center;padding:28px 16px;color:var(--text3);font-size:13px}
     .cart-item{padding:12px 0;border-bottom:1px solid var(--border)}
     .cart-item:last-child{border-bottom:none}
@@ -91,22 +100,21 @@
     .cart-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px;border-top:1px solid var(--border);font-size:14px;font-weight:500}
     .cart-total-val{font-family:'DM Mono',monospace;color:var(--accent);font-size:16px}
 
+    /* SELECT */
     .select{height:40px;padding:0 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
     .select:focus{border-color:var(--accent)}
 
-    /* FILTROS */
-    .filtros{display:flex;gap:6px;padding:12px 18px;border-bottom:1px solid var(--border)}
-    .filtro-btn{background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s,color 0.15s,border-color 0.15s}
-    .filtro-btn:hover{background:var(--bg3);color:var(--text)}
-    .filtro-btn.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
-
+    /* PEDIDOS */
     .pedido-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
-    .pedido-card:last-child{margin-bottom:0}
-    .pedido-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+    .pedido-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .pedido-id{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace}
+    .pedido-total{font-size:13px;font-weight:500;color:var(--accent);font-family:'DM Mono',monospace}
+    .pedido-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border)}
     .pedido-item-info{font-size:13px;color:var(--text)}
     .pedido-item-sub{font-size:12px;color:var(--text2);margin-top:2px}
     .pedido-item.cancelado .pedido-item-info{text-decoration:line-through;opacity:0.5}
 
+    /* BADGES */
     .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px}
     .badge::before{content:'';width:5px;height:5px;border-radius:50%}
     .badge-green{background:rgba(61,186,116,0.15);color:#3dba74}
@@ -114,6 +122,7 @@
     .badge-red{background:rgba(224,85,85,0.15);color:#e05555}
     .badge-red::before{background:#e05555}
 
+    /* STEPS */
     .steps{display:flex;align-items:center;gap:0;margin-bottom:20px;padding:0 4px}
     .step{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
     .step.done{color:var(--success)}
@@ -122,6 +131,7 @@
     .step.done .step-num{background:var(--success);border-color:var(--success);color:#fff}
     .step-line{flex:1;height:1px;background:var(--border);margin:0 8px;min-width:20px}
 
+    /* PALETTE */
     .palette-btn{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;z-index:200}
     .palette-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;text-align:center}
     .palette-dots{display:flex;gap:5px}
@@ -134,6 +144,7 @@
     .pdot[data-p="cinza-azul"]    {background:linear-gradient(135deg,#0e1014 50%,#508cdc 50%)}
     .pdot[data-p="marrom-creme"]  {background:linear-gradient(135deg,#f7f3ee 50%,#8b5e3c 50%)}
 
+    /* TOAST */
     .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 20px;font-size:13px;color:var(--text);opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;z-index:300;white-space:nowrap}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
     .toast.success{border-color:rgba(61,186,116,0.4);color:#3dba74}
@@ -173,7 +184,7 @@
 <div class="container">
   <div class="col-left">
 
-    <div class="steps">
+    <div class="steps" id="stepsBar">
       <div class="step active" id="step1"><div class="step-num">1</div> Serviço</div>
       <div class="step-line"></div>
       <div class="step" id="step2"><div class="step-num">2</div> Barbeiro</div>
@@ -228,7 +239,7 @@
       </div>
     </div>
 
-    <!-- WHATSAPP -->
+    <!-- CONTATO -->
     <div class="card">
       <div class="card-header">
         <div class="card-header-icon">
@@ -255,12 +266,6 @@
         </div>
         <span class="card-title">Meus agendamentos</span>
       </div>
-      <!-- FILTROS -->
-      <div class="filtros">
-        <button class="filtro-btn active" onclick="setFiltro('todos',this)">Todos</button>
-        <button class="filtro-btn" onclick="setFiltro('confirmado',this)">Confirmados</button>
-        <button class="filtro-btn" onclick="setFiltro('cancelado',this)">Cancelados</button>
-      </div>
       <div class="card-body" id="lista">
         <p style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">Carregando...</p>
       </div>
@@ -268,7 +273,7 @@
 
   </div>
 
-  <!-- CARRINHO -->
+  <!-- CARRINHO (direita) -->
   <div class="col-right">
     <div class="card">
       <div class="card-header">
@@ -322,7 +327,6 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- MANTIVE TODO SEU HTML ORIGINAL, SÓ ALTEREI O JS -->
 <script src="config.js"></script>
 <script>
 
@@ -333,6 +337,27 @@ if (!user) { alert('Faça login'); location = 'usuario.html'; }
 const initials = (user.nome||'?').split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase();
 document.getElementById('userInitials').textContent = initials;
 document.getElementById('boasVindas').textContent   = user.nome;
+
+// ===== TEMA =====
+document.querySelectorAll('.pdot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    document.querySelectorAll('.pdot').forEach(d => d.classList.remove('selected'));
+    dot.classList.add('selected');
+    document.body.dataset.theme = dot.dataset.p;
+    localStorage.setItem('theme', dot.dataset.p);
+  });
+});
+const savedTheme = localStorage.getItem('theme') || 'preto-ouro';
+document.body.dataset.theme = savedTheme;
+document.querySelectorAll('.pdot').forEach(d => d.classList.toggle('selected', d.dataset.p === savedTheme));
+
+// ===== TOAST =====
+function toast(msg, tipo='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + tipo;
+  setTimeout(() => el.className = 'toast', 2800);
+}
 
 // ===== STATE =====
 let servicoSelecionado  = null;
@@ -347,11 +372,9 @@ function atualizarSteps() {
   const s2 = !!barbeiroSelecionado;
   const s3 = !!horaSelecionada && !!document.getElementById('data').value;
   const s4 = carrinho.length > 0;
-
   const step = (id, done, active) => {
-    document.getElementById(id).className = 'step'+(done?' done':active?' active':'');
+    document.getElementById(id).className = 'step' + (done?' done':active?' active':'');
   };
-
   step('step1', s1, !s1);
   step('step2', s2, s1&&!s2);
   step('step3', s3, s2&&!s3);
@@ -367,40 +390,32 @@ async function carregar() {
 
   const servEl = document.getElementById('servicos');
   servEl.innerHTML = '';
-
   servList.forEach(x => {
     const div = document.createElement('div');
     div.className = 'servico-item';
     div.innerHTML = `<div class="servico-nome">${x.nome}</div><div class="servico-preco">R$ ${Number(x.preco).toFixed(2)}</div>`;
-
     div.onclick = () => {
       servicoSelecionado = x;
       document.querySelectorAll('.servico-item').forEach(e=>e.classList.remove('selected'));
       div.classList.add('selected');
       atualizarSteps();
     };
-
     servEl.appendChild(div);
   });
 
   const barbEl = document.getElementById('barbeiros');
   barbEl.innerHTML = '';
-
   barbList.forEach(x => {
     const ini = (x.nome||'?').substring(0,2).toUpperCase();
-
     const div = document.createElement('div');
     div.className = 'barbeiro-item';
     div.innerHTML = `<div class="barbeiro-avatar">${ini}</div><div class="barbeiro-nome">${x.nome}</div>`;
-
     div.onclick = () => {
       barbeiroSelecionado = x;
       document.querySelectorAll('.barbeiro-item').forEach(e=>e.classList.remove('selected'));
       div.classList.add('selected');
       atualizarSteps();
-      carregarOcupados(); // ✅ NOVO
     };
-
     barbEl.appendChild(div);
   });
 }
@@ -411,22 +426,17 @@ const HORAS = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","
 function gerarHorarios() {
   const el = document.getElementById('horarios');
   el.innerHTML = '';
-
   const dataVal = document.getElementById('data').value;
-
   if (!dataVal) {
-    el.innerHTML = '<p style="color:var(--text3)">Selecione uma data primeiro</p>';
+    el.innerHTML = '<p style="color:var(--text3);font-size:13px">Selecione uma data primeiro</p>';
     return;
   }
-
   HORAS.forEach(h => {
     const div = document.createElement('div');
     div.className = 'hora-item';
     div.textContent = h;
-
-    const ocupadoBanco = horariosOcupados.includes(h);
-    const ocupadoCarrinho = carrinho.find(i=>i.hora===h && i.data===dataVal);
-
+    const ocupadoBanco    = horariosOcupados.includes(h);
+    const ocupadoCarrinho = carrinho.find(i=>i.hora===h&&i.data===dataVal);
     if (ocupadoBanco || ocupadoCarrinho) {
       div.classList.add('blocked');
     } else {
@@ -437,29 +447,17 @@ function gerarHorarios() {
         atualizarSteps();
       };
     }
-
     el.appendChild(div);
   });
 }
 
-// ===== OCUPADOS (CORRIGIDO) =====
 async function carregarOcupados() {
   const dataVal = document.getElementById('data').value;
-  if (!dataVal || !barbeiroSelecionado) return;
-
+  if (!dataVal) return;
   const lista = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
-
-  horariosOcupados = lista
-    .filter(a =>
-      a.data === dataVal &&
-      a.barbeiro === barbeiroSelecionado.nome &&
-      a.status !== 'cancelado'
-    )
-    .map(a => a.hora);
-
+  horariosOcupados = lista.filter(a=>a.data===dataVal&&a.status!=='cancelado').map(a=>a.hora);
   gerarHorarios();
 }
-
 document.getElementById('data').addEventListener('change', () => {
   horaSelecionada = null;
   atualizarSteps();
@@ -468,51 +466,56 @@ document.getElementById('data').addEventListener('change', () => {
 
 // ===== ADD =====
 function add() {
-  if (!servicoSelecionado)  return alert('Selecione um serviço');
-  if (!barbeiroSelecionado) return alert('Selecione um barbeiro');
-  if (!document.getElementById('data').value) return alert('Selecione uma data');
-  if (!horaSelecionada)     return alert('Selecione um horário');
+  if (!servicoSelecionado)  return toast('Selecione um serviço','error');
+  if (!barbeiroSelecionado) return toast('Selecione um barbeiro','error');
+  if (!document.getElementById('data').value) return toast('Selecione uma data','error');
+  if (!horaSelecionada)     return toast('Selecione um horário','error');
 
   carrinho.push({
-    servico: servicoSelecionado.nome,
-    valor: Number(servicoSelecionado.preco),
+    servico:  servicoSelecionado.nome,
+    valor:    Number(servicoSelecionado.preco),
     barbeiro: barbeiroSelecionado.nome,
-    data: document.getElementById('data').value,
-    hora: horaSelecionada
+    data:     document.getElementById('data').value,
+    hora:     horaSelecionada
   });
 
   horaSelecionada = null;
+  document.querySelectorAll('.hora-item').forEach(e=>e.classList.remove('selected'));
   gerarHorarios();
   renderCarrinho();
   atualizarSteps();
+  toast('Adicionado ao carrinho!','success');
 }
 
-// ===== CARRINHO =====
+// ===== RENDER CARRINHO =====
 function renderCarrinho() {
-  const el = document.getElementById('carrinho');
+  const el     = document.getElementById('carrinho');
   const footer = document.getElementById('cartFooter');
+  const count  = document.getElementById('cartCount');
+  count.textContent = carrinho.length + (carrinho.length===1?' item':' itens');
 
   if (!carrinho.length) {
-    el.innerHTML = 'Carrinho vazio';
+    el.innerHTML = `<div class="carrinho-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 10px;width:32px;height:32px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Carrinho vazio</div>`;
     footer.style.display = 'none';
     return;
   }
 
   let total = 0;
   el.innerHTML = '';
-
   carrinho.forEach((item, idx) => {
     total += item.valor;
-
     const div = document.createElement('div');
+    div.className = 'cart-item';
     div.innerHTML = `
-      ${item.servico} - R$ ${item.valor}
-      <button onclick="remover(${idx})">X</button>
-    `;
+      <div class="cart-item-top">
+        <span class="cart-item-nome">${item.servico}</span>
+        <span class="cart-item-preco">R$ ${item.valor.toFixed(2)}</span>
+      </div>
+      <div class="cart-item-sub">${item.barbeiro} · ${formatarData(item.data)} às ${item.hora}</div>
+      <div style="margin-top:8px"><button class="btn btn-danger" onclick="remover(${idx})">Remover</button></div>`;
     el.appendChild(div);
   });
-
-  document.getElementById('total').textContent = total.toFixed(2);
+  document.getElementById('total').textContent = `R$ ${total.toFixed(2)}`;
   footer.style.display = 'block';
 }
 
@@ -520,94 +523,94 @@ function remover(idx) {
   carrinho.splice(idx,1);
   gerarHorarios();
   renderCarrinho();
+  atualizarSteps();
 }
 
-// ===== FINALIZAR (CORRIGIDO) =====
+// ===== FINALIZAR =====
 async function finalizar() {
-  if (!carrinho.length) return alert('Carrinho vazio');
-
+  if (!carrinho.length) return toast('Carrinho vazio','error');
+  const btn = document.querySelector('.btn-primary[onclick="finalizar()"]');
+  btn.textContent = 'Aguarde...';
+  btn.disabled = true;
   try {
     const res = await fetch(`${API_URL}/agendamentos/lote`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        clienteId:user._id,
-        nomeCliente:user.nome,
-        telefone:document.getElementById('telefone').value,
-        formaPagamento:document.getElementById('pagamento').value,
-        itens:carrinho
+        clienteId:      user._id,
+        nomeCliente:    user.nome,
+        telefone:       document.getElementById('telefone').value,
+        formaPagamento: document.getElementById('pagamento').value,
+        itens:          carrinho
       })
     });
-
     const dataRes = await res.json();
-
-    if (document.getElementById('pagamento').value==='pix' && dataRes?.pix?.copiaCola) {
-      alert(`PIX:\n${dataRes.pix.copiaCola}`);
+    if (document.getElementById('pagamento').value==='pix' && dataRes.pix) {
+      alert(`PIX gerado:\n${dataRes.pix.copiaCola}`);
     }
-
-    // RESET COMPLETO
     carrinho = [];
-    document.getElementById('telefone').value = '';
-    document.getElementById('data').value = '';
-
-    servicoSelecionado = null;
-    barbeiroSelecionado = null;
-    horaSelecionada = null;
-
-    document.querySelectorAll('.selected').forEach(e => e.classList.remove('selected'));
-
     renderCarrinho();
     atualizarSteps();
     load();
-
-    alert('Agendamento confirmado');
-
+    toast('Agendamento confirmado!','success');
   } catch(e) {
-    alert('Erro ao finalizar');
+    toast('Erro ao finalizar. Tente novamente.','error');
+  } finally {
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Confirmar agendamento`;
+    btn.disabled = false;
   }
 }
 
-// ===== PEDIDOS (CORRIGIDO) =====
-let todosPedidos = [];
-let filtroAtivo  = 'todos';
-
-function renderPedidos() {
-  const el = document.getElementById('lista');
-  el.innerHTML = '';
-
-  const todosItens = todosPedidos.flatMap(p =>
-    (p.itens || []).map(i => ({
-      ...i,
-      pedidoId: p._id,
-      status: i.status || p.status
-    }))
-  );
-
-  todosItens.forEach(i => {
-    const div = document.createElement('div');
-
-    div.innerHTML = `
-      ${i.servico} - ${i.data} ${i.hora}
-      ${i.status !== 'cancelado'
-        ? `<button onclick="cancelar('${i.pedidoId}')">Cancelar</button>`
-        : 'Cancelado'}
-    `;
-
-    el.appendChild(div);
-  });
+// ===== PEDIDOS =====
+function formatarData(d) {
+  return new Date(d+'T00:00:00').toLocaleDateString('pt-BR');
 }
 
-// ===== LOAD =====
 async function load() {
-  todosPedidos = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`).then(r=>r.json());
-  renderPedidos();
+  const el = document.getElementById('lista');
+  el.innerHTML = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:12px 0">Carregando...</p>';
+  try {
+    const lista = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`).then(r=>r.json());
+    if (!lista.length) {
+      el.innerHTML = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">Nenhum agendamento ainda</p>';
+      return;
+    }
+    el.innerHTML = '';
+    lista.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'pedido-card';
+      let html = `<div class="pedido-header"><span class="pedido-id">Pedido #${(p._id||'').slice(-6).toUpperCase()}</span><span class="pedido-total">R$ ${Number(p.total||0).toFixed(2)}</span></div>`;
+      (p.itens||[]).forEach(i => {
+        const cancelado = i.status==='cancelado';
+        html += `
+          <div class="pedido-item ${cancelado?'cancelado':''}">
+            <div>
+              <div class="pedido-item-info">${i.servico} · ${i.barbeiro||''}</div>
+              <div class="pedido-item-sub">${formatarData(i.data)} às ${i.hora}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              ${cancelado
+                ? '<span class="badge badge-red">Cancelado</span>'
+                : `<span class="badge badge-green">Confirmado</span><button class="btn btn-danger" onclick="cancelar('${i._id}')">Cancelar</button>`
+              }
+            </div>
+          </div>`;
+      });
+      div.innerHTML = html;
+      el.appendChild(div);
+    });
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:12px 0">Erro ao carregar</p>';
+  }
 }
 
-// ===== CANCELAR (CORRIGIDO) =====
 async function cancelar(id) {
   await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{method:'PUT'});
   load();
+  toast('Agendamento cancelado');
 }
+
+function logout() { localStorage.clear(); location='usuario.html'; }
 
 // ===== INIT =====
 carregar();
@@ -616,3 +619,5 @@ gerarHorarios();
 atualizarSteps();
 
 </script>
+</body>
+</html>
