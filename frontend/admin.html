@@ -3,675 +3,643 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Admin — Barbearia</title>
+  <title>Barbearia — Agendamento</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* ===== PALETAS ===== */
     :root {
-      --bg:        #0f0f0f;
-      --bg2:       #1a1a1a;
-      --bg3:       #242424;
-      --border:    rgba(255,255,255,0.08);
-      --border2:   rgba(255,255,255,0.14);
-      --text:      #f0f0f0;
-      --text2:     #888;
-      --text3:     #555;
-      --accent:    #c9a84c;
-      --accent2:   #a8883a;
-      --accent-bg: rgba(201,168,76,0.12);
-      --danger:    #e05555;
-      --success:   #3dba74;
-      --warning:   #e09c3d;
-      --radius:    10px;
-      --radius-lg: 14px;
+      --bg:#0a0a0a;--bg2:#161616;--bg3:#202020;
+      --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+      --text:#f2f2f2;--text2:#888;--text3:#555;
+      --accent:#c9a84c;--accent2:#a8883a;--accent-bg:rgba(201,168,76,0.12);
+      --danger:#e05555;--success:#3dba74;--warning:#e09c3d;
+      --radius:10px;--radius-lg:14px;
     }
+    [data-theme="preto-ouro"]     { --bg:#0a0a0a;--bg2:#161616;--bg3:#202020;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#f2f2f2;--text2:#888;--text3:#555;--accent:#c9a84c;--accent2:#a8883a;--accent-bg:rgba(201,168,76,0.12); }
+    [data-theme="preto-vermelho"] { --bg:#0c0a0a;--bg2:#1a1010;--bg3:#241616;--border:rgba(255,255,255,0.07);--border2:rgba(255,100,100,0.2);--text:#f2efef;--text2:#8a7a7a;--text3:#5a4a4a;--accent:#e05555;--accent2:#b83f3f;--accent-bg:rgba(224,85,85,0.12); }
+    [data-theme="preto-verde"]    { --bg:#090c0a;--bg2:#101a12;--bg3:#172019;--border:rgba(255,255,255,0.07);--border2:rgba(61,186,116,0.2);--text:#edf2ef;--text2:#7a8a7d;--text3:#4a5a4d;--accent:#3dba74;--accent2:#2f9a5d;--accent-bg:rgba(61,186,116,0.12); }
+    [data-theme="cinza-azul"]     { --bg:#0e1014;--bg2:#181c22;--bg3:#21262f;--border:rgba(255,255,255,0.07);--border2:rgba(80,140,220,0.2);--text:#e8edf5;--text2:#7a8a9a;--text3:#4a5a6a;--accent:#508cdc;--accent2:#3a70c0;--accent-bg:rgba(80,140,220,0.12); }
+    [data-theme="marrom-creme"]   { --bg:#f7f3ee;--bg2:#ede8e0;--bg3:#e3ddd4;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--text:#2a1f14;--text2:#6b5a48;--text3:#9a8a78;--accent:#8b5e3c;--accent2:#6e4a2e;--accent-bg:rgba(139,94,60,0.1);--danger:#c0392b;--success:#27ae60;--warning:#d68910; }
 
-    [data-theme="preto-ouro"] {
-      --bg: #0a0a0a; --bg2: #161616; --bg3: #202020;
-      --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
-      --text: #f2f2f2; --text2: #888; --text3: #555;
-      --accent: #c9a84c; --accent2: #a8883a; --accent-bg: rgba(201,168,76,0.12);
-    }
-    [data-theme="preto-vermelho"] {
-      --bg: #0c0a0a; --bg2: #1a1010; --bg3: #241616;
-      --border: rgba(255,255,255,0.07); --border2: rgba(255,100,100,0.2);
-      --text: #f2efef; --text2: #8a7a7a; --text3: #5a4a4a;
-      --accent: #e05555; --accent2: #b83f3f; --accent-bg: rgba(224,85,85,0.12);
-    }
-    [data-theme="preto-verde"] {
-      --bg: #090c0a; --bg2: #101a12; --bg3: #172019;
-      --border: rgba(255,255,255,0.07); --border2: rgba(61,186,116,0.2);
-      --text: #edf2ef; --text2: #7a8a7d; --text3: #4a5a4d;
-      --accent: #3dba74; --accent2: #2f9a5d; --accent-bg: rgba(61,186,116,0.12);
-    }
-    [data-theme="cinza-azul"] {
-      --bg: #0e1014; --bg2: #181c22; --bg3: #21262f;
-      --border: rgba(255,255,255,0.07); --border2: rgba(80,140,220,0.2);
-      --text: #e8edf5; --text2: #7a8a9a; --text3: #4a5a6a;
-      --accent: #508cdc; --accent2: #3a70c0; --accent-bg: rgba(80,140,220,0.12);
-    }
-    [data-theme="marrom-creme"] {
-      --bg: #f7f3ee; --bg2: #ede8e0; --bg3: #e3ddd4;
-      --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.14);
-      --text: #2a1f14; --text2: #6b5a48; --text3: #9a8a78;
-      --accent: #8b5e3c; --accent2: #6e4a2e; --accent-bg: rgba(139,94,60,0.1);
-      --danger: #c0392b; --success: #27ae60; --warning: #d68910;
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;transition:background 0.3s,color 0.3s}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 14px;
-      min-height: 100vh;
-      line-height: 1.5;
-      transition: background 0.3s, color 0.3s;
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .topbar-left{display:flex;align-items:center;gap:12px}
+    .brand-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .brand-icon svg{width:17px;height:17px}
+    .brand-name{font-size:15px;font-weight:600;color:var(--text)}
+    .topbar-right{display:flex;align-items:center;gap:10px}
+    .user-badge{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--text)}
+    .user-avatar{width:24px;height:24px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+
+    .container{max-width:960px;margin:0 auto;padding:28px 20px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+    .col-left{display:flex;flex-direction:column;gap:16px}
+    .col-right{display:flex;flex-direction:column;gap:16px;position:sticky;top:76px}
+
+    .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color 0.2s}
+    .card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+    .card-header-icon{width:28px;height:28px;border-radius:7px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center}
+    .card-header-icon svg{width:14px;height:14px;stroke:var(--accent)}
+    .card-title{font-size:13px;font-weight:500;color:var(--text)}
+    .card-step{font-size:11px;color:var(--text3);margin-left:auto}
+    .card-body{padding:16px 18px}
+
+    .servicos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+    .servico-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 12px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:center}
+    .servico-item:hover{border-color:var(--border2)}
+    .servico-item.selected{border-color:var(--accent);background:var(--accent-bg)}
+    .servico-nome{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+    .servico-preco{font-size:13px;color:var(--accent);font-family:'DM Mono',monospace}
+
+    .barbeiros-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+    .barbeiro-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px 12px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .barbeiro-item:hover{border-color:var(--border2)}
+    .barbeiro-item.selected{border-color:var(--accent);background:var(--accent-bg)}
+    .barbeiro-avatar{width:44px;height:44px;border-radius:50%;background:var(--bg2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--text2)}
+    .barbeiro-item.selected .barbeiro-avatar{background:var(--accent-bg);color:var(--accent);border-color:var(--accent)}
+    .barbeiro-nome{font-size:13px;font-weight:500;color:var(--text)}
+
+    .input{height:40px;padding:0 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;transition:border-color 0.15s}
+    .input:focus{border-color:var(--accent)}
+    .input::placeholder{color:var(--text3)}
+    .input-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
+
+    .horarios-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+    .hora-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center;font-size:13px;font-weight:500;font-family:'DM Mono',monospace;color:var(--text);cursor:pointer;transition:border-color 0.15s,background 0.15s}
+    .hora-item:hover:not(.blocked){border-color:var(--border2)}
+    .hora-item.selected{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+    .hora-item.blocked{opacity:0.3;cursor:not-allowed;text-decoration:line-through}
+
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:opacity 0.15s,transform 0.1s;width:100%}
+    .btn:active{transform:scale(0.97)}
+    .btn-primary{background:var(--accent);color:#0a0a0a}
+    .btn-primary:hover{opacity:0.9}
+    .btn-ghost{background:none;color:var(--text2);border:1px solid var(--border2)}
+    .btn-ghost:hover{background:var(--bg3);color:var(--text)}
+    .btn-danger{background:none;color:var(--danger);border:1px solid rgba(224,85,85,0.3);font-size:12px;padding:5px 10px;width:auto}
+    .btn-danger:hover{background:rgba(224,85,85,0.1)}
+    .btn-sm{padding:6px 12px;font-size:12px;width:auto}
+
+    .carrinho-empty{text-align:center;padding:28px 16px;color:var(--text3);font-size:13px}
+    .cart-item{padding:12px 0;border-bottom:1px solid var(--border)}
+    .cart-item:last-child{border-bottom:none}
+    .cart-item-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+    .cart-item-nome{font-size:13px;font-weight:500;color:var(--text)}
+    .cart-item-preco{font-size:13px;font-family:'DM Mono',monospace;color:var(--accent)}
+    .cart-item-sub{font-size:12px;color:var(--text2)}
+    .cart-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px;border-top:1px solid var(--border);font-size:14px;font-weight:500}
+    .cart-total-val{font-family:'DM Mono',monospace;color:var(--accent);font-size:16px}
+
+    .select{height:40px;padding:0 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+    .select:focus{border-color:var(--accent)}
+
+    /* FILTROS */
+    .filtros{display:flex;gap:6px;padding:12px 18px;border-bottom:1px solid var(--border)}
+    .filtro-btn{background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s,color 0.15s,border-color 0.15s}
+    .filtro-btn:hover{background:var(--bg3);color:var(--text)}
+    .filtro-btn.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+
+    .pedido-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+    .pedido-card:last-child{margin-bottom:0}
+    .pedido-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+    .pedido-item-info{font-size:13px;color:var(--text)}
+    .pedido-item-sub{font-size:12px;color:var(--text2);margin-top:2px}
+    .pedido-item.cancelado .pedido-item-info{text-decoration:line-through;opacity:0.5}
+
+    .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px}
+    .badge::before{content:'';width:5px;height:5px;border-radius:50%}
+    .badge-green{background:rgba(61,186,116,0.15);color:#3dba74}
+    .badge-green::before{background:#3dba74}
+    .badge-red{background:rgba(224,85,85,0.15);color:#e05555}
+    .badge-red::before{background:#e05555}
+
+    .steps{display:flex;align-items:center;gap:0;margin-bottom:20px;padding:0 4px}
+    .step{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
+    .step.done{color:var(--success)}
+    .step.active{color:var(--accent);font-weight:500}
+    .step-num{width:20px;height:20px;border-radius:50%;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+    .step.done .step-num{background:var(--success);border-color:var(--success);color:#fff}
+    .step-line{flex:1;height:1px;background:var(--border);margin:0 8px;min-width:20px}
+
+    .palette-btn{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;z-index:200}
+    .palette-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;text-align:center}
+    .palette-dots{display:flex;gap:5px}
+    .pdot{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform 0.15s,border-color 0.15s}
+    .pdot:hover{transform:scale(1.2)}
+    .pdot.selected{border-color:var(--text)}
+    .pdot[data-p="preto-ouro"]    {background:linear-gradient(135deg,#0a0a0a 50%,#c9a84c 50%)}
+    .pdot[data-p="preto-vermelho"]{background:linear-gradient(135deg,#0c0a0a 50%,#e05555 50%)}
+    .pdot[data-p="preto-verde"]   {background:linear-gradient(135deg,#090c0a 50%,#3dba74 50%)}
+    .pdot[data-p="cinza-azul"]    {background:linear-gradient(135deg,#0e1014 50%,#508cdc 50%)}
+    .pdot[data-p="marrom-creme"]  {background:linear-gradient(135deg,#f7f3ee 50%,#8b5e3c 50%)}
+
+    .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 20px;font-size:13px;color:var(--text);opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;z-index:300;white-space:nowrap}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.success{border-color:rgba(61,186,116,0.4);color:#3dba74}
+    .toast.error{border-color:rgba(224,85,85,0.4);color:#e05555}
+
+    @media(max-width:700px){
+      .container{grid-template-columns:1fr;padding:16px}
+      .col-right{position:static}
+      .steps{display:none}
     }
-
-    .app { display: flex; height: 100vh; overflow: hidden; }
-
-    /* SIDEBAR */
-    .sidebar {
-      width: 220px; flex-shrink: 0;
-      background: var(--bg2);
-      border-right: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      padding: 20px 0;
-      transition: background 0.3s;
-    }
-    .sidebar-brand { padding: 0 20px 24px; border-bottom: 1px solid var(--border); }
-    .brand-icon {
-      width: 36px; height: 36px; background: var(--accent);
-      border-radius: 8px; display: flex; align-items: center;
-      justify-content: center; margin-bottom: 10px;
-    }
-    .brand-icon svg { width: 18px; height: 18px; }
-    .brand-name { font-size: 15px; font-weight: 600; color: var(--text); }
-    .brand-sub  { font-size: 11px; color: var(--text2); }
-
-    .sidebar-nav { padding: 16px 10px; flex: 1; }
-    .nav-label {
-      font-size: 10px; font-weight: 600; color: var(--text3);
-      letter-spacing: 0.08em; text-transform: uppercase;
-      padding: 0 10px; margin-bottom: 6px; margin-top: 14px;
-    }
-    .nav-label:first-child { margin-top: 0; }
-    .nav-btn {
-      display: flex; align-items: center; gap: 10px;
-      width: 100%; padding: 9px 10px;
-      background: none; border: none; border-radius: 8px;
-      color: var(--text2); font-family: 'DM Sans', sans-serif;
-      font-size: 13px; cursor: pointer; text-align: left;
-      transition: background 0.15s, color 0.15s;
-    }
-    .nav-btn svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
-    .nav-btn:hover { background: var(--bg3); color: var(--text); }
-    .nav-btn.active { background: var(--accent-bg); color: var(--accent); font-weight: 500; }
-    .nav-btn.active svg { opacity: 1; }
-
-    .palette-section { padding: 16px; border-top: 1px solid var(--border); }
-    .palette-title {
-      font-size: 10px; font-weight: 600; color: var(--text3);
-      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px;
-    }
-    .palette-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-    .palette-dot {
-      width: 22px; height: 22px; border-radius: 50%;
-      cursor: pointer; border: 2px solid transparent;
-      transition: transform 0.15s, border-color 0.15s;
-    }
-    .palette-dot:hover { transform: scale(1.15); }
-    .palette-dot.selected { border-color: var(--text); transform: scale(1.1); }
-    .palette-dot[data-p="preto-ouro"]     { background: linear-gradient(135deg, #0a0a0a 50%, #c9a84c 50%); }
-    .palette-dot[data-p="preto-vermelho"] { background: linear-gradient(135deg, #0c0a0a 50%, #e05555 50%); }
-    .palette-dot[data-p="preto-verde"]    { background: linear-gradient(135deg, #090c0a 50%, #3dba74 50%); }
-    .palette-dot[data-p="cinza-azul"]     { background: linear-gradient(135deg, #0e1014 50%, #508cdc 50%); }
-    .palette-dot[data-p="marrom-creme"]   { background: linear-gradient(135deg, #f7f3ee 50%, #8b5e3c 50%); }
-    .palette-name { font-size: 11px; color: var(--text2); margin-top: 8px; min-height: 14px; }
-
-    /* MAIN */
-    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .topbar {
-      background: var(--bg2); border-bottom: 1px solid var(--border);
-      padding: 14px 24px; display: flex; align-items: center;
-      justify-content: space-between; flex-shrink: 0;
-    }
-    .topbar-left h2 { font-size: 16px; font-weight: 500; color: var(--text); }
-    .topbar-left p  { font-size: 12px; color: var(--text2); }
-    .topbar-right   { display: flex; align-items: center; gap: 10px; }
-    .live-badge     { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
-    .live-dot       { width: 7px; height: 7px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-    .time-badge {
-      font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text2);
-      background: var(--bg3); padding: 5px 10px; border-radius: 6px;
-    }
-
-    .page { flex: 1; overflow-y: auto; padding: 24px; display: none; }
-    .page.active { display: block; animation: fadeUp 0.2s ease; }
-    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-
-    /* MÉTRICAS */
-    .metrics-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
-    .metric-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 18px; transition: border-color 0.2s;
-    }
-    .metric-card:hover { border-color: var(--border2); }
-    .metric-label { font-size: 11px; color: var(--text2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-    .metric-value { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
-    .metric-sub   { font-size: 11px; color: var(--text2); margin-top: 6px; display: flex; align-items: center; gap: 4px; }
-    .metric-accent { color: var(--accent); }
-    .trend-up   { color: var(--success); }
-    .trend-down { color: var(--danger); }
-
-    /* CARDS */
-    .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 16px; }
-    .card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .card-title { font-size: 13px; font-weight: 500; color: var(--text); }
-    .card-body  { padding: 18px; }
-
-    /* TABELA */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
-    th {
-      text-align: left; font-size: 11px; font-weight: 600;
-      color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em;
-      padding: 12px 16px; border-bottom: 1px solid var(--border);
-    }
-    td { padding: 12px 16px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--bg3); }
-
-    /* BADGES */
-    .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
-    .badge::before { content:''; width:5px; height:5px; border-radius:50%; }
-    .badge-green { background: rgba(61,186,116,0.15); color: #3dba74; }
-    .badge-green::before { background: #3dba74; }
-    .badge-amber { background: rgba(224,156,61,0.15); color: #e09c3d; }
-    .badge-amber::before { background: #e09c3d; }
-    .badge-red   { background: rgba(224,85,85,0.15); color: #e05555; }
-    .badge-red::before { background: #e05555; }
-
-    /* BOTÕES */
-    .btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 14px; border-radius: 8px;
-      font-family: 'DM Sans', sans-serif; font-size: 13px;
-      cursor: pointer; border: none; font-weight: 500;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--accent); color: #0a0a0a; }
-    .btn-ghost   { background: none; color: var(--text2); border: 1px solid var(--border2); }
-    .btn-ghost:hover { background: var(--bg3); color: var(--text); }
-    .btn-danger  { background: none; color: var(--danger); border: 1px solid rgba(224,85,85,0.3); font-size: 12px; padding: 5px 10px; }
-    .btn-danger:hover { background: rgba(224,85,85,0.1); }
-
-    /* FORMS */
-    .form-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
-    .input {
-      height: 38px; padding: 0 12px;
-      background: var(--bg3); border: 1px solid var(--border2);
-      border-radius: 8px; color: var(--text);
-      font-family: 'DM Sans', sans-serif; font-size: 13px;
-      outline: none; flex: 1; transition: border-color 0.15s;
-    }
-    .input:focus { border-color: var(--accent); }
-    .input::placeholder { color: var(--text3); }
-
-    /* FINANCEIRO */
-    .fin-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
-    .fin-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; }
-    .fin-card.accent-border { border-color: var(--accent); }
-    .fin-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-    .fin-value { font-size: 24px; font-weight: 600; }
-    .fin-value.green  { color: var(--success); }
-    .fin-value.red    { color: var(--danger); }
-    .fin-value.accent { color: var(--accent); }
-    .desp-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .desp-item:last-child { border-bottom: none; }
-    .desp-nome { font-size: 13px; color: var(--text); }
-    .desp-val  { font-size: 13px; color: var(--danger); font-family: 'DM Mono', monospace; }
-
-    /* CADASTROS */
-    .cad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .list-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .list-row:last-child { border-bottom: none; }
-    .avatar {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: var(--accent-bg); color: var(--accent);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 600; flex-shrink: 0;
-    }
-    .list-name { font-size: 13px; color: var(--text); }
-    .list-sub  { font-size: 12px; color: var(--text2); }
-
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
   </style>
 </head>
 <body data-theme="preto-ouro">
 
-<div class="app">
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.2">
+        <path d="M6 3L6 14M6 14C6 16.2 7.8 18 10 18H14C16.2 18 18 16.2 18 14V9M18 9L18 3M18 9H6"/>
+        <path d="M10 21H14"/>
+      </svg>
+    </div>
+    <span class="brand-name">Barbearia</span>
+  </div>
+  <div class="topbar-right">
+    <div class="user-badge">
+      <div class="user-avatar" id="userInitials">—</div>
+      <span id="boasVindas">—</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="logout()" style="width:auto;padding:6px 14px">Sair</button>
+  </div>
+</header>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.2">
-          <path d="M6 3L6 14M6 14C6 16.2 7.8 18 10 18H14C16.2 18 18 16.2 18 14V9M18 9L18 3M18 9H6"/>
-          <path d="M10 21H14"/>
-        </svg>
-      </div>
-      <div class="brand-name">Barbearia</div>
-      <div class="brand-sub">Painel Admin</div>
+<div class="container">
+  <div class="col-left">
+
+    <div class="steps">
+      <div class="step active" id="step1"><div class="step-num">1</div> Serviço</div>
+      <div class="step-line"></div>
+      <div class="step" id="step2"><div class="step-num">2</div> Barbeiro</div>
+      <div class="step-line"></div>
+      <div class="step" id="step3"><div class="step-num">3</div> Data &amp; Hora</div>
+      <div class="step-line"></div>
+      <div class="step" id="step4"><div class="step-num">4</div> Carrinho</div>
     </div>
 
-    <nav class="sidebar-nav">
-      <div class="nav-label">Principal</div>
-      <button class="nav-btn active" onclick="go('dashboard',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Dashboard
-      </button>
-      <button class="nav-btn" onclick="go('financeiro',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/></svg>
-        Financeiro
-      </button>
-      <button class="nav-btn" onclick="go('agenda',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Agenda
-      </button>
-      <div class="nav-label">Configurações</div>
-      <button class="nav-btn" onclick="go('cadastros',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        Cadastros
-      </button>
-    </nav>
-
-    <div class="palette-section">
-      <div class="palette-title">Tema da interface</div>
-      <div class="palette-grid">
-        <div class="palette-dot selected" data-p="preto-ouro"     title="Preto & Ouro"></div>
-        <div class="palette-dot"          data-p="preto-vermelho" title="Preto & Vermelho"></div>
-        <div class="palette-dot"          data-p="preto-verde"    title="Preto & Verde"></div>
-        <div class="palette-dot"          data-p="cinza-azul"     title="Cinza & Azul"></div>
-        <div class="palette-dot"          data-p="marrom-creme"   title="Marrom & Creme"></div>
+    <!-- SERVIÇOS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </div>
+        <span class="card-title">Escolha o serviço</span>
+        <span class="card-step">Passo 1</span>
       </div>
-      <div class="palette-name" id="paletteName">Preto &amp; Ouro</div>
+      <div class="card-body">
+        <div class="servicos-grid" id="servicos"></div>
+      </div>
     </div>
-  </aside>
 
-  <!-- MAIN -->
-  <div class="main">
-    <header class="topbar">
-      <div class="topbar-left">
-        <h2 id="pageTitle">Dashboard</h2>
-        <p id="pageDate"></p>
+    <!-- BARBEIROS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <span class="card-title">Escolha o barbeiro</span>
+        <span class="card-step">Passo 2</span>
       </div>
-      <div class="topbar-right">
-        <div class="live-badge"><span class="live-dot"></span> Ao vivo</div>
-        <div class="time-badge" id="liveTime">--:--</div>
+      <div class="card-body">
+        <div class="barbeiros-grid" id="barbeiros"></div>
       </div>
-    </header>
+    </div>
 
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="page active">
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-label">Atendimentos hoje</div>
-          <div class="metric-value" id="totalAtendimentos">—</div>
-          <div class="metric-sub"><span class="trend-up">↑</span> vs ontem</div>
+    <!-- DATA & HORÁRIOS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
-        <div class="metric-card">
-          <div class="metric-label">Faturamento do dia</div>
-          <div class="metric-value" id="faturamento">—</div>
-          <div class="metric-sub metric-accent">este mês</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Ticket médio</div>
-          <div class="metric-value" id="ticketMedio">—</div>
-          <div class="metric-sub">por atendimento</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Mais vendido</div>
-          <div class="metric-value" style="font-size:16px;margin-top:4px" id="maisVendido">—</div>
-          <div class="metric-sub">serviço do dia</div>
-        </div>
+        <span class="card-title">Data &amp; Horário</span>
+        <span class="card-step">Passo 3</span>
       </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Agendamentos de hoje</span></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Horário</th><th>Valor</th><th>Status</th></tr></thead>
-            <tbody id="dashTable"></tbody>
-          </table>
-        </div>
+      <div class="card-body">
+        <div class="input-label">Selecione a data</div>
+        <input type="date" class="input" id="data" style="margin-bottom:16px">
+        <div class="input-label" style="margin-bottom:10px">Horários disponíveis</div>
+        <div class="horarios-grid" id="horarios"></div>
       </div>
-    </section>
+    </div>
 
-    <!-- FINANCEIRO -->
-    <section id="financeiro" class="page">
-      <div class="fin-grid">
-        <div class="fin-card">
-          <div class="fin-label">Receitas</div>
-          <div class="fin-value green" id="receitasVal">—</div>
-          <div class="metric-sub" style="margin-top:6px">agendamentos confirmados</div>
+    <!-- WHATSAPP -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>
         </div>
-        <div class="fin-card">
-          <div class="fin-label">Despesas</div>
-          <div class="fin-value red" id="despesasVal">—</div>
-          <div class="metric-sub" style="margin-top:6px">cadastradas</div>
-        </div>
-        <div class="fin-card accent-border">
-          <div class="fin-label">Saldo</div>
-          <div class="fin-value accent" id="saldoVal">—</div>
-          <div class="metric-sub" style="margin-top:6px">receitas − despesas</div>
-        </div>
+        <span class="card-title">Seu WhatsApp</span>
+        <span class="card-step">Opcional</span>
       </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Cadastrar despesa</span></div>
-        <div class="card-body">
-          <div class="form-row">
-            <input class="input" id="descDespesa" placeholder="Descrição da despesa">
-            <input class="input" id="valorDespesa" placeholder="Valor (R$)" style="max-width:130px">
-            <button class="btn btn-primary" onclick="addDespesa()">Adicionar</button>
-          </div>
-          <div id="listaDespesas"></div>
-        </div>
+      <div class="card-body">
+        <input class="input" id="telefone" placeholder="(00) 00000-0000">
       </div>
-    </section>
+    </div>
 
-    <!-- AGENDA -->
-    <section id="agenda" class="page">
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px">
-        <input type="date" class="input" id="filtroData" style="max-width:180px" onchange="filtrar()">
-        <button class="btn btn-ghost" onclick="document.getElementById('filtroData').value='';renderAgenda(agendamentos)">Limpar filtro</button>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Agendamentos</span></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Data</th><th>Hora</th><th>Valor</th><th>Status</th><th></th></tr></thead>
-            <tbody id="listaPedidos"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+    <button class="btn btn-primary" onclick="add()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Adicionar ao carrinho
+    </button>
 
-    <!-- CADASTROS -->
-    <section id="cadastros" class="page">
-      <div class="cad-grid">
-        <div>
-          <div class="card">
-            <div class="card-header"><span class="card-title">Barbeiros</span></div>
-            <div class="card-body">
-              <div class="form-row">
-                <input class="input" id="nomeBarbeiro" placeholder="Nome do barbeiro">
-                <button class="btn btn-primary" onclick="cadastrarBarbeiro()">Adicionar</button>
-              </div>
-              <div id="listaBarbeiros"></div>
-            </div>
-          </div>
+    <!-- MEUS PEDIDOS -->
+    <div class="card" style="margin-top:8px">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         </div>
-        <div>
-          <div class="card">
-            <div class="card-header"><span class="card-title">Serviços</span></div>
-            <div class="card-body">
-              <div class="form-row">
-                <input class="input" id="nomeServico" placeholder="Nome do serviço">
-                <input class="input" id="precoServico" placeholder="Preço" style="max-width:100px">
-                <button class="btn btn-primary" onclick="cadastrarServico()">Adicionar</button>
-              </div>
-              <div id="listaServicos"></div>
-            </div>
-          </div>
-        </div>
+        <span class="card-title">Meus agendamentos</span>
       </div>
-    </section>
+      <!-- FILTROS -->
+      <div class="filtros">
+        <button class="filtro-btn active" onclick="setFiltro('todos',this)">Todos</button>
+        <button class="filtro-btn" onclick="setFiltro('confirmado',this)">Confirmados</button>
+        <button class="filtro-btn" onclick="setFiltro('cancelado',this)">Cancelados</button>
+      </div>
+      <div class="card-body" id="lista">
+        <p style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">Carregando...</p>
+      </div>
+    </div>
 
   </div>
+
+  <!-- CARRINHO -->
+  <div class="col-right">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </div>
+        <span class="card-title">Carrinho</span>
+        <span class="card-step" id="cartCount">0 item</span>
+      </div>
+      <div class="card-body">
+        <div id="carrinho">
+          <div class="carrinho-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 10px;width:32px;height:32px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            Carrinho vazio
+          </div>
+        </div>
+        <div id="cartFooter" style="display:none">
+          <div class="cart-total">
+            <span>Total</span>
+            <span class="cart-total-val" id="total">R$ 0,00</span>
+          </div>
+          <div style="margin:12px 0">
+            <div class="input-label" style="margin-bottom:6px">Forma de pagamento</div>
+            <select class="select" id="pagamento">
+              <option value="local">Pagar no local</option>
+              <option value="pix">Pagar com PIX</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="finalizar()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            Confirmar agendamento
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
+
+<!-- PALETTE FLUTUANTE -->
+<div class="palette-btn">
+  <div class="palette-label">Tema</div>
+  <div class="palette-dots">
+    <div class="pdot selected" data-p="preto-ouro"></div>
+    <div class="pdot" data-p="preto-vermelho"></div>
+    <div class="pdot" data-p="preto-verde"></div>
+    <div class="pdot" data-p="cinza-azul"></div>
+    <div class="pdot" data-p="marrom-creme"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
 <script>
 
+// ===== USER =====
+let user = JSON.parse(localStorage.getItem('usuario'));
+if (!user) { alert('Faça login'); location = 'usuario.html'; }
+
+const initials = (user.nome||'?').split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase();
+document.getElementById('userInitials').textContent = initials;
+document.getElementById('boasVindas').textContent   = user.nome;
+
 // ===== TEMA =====
-const paletteNames = {
-  'preto-ouro':     'Preto & Ouro',
-  'preto-vermelho': 'Preto & Vermelho',
-  'preto-verde':    'Preto & Verde',
-  'cinza-azul':     'Cinza & Azul',
-  'marrom-creme':   'Marrom & Creme'
-};
-document.querySelectorAll('.palette-dot').forEach(dot => {
+document.querySelectorAll('.pdot').forEach(dot => {
   dot.addEventListener('click', () => {
-    document.querySelectorAll('.palette-dot').forEach(d => d.classList.remove('selected'));
+    document.querySelectorAll('.pdot').forEach(d => d.classList.remove('selected'));
     dot.classList.add('selected');
-    const p = dot.dataset.p;
-    document.body.dataset.theme = p;
-    document.getElementById('paletteName').textContent = paletteNames[p];
-    localStorage.setItem('admin-theme', p);
+    document.body.dataset.theme = dot.dataset.p;
+    localStorage.setItem('theme', dot.dataset.p);
   });
 });
-const savedTheme = localStorage.getItem('admin-theme') || 'preto-ouro';
+const savedTheme = localStorage.getItem('theme') || 'preto-ouro';
 document.body.dataset.theme = savedTheme;
-document.querySelectorAll('.palette-dot').forEach(d => {
-  d.classList.toggle('selected', d.dataset.p === savedTheme);
-});
-document.getElementById('paletteName').textContent = paletteNames[savedTheme];
+document.querySelectorAll('.pdot').forEach(d => d.classList.toggle('selected', d.dataset.p === savedTheme));
 
-// ===== NAVEGAÇÃO =====
-const pageTitles = { dashboard:'Dashboard', financeiro:'Financeiro', agenda:'Agenda', cadastros:'Cadastros' };
-function go(id, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-  document.getElementById('pageTitle').textContent = pageTitles[id];
+// ===== TOAST =====
+function toast(msg, tipo='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + tipo;
+  setTimeout(() => el.className = 'toast', 2800);
 }
 
-// ===== DATA/HORA =====
-function atualizarRelogio() {
-  document.getElementById('liveTime').textContent =
-    new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-}
-function formatarData(data) {
-  return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR');
-}
-document.getElementById('pageDate').textContent =
-  new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
-atualizarRelogio();
-setInterval(atualizarRelogio, 30000);
+// ===== STATE =====
+let servicoSelecionado  = null;
+let barbeiroSelecionado = null;
+let horaSelecionada     = null;
+let carrinho            = [];
+let horariosOcupados    = [];
 
-// ===== ESTADO =====
-let agendamentos = [];
-let despesas = [];
-
-// ===== DASHBOARD =====
-function renderDashboard() {
-  const ativos = agendamentos.filter(a => a.status !== 'cancelado');
-  const total  = ativos.length;
-  const fat    = ativos.reduce((s, a) => s + (a.valor || 0), 0);
-  const ticket = total ? (fat / total).toFixed(2) : 0;
-
-  const cont = {};
-  ativos.forEach(a => { cont[a.servico] = (cont[a.servico] || 0) + 1; });
-  const top = Object.entries(cont).sort((a, b) => b[1] - a[1])[0];
-
-  document.getElementById('totalAtendimentos').textContent = total;
-  document.getElementById('faturamento').textContent = `R$ ${fat.toFixed(2)}`;
-  document.getElementById('ticketMedio').textContent = `R$ ${ticket}`;
-  document.getElementById('maisVendido').textContent = top ? top[0] : '—';
-
-  const tbody = document.getElementById('dashTable');
-  tbody.innerHTML = '';
-  const hoje = new Date().toISOString().slice(0, 10);
-  const deHoje = agendamentos.filter(a => a.data === hoje);
-  if (!deHoje.length) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:24px">Nenhum agendamento hoje</td></tr>`;
-    return;
-  }
-  deHoje.forEach(a => {
-    const badge = a.status === 'cancelado'
-      ? '<span class="badge badge-red">Cancelado</span>'
-      : '<span class="badge badge-green">Confirmado</span>';
-    tbody.innerHTML += `
-      <tr>
-        <td>${a.nomeCliente||'—'}</td><td>${a.servico||'—'}</td>
-        <td>${a.barbeiro||'—'}</td><td>${a.hora||'—'}</td>
-        <td style="font-family:'DM Mono',monospace">R$ ${(a.valor||0).toFixed(2)}</td>
-        <td>${badge}</td>
-      </tr>`;
-  });
+// ===== STEPS =====
+function atualizarSteps() {
+  const s1 = !!servicoSelecionado;
+  const s2 = !!barbeiroSelecionado;
+  const s3 = !!horaSelecionada && !!document.getElementById('data').value;
+  const s4 = carrinho.length > 0;
+  const step = (id, done, active) => {
+    document.getElementById(id).className = 'step'+(done?' done':active?' active':'');
+  };
+  step('step1', s1, !s1);
+  step('step2', s2, s1&&!s2);
+  step('step3', s3, s2&&!s3);
+  step('step4', s4, s3&&!s4);
 }
 
-// ===== FINANCEIRO =====
-function renderFinanceiro() {
-  const receitas   = agendamentos.filter(a => a.status !== 'cancelado').reduce((s,a) => s+(a.valor||0), 0);
-  const totalDesp  = despesas.reduce((s,d) => s+d.valor, 0);
-  document.getElementById('receitasVal').textContent = `R$ ${receitas.toFixed(2)}`;
-  document.getElementById('despesasVal').textContent = `R$ ${totalDesp.toFixed(2)}`;
-  document.getElementById('saldoVal').textContent    = `R$ ${(receitas-totalDesp).toFixed(2)}`;
-
-  const lista = document.getElementById('listaDespesas');
-  lista.innerHTML = '';
-  if (!despesas.length) {
-    lista.innerHTML = `<p style="color:var(--text2);font-size:13px;text-align:center;padding:16px 0">Nenhuma despesa cadastrada</p>`;
-    return;
-  }
-  despesas.forEach(d => {
-    lista.innerHTML += `
-      <div class="desp-item">
-        <span class="desp-nome">${d.desc}</span>
-        <span class="desp-val">− R$ ${d.valor.toFixed(2)}</span>
-      </div>`;
-  });
-}
-
-function addDespesa() {
-  const desc  = document.getElementById('descDespesa');
-  const valor = document.getElementById('valorDespesa');
-  if (!desc.value || !valor.value) return;
-  despesas.push({ desc: desc.value, valor: Number(valor.value) });
-  desc.value = ''; valor.value = '';
-  renderFinanceiro();
-}
-
-// ===== AGENDA =====
-function renderAgenda(lista) {
-  const tbody = document.getElementById('listaPedidos');
-  tbody.innerHTML = '';
-  if (!lista.length) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:24px">Nenhum agendamento encontrado</td></tr>`;
-    return;
-  }
-  lista.forEach(a => {
-    const cancelado = a.status === 'cancelado';
-    const badge = cancelado
-      ? '<span class="badge badge-red">Cancelado</span>'
-      : '<span class="badge badge-green">Confirmado</span>';
-    const btnCancelar = !cancelado
-      ? `<button class="btn btn-danger" onclick="cancelar('${a._id}')">Cancelar</button>` : '';
-    tbody.innerHTML += `
-      <tr style="${cancelado?'opacity:0.5':''}">
-        <td>${a.nomeCliente||'—'}</td><td>${a.servico||'—'}</td>
-        <td>${a.barbeiro||'—'}</td>
-        <td>${a.data ? formatarData(a.data) : '—'}</td>
-        <td>${a.hora||'—'}</td>
-        <td style="font-family:'DM Mono',monospace">R$ ${(a.valor||0).toFixed(2)}</td>
-        <td>${badge}</td><td>${btnCancelar}</td>
-      </tr>`;
-  });
-}
-
-function filtrar() {
-  const d = document.getElementById('filtroData').value;
-  if (!d) return renderAgenda(agendamentos);
-  renderAgenda(agendamentos.filter(a => a.data === d));
-}
-
-// ===== CANCELAR =====
-async function cancelar(id) {
-  await fetch(`${API_URL}/agendamentos/${id}/cancelar`, { method: 'PUT' });
-  carregar();
-}
-
-// ===== CADASTROS =====
-async function cadastrarBarbeiro() {
-  const input = document.getElementById('nomeBarbeiro');
-  if (!input.value) return;
-  await fetch(`${API_URL}/barbeiros`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome: input.value })
-  });
-  input.value = '';
-  carregarBarbeiros();
-}
-
-async function cadastrarServico() {
-  const nome  = document.getElementById('nomeServico');
-  const preco = document.getElementById('precoServico');
-  if (!nome.value || !preco.value) return;
-  await fetch(`${API_URL}/servicos`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome: nome.value, preco: preco.value })
-  });
-  nome.value = ''; preco.value = '';
-  carregarServicos();
-}
-
-async function carregarBarbeiros() {
-  const lista = await fetch(`${API_URL}/barbeiros`).then(r => r.json());
-  const el = document.getElementById('listaBarbeiros');
-  el.innerHTML = '';
-  lista.forEach(b => {
-    const ini = (b.nome||'?').substring(0,2).toUpperCase();
-    el.innerHTML += `
-      <div class="list-row">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="avatar">${ini}</div>
-          <span class="list-name">${b.nome}</span>
-        </div>
-        <span class="list-sub">ativo</span>
-      </div>`;
-  });
-}
-
-async function carregarServicos() {
-  const lista = await fetch(`${API_URL}/servicos`).then(r => r.json());
-  const el = document.getElementById('listaServicos');
-  el.innerHTML = '';
-  lista.forEach(s => {
-    el.innerHTML += `
-      <div class="list-row">
-        <span class="list-name">${s.nome}</span>
-        <span class="list-sub" style="font-family:'DM Mono',monospace">R$ ${Number(s.preco).toFixed(2)}</span>
-      </div>`;
-  });
-}
-
-// ===== CARREGAR =====
+// ===== CARREGAR SERVIÇOS E BARBEIROS =====
 async function carregar() {
+  const [servList, barbList] = await Promise.all([
+    fetch(`${API_URL}/servicos`).then(r=>r.json()),
+    fetch(`${API_URL}/barbeiros`).then(r=>r.json())
+  ]);
+
+  const servEl = document.getElementById('servicos');
+  servEl.innerHTML = '';
+  servList.forEach(x => {
+    const div = document.createElement('div');
+    div.className = 'servico-item';
+    div.innerHTML = `<div class="servico-nome">${x.nome}</div><div class="servico-preco">R$ ${Number(x.preco).toFixed(2)}</div>`;
+    div.onclick = () => {
+      servicoSelecionado = x;
+      document.querySelectorAll('.servico-item').forEach(e=>e.classList.remove('selected'));
+      div.classList.add('selected');
+      atualizarSteps();
+    };
+    servEl.appendChild(div);
+  });
+
+  const barbEl = document.getElementById('barbeiros');
+  barbEl.innerHTML = '';
+  barbList.forEach(x => {
+    const ini = (x.nome||'?').substring(0,2).toUpperCase();
+    const div = document.createElement('div');
+    div.className = 'barbeiro-item';
+    div.innerHTML = `<div class="barbeiro-avatar">${ini}</div><div class="barbeiro-nome">${x.nome}</div>`;
+    div.onclick = () => {
+      barbeiroSelecionado = x;
+      document.querySelectorAll('.barbeiro-item').forEach(e=>e.classList.remove('selected'));
+      div.classList.add('selected');
+      atualizarSteps();
+    };
+    barbEl.appendChild(div);
+  });
+}
+
+// ===== HORÁRIOS =====
+const HORAS = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
+
+function gerarHorarios() {
+  const el = document.getElementById('horarios');
+  el.innerHTML = '';
+  const dataVal = document.getElementById('data').value;
+  if (!dataVal) {
+    el.innerHTML = '<p style="color:var(--text3);font-size:13px">Selecione uma data primeiro</p>';
+    return;
+  }
+  HORAS.forEach(h => {
+    const div = document.createElement('div');
+    div.className = 'hora-item';
+    div.textContent = h;
+    const ocupadoBanco    = horariosOcupados.includes(h);
+    const ocupadoCarrinho = carrinho.find(i=>i.hora===h&&i.data===dataVal);
+    if (ocupadoBanco || ocupadoCarrinho) {
+      div.classList.add('blocked');
+    } else {
+      div.onclick = () => {
+        horaSelecionada = h;
+        document.querySelectorAll('.hora-item').forEach(e=>e.classList.remove('selected'));
+        div.classList.add('selected');
+        atualizarSteps();
+      };
+    }
+    el.appendChild(div);
+  });
+}
+
+async function carregarOcupados() {
+  const dataVal = document.getElementById('data').value;
+  if (!dataVal) return;
+  const lista = await fetch(`${API_URL}/agendamentos`).then(r=>r.json());
+  horariosOcupados = lista.filter(a=>a.data===dataVal&&a.status!=='cancelado').map(a=>a.hora);
+  gerarHorarios();
+}
+document.getElementById('data').addEventListener('change', () => {
+  horaSelecionada = null;
+  atualizarSteps();
+  carregarOcupados();
+});
+
+// ===== ADD =====
+function add() {
+  if (!servicoSelecionado)  return toast('Selecione um serviço','error');
+  if (!barbeiroSelecionado) return toast('Selecione um barbeiro','error');
+  if (!document.getElementById('data').value) return toast('Selecione uma data','error');
+  if (!horaSelecionada)     return toast('Selecione um horário','error');
+
+  carrinho.push({
+    servico:  servicoSelecionado.nome,
+    valor:    Number(servicoSelecionado.preco),
+    barbeiro: barbeiroSelecionado.nome,
+    data:     document.getElementById('data').value,
+    hora:     horaSelecionada
+  });
+
+  horaSelecionada = null;
+  document.querySelectorAll('.hora-item').forEach(e=>e.classList.remove('selected'));
+  gerarHorarios();
+  renderCarrinho();
+  atualizarSteps();
+  toast('Adicionado ao carrinho!','success');
+}
+
+// ===== RENDER CARRINHO =====
+function renderCarrinho() {
+  const el     = document.getElementById('carrinho');
+  const footer = document.getElementById('cartFooter');
+  const count  = document.getElementById('cartCount');
+  count.textContent = carrinho.length+(carrinho.length===1?' item':' itens');
+
+  if (!carrinho.length) {
+    el.innerHTML = `<div class="carrinho-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 10px;width:32px;height:32px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Carrinho vazio</div>`;
+    footer.style.display = 'none';
+    return;
+  }
+
+  let total = 0;
+  el.innerHTML = '';
+  carrinho.forEach((item, idx) => {
+    total += item.valor;
+    const div = document.createElement('div');
+    div.className = 'cart-item';
+    div.innerHTML = `
+      <div class="cart-item-top">
+        <span class="cart-item-nome">${item.servico}</span>
+        <span class="cart-item-preco">R$ ${item.valor.toFixed(2)}</span>
+      </div>
+      <div class="cart-item-sub">${item.barbeiro} · ${formatarData(item.data)} às ${item.hora}</div>
+      <div style="margin-top:8px"><button class="btn btn-danger" onclick="remover(${idx})">Remover</button></div>`;
+    el.appendChild(div);
+  });
+  document.getElementById('total').textContent = `R$ ${total.toFixed(2)}`;
+  footer.style.display = 'block';
+}
+
+function remover(idx) {
+  carrinho.splice(idx,1);
+  gerarHorarios();
+  renderCarrinho();
+  atualizarSteps();
+}
+
+// ===== FINALIZAR =====
+async function finalizar() {
+  if (!carrinho.length) return toast('Carrinho vazio','error');
+  const btn = document.querySelector('.btn-primary[onclick="finalizar()"]');
+  btn.textContent = 'Aguarde...';
+  btn.disabled = true;
   try {
-    agendamentos = await fetch(`${API_URL}/agendamentos`).then(r => r.json());
-    renderAgenda(agendamentos);
-    renderDashboard();
-    renderFinanceiro();
+    const res = await fetch(`${API_URL}/agendamentos/lote`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        clienteId:      user._id,
+        nomeCliente:    user.nome,
+        telefone:       document.getElementById('telefone').value,
+        formaPagamento: document.getElementById('pagamento').value,
+        itens:          carrinho
+      })
+    });
+    const dataRes = await res.json();
+    if (document.getElementById('pagamento').value==='pix' && dataRes.pix) {
+      alert(`PIX gerado:\n${dataRes.pix.copiaCola}`);
+    }
+    carrinho = [];
+    renderCarrinho();
+    atualizarSteps();
+    load();
+    toast('Agendamento confirmado!','success');
   } catch(e) {
-    console.error('Erro ao carregar:', e);
+    toast('Erro ao finalizar. Tente novamente.','error');
+  } finally {
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Confirmar agendamento`;
+    btn.disabled = false;
   }
 }
 
-setInterval(carregar, 5000);
+// ===== PEDIDOS =====
+let todosPedidos = [];
+let filtroAtivo  = 'todos';
+
+function formatarData(d) {
+  return new Date(d+'T00:00:00').toLocaleDateString('pt-BR');
+}
+
+function setFiltro(filtro, btn) {
+  filtroAtivo = filtro;
+  document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPedidos();
+}
+
+function renderPedidos() {
+  const el = document.getElementById('lista');
+  el.innerHTML = '';
+
+  const todosItens = todosPedidos.flatMap(p =>
+    (p.itens||[]).map(i => ({ ...i, pedidoId: p._id, total: p.total }))
+  );
+
+  const filtrados = todosItens.filter(i => {
+    if (filtroAtivo === 'todos')      return true;
+    if (filtroAtivo === 'confirmado') return i.status !== 'cancelado';
+    if (filtroAtivo === 'cancelado')  return i.status === 'cancelado';
+    return true;
+  });
+
+  if (!filtrados.length) {
+    const msg = filtroAtivo==='confirmado' ? 'Nenhum agendamento confirmado'
+              : filtroAtivo==='cancelado'  ? 'Nenhum agendamento cancelado'
+              : 'Nenhum agendamento ainda';
+    el.innerHTML = `<p style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">${msg}</p>`;
+    return;
+  }
+
+  filtrados.forEach(i => {
+    const cancelado = i.status === 'cancelado';
+    const div = document.createElement('div');
+    div.className = 'pedido-card';
+    div.innerHTML = `
+      <div class="pedido-item ${cancelado?'cancelado':''}">
+        <div>
+          <div class="pedido-item-info">${i.servico} · ${i.barbeiro||''}</div>
+          <div class="pedido-item-sub">${formatarData(i.data)} às ${i.hora}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${cancelado
+            ? '<span class="badge badge-red">Cancelado</span>'
+            : `<span class="badge badge-green">Confirmado</span>
+               <button class="btn btn-danger" onclick="cancelar('${i._id}')">Cancelar</button>`
+          }
+        </div>
+      </div>`;
+    el.appendChild(div);
+  });
+}
+
+async function load() {
+  const el = document.getElementById('lista');
+  el.innerHTML = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:12px 0">Carregando...</p>';
+  try {
+    todosPedidos = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`).then(r=>r.json());
+    renderPedidos();
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:12px 0">Erro ao carregar</p>';
+  }
+}
+
+async function cancelar(id) {
+  await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{method:'PUT'});
+  load();
+  toast('Agendamento cancelado');
+}
+
+function logout() { localStorage.clear(); location='usuario.html'; }
+
+// ===== INIT =====
 carregar();
-carregarBarbeiros();
-carregarServicos();
+load();
+gerarHorarios();
+atualizarSteps();
 
 </script>
 </body>
