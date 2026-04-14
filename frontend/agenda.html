@@ -24,7 +24,6 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;transition:background 0.3s,color 0.3s}
 
-    /* TOPBAR */
     .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
     .topbar-left{display:flex;align-items:center;gap:12px}
     .brand-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center}
@@ -34,12 +33,10 @@
     .user-badge{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--text)}
     .user-avatar{width:24px;height:24px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
 
-    /* LAYOUT */
     .container{max-width:960px;margin:0 auto;padding:28px 20px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
     .col-left{display:flex;flex-direction:column;gap:16px}
     .col-right{display:flex;flex-direction:column;gap:16px;position:sticky;top:76px}
 
-    /* CARDS */
     .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color 0.2s}
     .card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
     .card-header-icon{width:28px;height:28px;border-radius:7px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center}
@@ -48,7 +45,6 @@
     .card-step{font-size:11px;color:var(--text3);margin-left:auto}
     .card-body{padding:16px 18px}
 
-    /* SERVIÇOS */
     .servicos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
     .servico-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 12px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:center}
     .servico-item:hover{border-color:var(--border2)}
@@ -56,7 +52,6 @@
     .servico-nome{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
     .servico-preco{font-size:13px;color:var(--accent);font-family:'DM Mono',monospace}
 
-    /* BARBEIROS */
     .barbeiros-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
     .barbeiro-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px 12px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
     .barbeiro-item:hover{border-color:var(--border2)}
@@ -65,20 +60,17 @@
     .barbeiro-item.selected .barbeiro-avatar{background:var(--accent-bg);color:var(--accent);border-color:var(--accent)}
     .barbeiro-nome{font-size:13px;font-weight:500;color:var(--text)}
 
-    /* INPUTS */
     .input{height:40px;padding:0 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;transition:border-color 0.15s}
     .input:focus{border-color:var(--accent)}
     .input::placeholder{color:var(--text3)}
     .input-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
 
-    /* HORÁRIOS */
     .horarios-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
     .hora-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center;font-size:13px;font-weight:500;font-family:'DM Mono',monospace;color:var(--text);cursor:pointer;transition:border-color 0.15s,background 0.15s}
     .hora-item:hover:not(.blocked){border-color:var(--border2)}
     .hora-item.selected{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
     .hora-item.blocked{opacity:0.3;cursor:not-allowed;text-decoration:line-through}
 
-    /* BOTÕES */
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:opacity 0.15s,transform 0.1s;width:100%}
     .btn:active{transform:scale(0.97)}
     .btn-primary{background:var(--accent);color:#0a0a0a}
@@ -89,7 +81,6 @@
     .btn-danger:hover{background:rgba(224,85,85,0.1)}
     .btn-sm{padding:6px 12px;font-size:12px;width:auto}
 
-    /* CARRINHO */
     .carrinho-empty{text-align:center;padding:28px 16px;color:var(--text3);font-size:13px}
     .cart-item{padding:12px 0;border-bottom:1px solid var(--border)}
     .cart-item:last-child{border-bottom:none}
@@ -100,21 +91,22 @@
     .cart-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px;border-top:1px solid var(--border);font-size:14px;font-weight:500}
     .cart-total-val{font-family:'DM Mono',monospace;color:var(--accent);font-size:16px}
 
-    /* SELECT */
     .select{height:40px;padding:0 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
     .select:focus{border-color:var(--accent)}
 
-    /* PEDIDOS */
+    /* FILTROS */
+    .filtros{display:flex;gap:6px;padding:12px 18px;border-bottom:1px solid var(--border)}
+    .filtro-btn{background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s,color 0.15s,border-color 0.15s}
+    .filtro-btn:hover{background:var(--bg3);color:var(--text)}
+    .filtro-btn.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+
     .pedido-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
-    .pedido-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .pedido-id{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace}
-    .pedido-total{font-size:13px;font-weight:500;color:var(--accent);font-family:'DM Mono',monospace}
-    .pedido-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border)}
+    .pedido-card:last-child{margin-bottom:0}
+    .pedido-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
     .pedido-item-info{font-size:13px;color:var(--text)}
     .pedido-item-sub{font-size:12px;color:var(--text2);margin-top:2px}
     .pedido-item.cancelado .pedido-item-info{text-decoration:line-through;opacity:0.5}
 
-    /* BADGES */
     .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px}
     .badge::before{content:'';width:5px;height:5px;border-radius:50%}
     .badge-green{background:rgba(61,186,116,0.15);color:#3dba74}
@@ -122,7 +114,6 @@
     .badge-red{background:rgba(224,85,85,0.15);color:#e05555}
     .badge-red::before{background:#e05555}
 
-    /* STEPS */
     .steps{display:flex;align-items:center;gap:0;margin-bottom:20px;padding:0 4px}
     .step{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
     .step.done{color:var(--success)}
@@ -131,7 +122,6 @@
     .step.done .step-num{background:var(--success);border-color:var(--success);color:#fff}
     .step-line{flex:1;height:1px;background:var(--border);margin:0 8px;min-width:20px}
 
-    /* PALETTE */
     .palette-btn{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;z-index:200}
     .palette-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;text-align:center}
     .palette-dots{display:flex;gap:5px}
@@ -144,7 +134,6 @@
     .pdot[data-p="cinza-azul"]    {background:linear-gradient(135deg,#0e1014 50%,#508cdc 50%)}
     .pdot[data-p="marrom-creme"]  {background:linear-gradient(135deg,#f7f3ee 50%,#8b5e3c 50%)}
 
-    /* TOAST */
     .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 20px;font-size:13px;color:var(--text);opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;z-index:300;white-space:nowrap}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
     .toast.success{border-color:rgba(61,186,116,0.4);color:#3dba74}
@@ -184,7 +173,7 @@
 <div class="container">
   <div class="col-left">
 
-    <div class="steps" id="stepsBar">
+    <div class="steps">
       <div class="step active" id="step1"><div class="step-num">1</div> Serviço</div>
       <div class="step-line"></div>
       <div class="step" id="step2"><div class="step-num">2</div> Barbeiro</div>
@@ -239,7 +228,7 @@
       </div>
     </div>
 
-    <!-- CONTATO -->
+    <!-- WHATSAPP -->
     <div class="card">
       <div class="card-header">
         <div class="card-header-icon">
@@ -266,6 +255,12 @@
         </div>
         <span class="card-title">Meus agendamentos</span>
       </div>
+      <!-- FILTROS -->
+      <div class="filtros">
+        <button class="filtro-btn active" onclick="setFiltro('todos',this)">Todos</button>
+        <button class="filtro-btn" onclick="setFiltro('confirmado',this)">Confirmados</button>
+        <button class="filtro-btn" onclick="setFiltro('cancelado',this)">Cancelados</button>
+      </div>
       <div class="card-body" id="lista">
         <p style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">Carregando...</p>
       </div>
@@ -273,7 +268,7 @@
 
   </div>
 
-  <!-- CARRINHO (direita) -->
+  <!-- CARRINHO -->
   <div class="col-right">
     <div class="card">
       <div class="card-header">
@@ -373,7 +368,7 @@ function atualizarSteps() {
   const s3 = !!horaSelecionada && !!document.getElementById('data').value;
   const s4 = carrinho.length > 0;
   const step = (id, done, active) => {
-    document.getElementById(id).className = 'step' + (done?' done':active?' active':'');
+    document.getElementById(id).className = 'step'+(done?' done':active?' active':'');
   };
   step('step1', s1, !s1);
   step('step2', s2, s1&&!s2);
@@ -381,7 +376,7 @@ function atualizarSteps() {
   step('step4', s4, s3&&!s4);
 }
 
-// ===== CARREGAR =====
+// ===== CARREGAR SERVIÇOS E BARBEIROS =====
 async function carregar() {
   const [servList, barbList] = await Promise.all([
     fetch(`${API_URL}/servicos`).then(r=>r.json()),
@@ -492,7 +487,7 @@ function renderCarrinho() {
   const el     = document.getElementById('carrinho');
   const footer = document.getElementById('cartFooter');
   const count  = document.getElementById('cartCount');
-  count.textContent = carrinho.length + (carrinho.length===1?' item':' itens');
+  count.textContent = carrinho.length+(carrinho.length===1?' item':' itens');
 
   if (!carrinho.length) {
     el.innerHTML = `<div class="carrinho-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 10px;width:32px;height:32px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Carrinho vazio</div>`;
@@ -562,43 +557,71 @@ async function finalizar() {
 }
 
 // ===== PEDIDOS =====
+let todosPedidos = [];
+let filtroAtivo  = 'todos';
+
 function formatarData(d) {
   return new Date(d+'T00:00:00').toLocaleDateString('pt-BR');
+}
+
+function setFiltro(filtro, btn) {
+  filtroAtivo = filtro;
+  document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPedidos();
+}
+
+function renderPedidos() {
+  const el = document.getElementById('lista');
+  el.innerHTML = '';
+
+  const todosItens = todosPedidos.flatMap(p =>
+    (p.itens||[]).map(i => ({ ...i, pedidoId: p._id, total: p.total }))
+  );
+
+  const filtrados = todosItens.filter(i => {
+    if (filtroAtivo === 'todos')      return true;
+    if (filtroAtivo === 'confirmado') return i.status !== 'cancelado';
+    if (filtroAtivo === 'cancelado')  return i.status === 'cancelado';
+    return true;
+  });
+
+  if (!filtrados.length) {
+    const msg = filtroAtivo==='confirmado' ? 'Nenhum agendamento confirmado'
+              : filtroAtivo==='cancelado'  ? 'Nenhum agendamento cancelado'
+              : 'Nenhum agendamento ainda';
+    el.innerHTML = `<p style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">${msg}</p>`;
+    return;
+  }
+
+  filtrados.forEach(i => {
+    const cancelado = i.status === 'cancelado';
+    const div = document.createElement('div');
+    div.className = 'pedido-card';
+    div.innerHTML = `
+      <div class="pedido-item ${cancelado?'cancelado':''}">
+        <div>
+          <div class="pedido-item-info">${i.servico} · ${i.barbeiro||''}</div>
+          <div class="pedido-item-sub">${formatarData(i.data)} às ${i.hora}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${cancelado
+            ? '<span class="badge badge-red">Cancelado</span>'
+            : `<span class="badge badge-green">Confirmado</span>
+               <button class="btn btn-danger" onclick="cancelar('${i._id}')">Cancelar</button>`
+          }
+        </div>
+      </div>`;
+    el.appendChild(div);
+  });
 }
 
 async function load() {
   const el = document.getElementById('lista');
   el.innerHTML = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:12px 0">Carregando...</p>';
   try {
-    const lista = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`).then(r=>r.json());
-    if (!lista.length) {
-      el.innerHTML = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">Nenhum agendamento ainda</p>';
-      return;
-    }
-    el.innerHTML = '';
-    lista.forEach(p => {
-      const div = document.createElement('div');
-      div.className = 'pedido-card';
-      let html = `<div class="pedido-header"><span class="pedido-id">Pedido #${(p._id||'').slice(-6).toUpperCase()}</span><span class="pedido-total">R$ ${Number(p.total||0).toFixed(2)}</span></div>`;
-      (p.itens||[]).forEach(i => {
-        const cancelado = i.status==='cancelado';
-        html += `
-          <div class="pedido-item ${cancelado?'cancelado':''}">
-            <div>
-              <div class="pedido-item-info">${i.servico} · ${i.barbeiro||''}</div>
-              <div class="pedido-item-sub">${formatarData(i.data)} às ${i.hora}</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px">
-              ${cancelado
-                ? '<span class="badge badge-red">Cancelado</span>'
-                : `<span class="badge badge-green">Confirmado</span><button class="btn btn-danger" onclick="cancelar('${i._id}')">Cancelar</button>`
-              }
-            </div>
-          </div>`;
-      });
-      div.innerHTML = html;
-      el.appendChild(div);
-    });
+    todosPedidos = await fetch(`${API_URL}/agendamentos/cliente/${user._id}`).then(r=>r.json());
+    renderPedidos();
   } catch(e) {
     el.innerHTML = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:12px 0">Erro ao carregar</p>';
   }

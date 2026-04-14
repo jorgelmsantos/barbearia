@@ -1,678 +1,382 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Admin — Barbearia</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <title>Painel Admin</title>
 
   <style>
-    /* ===== PALETAS ===== */
-    :root {
-      --bg:        #0f0f0f;
-      --bg2:       #1a1a1a;
-      --bg3:       #242424;
-      --border:    rgba(255,255,255,0.08);
-      --border2:   rgba(255,255,255,0.14);
-      --text:      #f0f0f0;
-      --text2:     #888;
-      --text3:     #555;
-      --accent:    #c9a84c;
-      --accent2:   #a8883a;
-      --accent-bg: rgba(201,168,76,0.12);
-      --danger:    #e05555;
-      --success:   #3dba74;
-      --warning:   #e09c3d;
-      --radius:    10px;
-      --radius-lg: 14px;
-    }
-
-    [data-theme="preto-ouro"] {
-      --bg: #0a0a0a; --bg2: #161616; --bg3: #202020;
-      --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
-      --text: #f2f2f2; --text2: #888; --text3: #555;
-      --accent: #c9a84c; --accent2: #a8883a; --accent-bg: rgba(201,168,76,0.12);
-    }
-    [data-theme="preto-vermelho"] {
-      --bg: #0c0a0a; --bg2: #1a1010; --bg3: #241616;
-      --border: rgba(255,255,255,0.07); --border2: rgba(255,100,100,0.2);
-      --text: #f2efef; --text2: #8a7a7a; --text3: #5a4a4a;
-      --accent: #e05555; --accent2: #b83f3f; --accent-bg: rgba(224,85,85,0.12);
-    }
-    [data-theme="preto-verde"] {
-      --bg: #090c0a; --bg2: #101a12; --bg3: #172019;
-      --border: rgba(255,255,255,0.07); --border2: rgba(61,186,116,0.2);
-      --text: #edf2ef; --text2: #7a8a7d; --text3: #4a5a4d;
-      --accent: #3dba74; --accent2: #2f9a5d; --accent-bg: rgba(61,186,116,0.12);
-    }
-    [data-theme="cinza-azul"] {
-      --bg: #0e1014; --bg2: #181c22; --bg3: #21262f;
-      --border: rgba(255,255,255,0.07); --border2: rgba(80,140,220,0.2);
-      --text: #e8edf5; --text2: #7a8a9a; --text3: #4a5a6a;
-      --accent: #508cdc; --accent2: #3a70c0; --accent-bg: rgba(80,140,220,0.12);
-    }
-    [data-theme="marrom-creme"] {
-      --bg: #f7f3ee; --bg2: #ede8e0; --bg3: #e3ddd4;
-      --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.14);
-      --text: #2a1f14; --text2: #6b5a48; --text3: #9a8a78;
-      --accent: #8b5e3c; --accent2: #6e4a2e; --accent-bg: rgba(139,94,60,0.1);
-      --danger: #c0392b; --success: #27ae60; --warning: #d68910;
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 14px;
-      min-height: 100vh;
-      line-height: 1.5;
-      transition: background 0.3s, color 0.3s;
+      margin:0;
+      font-family:Arial;
+      background:#0f0f0f;
+      color:white;
     }
 
-    .app { display: flex; height: 100vh; overflow: hidden; }
-
-    /* SIDEBAR */
-    .sidebar {
-      width: 220px; flex-shrink: 0;
-      background: var(--bg2);
-      border-right: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      padding: 20px 0;
-      transition: background 0.3s;
-    }
-    .sidebar-brand { padding: 0 20px 24px; border-bottom: 1px solid var(--border); }
-    .brand-icon {
-      width: 36px; height: 36px; background: var(--accent);
-      border-radius: 8px; display: flex; align-items: center;
-      justify-content: center; margin-bottom: 10px;
-    }
-    .brand-icon svg { width: 18px; height: 18px; }
-    .brand-name { font-size: 15px; font-weight: 600; color: var(--text); }
-    .brand-sub  { font-size: 11px; color: var(--text2); }
-
-    .sidebar-nav { padding: 16px 10px; flex: 1; }
-    .nav-label {
-      font-size: 10px; font-weight: 600; color: var(--text3);
-      letter-spacing: 0.08em; text-transform: uppercase;
-      padding: 0 10px; margin-bottom: 6px; margin-top: 14px;
-    }
-    .nav-label:first-child { margin-top: 0; }
-    .nav-btn {
-      display: flex; align-items: center; gap: 10px;
-      width: 100%; padding: 9px 10px;
-      background: none; border: none; border-radius: 8px;
-      color: var(--text2); font-family: 'DM Sans', sans-serif;
-      font-size: 13px; cursor: pointer; text-align: left;
-      transition: background 0.15s, color 0.15s;
-    }
-    .nav-btn svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
-    .nav-btn:hover { background: var(--bg3); color: var(--text); }
-    .nav-btn.active { background: var(--accent-bg); color: var(--accent); font-weight: 500; }
-    .nav-btn.active svg { opacity: 1; }
-
-    .palette-section { padding: 16px; border-top: 1px solid var(--border); }
-    .palette-title {
-      font-size: 10px; font-weight: 600; color: var(--text3);
-      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px;
-    }
-    .palette-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-    .palette-dot {
-      width: 22px; height: 22px; border-radius: 50%;
-      cursor: pointer; border: 2px solid transparent;
-      transition: transform 0.15s, border-color 0.15s;
-    }
-    .palette-dot:hover { transform: scale(1.15); }
-    .palette-dot.selected { border-color: var(--text); transform: scale(1.1); }
-    .palette-dot[data-p="preto-ouro"]     { background: linear-gradient(135deg, #0a0a0a 50%, #c9a84c 50%); }
-    .palette-dot[data-p="preto-vermelho"] { background: linear-gradient(135deg, #0c0a0a 50%, #e05555 50%); }
-    .palette-dot[data-p="preto-verde"]    { background: linear-gradient(135deg, #090c0a 50%, #3dba74 50%); }
-    .palette-dot[data-p="cinza-azul"]     { background: linear-gradient(135deg, #0e1014 50%, #508cdc 50%); }
-    .palette-dot[data-p="marrom-creme"]   { background: linear-gradient(135deg, #f7f3ee 50%, #8b5e3c 50%); }
-    .palette-name { font-size: 11px; color: var(--text2); margin-top: 8px; min-height: 14px; }
-
-    /* MAIN */
-    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     .topbar {
-      background: var(--bg2); border-bottom: 1px solid var(--border);
-      padding: 14px 24px; display: flex; align-items: center;
-      justify-content: space-between; flex-shrink: 0;
-    }
-    .topbar-left h2 { font-size: 16px; font-weight: 500; color: var(--text); }
-    .topbar-left p  { font-size: 12px; color: var(--text2); }
-    .topbar-right   { display: flex; align-items: center; gap: 10px; }
-    .live-badge     { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
-    .live-dot       { width: 7px; height: 7px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-    .time-badge {
-      font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text2);
-      background: var(--bg3); padding: 5px 10px; border-radius: 6px;
+      background:#1e1e1e;
+      padding:15px;
+      font-size:20px;
+      text-align:center;
     }
 
-    .page { flex: 1; overflow-y: auto; padding: 24px; display: none; }
-    .page.active { display: block; animation: fadeUp 0.2s ease; }
-    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-
-    /* MÉTRICAS */
-    .metrics-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
-    .metric-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 18px; transition: border-color 0.2s;
+    .menu {
+      display:flex;
+      background:#181818;
     }
-    .metric-card:hover { border-color: var(--border2); }
-    .metric-label { font-size: 11px; color: var(--text2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-    .metric-value { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
-    .metric-sub   { font-size: 11px; color: var(--text2); margin-top: 6px; display: flex; align-items: center; gap: 4px; }
-    .metric-accent { color: var(--accent); }
-    .trend-up   { color: var(--success); }
-    .trend-down { color: var(--danger); }
 
-    /* CARDS */
-    .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 16px; }
-    .card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .card-title { font-size: 13px; font-weight: 500; color: var(--text); }
-    .card-body  { padding: 18px; }
-
-    /* TABELA */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
-    th {
-      text-align: left; font-size: 11px; font-weight: 600;
-      color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em;
-      padding: 12px 16px; border-bottom: 1px solid var(--border);
+    .menu button {
+      flex:1;
+      padding:15px;
+      border:none;
+      background:none;
+      color:white;
+      cursor:pointer;
     }
-    td { padding: 12px 16px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--bg3); }
 
-    /* BADGES */
-    .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
-    .badge::before { content:''; width:5px; height:5px; border-radius:50%; }
-    .badge-green { background: rgba(61,186,116,0.15); color: #3dba74; }
-    .badge-green::before { background: #3dba74; }
-    .badge-amber { background: rgba(224,156,61,0.15); color: #e09c3d; }
-    .badge-amber::before { background: #e09c3d; }
-    .badge-red   { background: rgba(224,85,85,0.15); color: #e05555; }
-    .badge-red::before { background: #e05555; }
-
-    /* BOTÕES */
-    .btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 14px; border-radius: 8px;
-      font-family: 'DM Sans', sans-serif; font-size: 13px;
-      cursor: pointer; border: none; font-weight: 500;
-      transition: opacity 0.15s, transform 0.1s;
+    .menu button:hover {
+      background:#00c853;
     }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--accent); color: #0a0a0a; }
-    .btn-ghost   { background: none; color: var(--text2); border: 1px solid var(--border2); }
-    .btn-ghost:hover { background: var(--bg3); color: var(--text); }
-    .btn-danger  { background: none; color: var(--danger); border: 1px solid rgba(224,85,85,0.3); font-size: 12px; padding: 5px 10px; }
-    .btn-danger:hover { background: rgba(224,85,85,0.1); }
 
-    /* FORMS */
-    .form-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
-    .input {
-      height: 38px; padding: 0 12px;
-      background: var(--bg3); border: 1px solid var(--border2);
-      border-radius: 8px; color: var(--text);
-      font-family: 'DM Sans', sans-serif; font-size: 13px;
-      outline: none; flex: 1; transition: border-color 0.15s;
+    .container {
+      padding:20px;
     }
-    .input:focus { border-color: var(--accent); }
-    .input::placeholder { color: var(--text3); }
 
-    /* FINANCEIRO */
-    .fin-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
-    .fin-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; }
-    .fin-card.accent-border { border-color: var(--accent); }
-    .fin-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-    .fin-value { font-size: 24px; font-weight: 600; }
-    .fin-value.green  { color: var(--success); }
-    .fin-value.red    { color: var(--danger); }
-    .fin-value.accent { color: var(--accent); }
-    .desp-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .desp-item:last-child { border-bottom: none; }
-    .desp-nome { font-size: 13px; color: var(--text); }
-    .desp-val  { font-size: 13px; color: var(--danger); font-family: 'DM Mono', monospace; }
-
-    /* CADASTROS */
-    .cad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .list-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .list-row:last-child { border-bottom: none; }
-    .avatar {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: var(--accent-bg); color: var(--accent);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 600; flex-shrink: 0;
+    .grid {
+      display:flex;
+      gap:15px;
+      flex-wrap:wrap;
     }
-    .list-name { font-size: 13px; color: var(--text); }
-    .list-sub  { font-size: 12px; color: var(--text2); }
 
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+    .card {
+      background:#1e1e1e;
+      padding:15px;
+      border-radius:10px;
+      flex:1;
+      min-width:200px;
+      text-align:center;
+    }
+
+    input, button {
+      padding:10px;
+      margin:5px;
+      border-radius:6px;
+      border:none;
+    }
+
+    button {
+      background:#00c853;
+      color:white;
+      cursor:pointer;
+    }
+
+    .lista-item {
+      background:#2a2a2a;
+      padding:10px;
+      margin:5px 0;
+      border-radius:8px;
+      display:flex;
+      justify-content:space-between;
+    }
+
+    .pedido {
+      background:#2a2a2a;
+      padding:10px;
+      margin:10px 0;
+      border-radius:8px;
+    }
+
+    .cancelado {
+      text-decoration:line-through;
+      color:red;
+    }
   </style>
 </head>
-<body data-theme="preto-ouro">
 
-<div class="app">
+<body>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.2">
-          <path d="M6 3L6 14M6 14C6 16.2 7.8 18 10 18H14C16.2 18 18 16.2 18 14V9M18 9L18 3M18 9H6"/>
-          <path d="M10 21H14"/>
-        </svg>
-      </div>
-      <div class="brand-name">Barbearia</div>
-      <div class="brand-sub">Painel Admin</div>
-    </div>
+<div class="topbar">💈 Painel Admin</div>
 
-    <nav class="sidebar-nav">
-      <div class="nav-label">Principal</div>
-      <button class="nav-btn active" onclick="go('dashboard',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Dashboard
-      </button>
-      <button class="nav-btn" onclick="go('financeiro',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/></svg>
-        Financeiro
-      </button>
-      <button class="nav-btn" onclick="go('agenda',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Agenda
-      </button>
-      <div class="nav-label">Configurações</div>
-      <button class="nav-btn" onclick="go('cadastros',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        Cadastros
-      </button>
-    </nav>
+<div class="menu">
+  <button onclick="mostrar('dashboard')">📊 Dashboard</button>
+  <button onclick="mostrar('financeiro')">💰 Financeiro</button>
+  <button onclick="mostrar('agenda')">📅 Agenda</button>
+  <button onclick="mostrar('cadastros')">⚙️ Cadastros</button>
+</div>
 
-    <div class="palette-section">
-      <div class="palette-title">Tema da interface</div>
-      <div class="palette-grid">
-        <div class="palette-dot selected" data-p="preto-ouro"     title="Preto & Ouro"></div>
-        <div class="palette-dot"          data-p="preto-vermelho" title="Preto & Vermelho"></div>
-        <div class="palette-dot"          data-p="preto-verde"    title="Preto & Verde"></div>
-        <div class="palette-dot"          data-p="cinza-azul"     title="Cinza & Azul"></div>
-        <div class="palette-dot"          data-p="marrom-creme"   title="Marrom & Creme"></div>
-      </div>
-      <div class="palette-name" id="paletteName">Preto &amp; Ouro</div>
-    </div>
-  </aside>
+<div class="container">
 
-  <!-- MAIN -->
-  <div class="main">
-    <header class="topbar">
-      <div class="topbar-left">
-        <h2 id="pageTitle">Dashboard</h2>
-        <p id="pageDate"></p>
-      </div>
-      <div class="topbar-right">
-        <div class="live-badge"><span class="live-dot"></span> Ao vivo</div>
-        <div class="time-badge" id="liveTime">--:--</div>
-      </div>
-    </header>
-
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="page active">
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-label">Atendimentos hoje</div>
-          <div class="metric-value" id="totalAtendimentos">—</div>
-          <div class="metric-sub"><span class="trend-up">↑</span> vs ontem</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Faturamento do dia</div>
-          <div class="metric-value" id="faturamento">—</div>
-          <div class="metric-sub metric-accent">este mês</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Ticket médio</div>
-          <div class="metric-value" id="ticketMedio">—</div>
-          <div class="metric-sub">por atendimento</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Mais vendido</div>
-          <div class="metric-value" style="font-size:16px;margin-top:4px" id="maisVendido">—</div>
-          <div class="metric-sub">serviço do dia</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Agendamentos de hoje</span></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Horário</th><th>Valor</th><th>Status</th></tr></thead>
-            <tbody id="dashTable"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- FINANCEIRO -->
-    <section id="financeiro" class="page">
-      <div class="fin-grid">
-        <div class="fin-card">
-          <div class="fin-label">Receitas</div>
-          <div class="fin-value green" id="receitasVal">—</div>
-          <div class="metric-sub" style="margin-top:6px">agendamentos confirmados</div>
-        </div>
-        <div class="fin-card">
-          <div class="fin-label">Despesas</div>
-          <div class="fin-value red" id="despesasVal">—</div>
-          <div class="metric-sub" style="margin-top:6px">cadastradas</div>
-        </div>
-        <div class="fin-card accent-border">
-          <div class="fin-label">Saldo</div>
-          <div class="fin-value accent" id="saldoVal">—</div>
-          <div class="metric-sub" style="margin-top:6px">receitas − despesas</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Cadastrar despesa</span></div>
-        <div class="card-body">
-          <div class="form-row">
-            <input class="input" id="descDespesa" placeholder="Descrição da despesa">
-            <input class="input" id="valorDespesa" placeholder="Valor (R$)" style="max-width:130px">
-            <button class="btn btn-primary" onclick="addDespesa()">Adicionar</button>
-          </div>
-          <div id="listaDespesas"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- AGENDA -->
-    <section id="agenda" class="page">
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px">
-        <input type="date" class="input" id="filtroData" style="max-width:180px" onchange="filtrar()">
-        <button class="btn btn-ghost" onclick="document.getElementById('filtroData').value='';renderAgenda(agendamentos)">Limpar filtro</button>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Agendamentos</span></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Data</th><th>Hora</th><th>Valor</th><th>Status</th><th></th></tr></thead>
-            <tbody id="listaPedidos"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- CADASTROS -->
-    <section id="cadastros" class="page">
-      <div class="cad-grid">
-        <div>
-          <div class="card">
-            <div class="card-header"><span class="card-title">Barbeiros</span></div>
-            <div class="card-body">
-              <div class="form-row">
-                <input class="input" id="nomeBarbeiro" placeholder="Nome do barbeiro">
-                <button class="btn btn-primary" onclick="cadastrarBarbeiro()">Adicionar</button>
-              </div>
-              <div id="listaBarbeiros"></div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="card">
-            <div class="card-header"><span class="card-title">Serviços</span></div>
-            <div class="card-body">
-              <div class="form-row">
-                <input class="input" id="nomeServico" placeholder="Nome do serviço">
-                <input class="input" id="precoServico" placeholder="Preço" style="max-width:100px">
-                <button class="btn btn-primary" onclick="cadastrarServico()">Adicionar</button>
-              </div>
-              <div id="listaServicos"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="grid">
+    <div class="card" id="totalAtendimentos"></div>
+    <div class="card" id="faturamento"></div>
+    <div class="card" id="ticketMedio"></div>
+    <div class="card" id="maisVendido"></div>
   </div>
 </div>
 
+<!-- FINANCEIRO -->
+<div id="financeiro" style="display:none;">
+  <h2>💰 Fluxo de Caixa</h2>
+
+  <div class="grid">
+    <div class="card" id="receitas"></div>
+    <div class="card" id="despesas"></div>
+    <div class="card" id="saldo"></div>
+  </div>
+
+  <h3>Cadastrar despesa</h3>
+  <input id="descDespesa" placeholder="Descrição">
+  <input id="valorDespesa" placeholder="Valor">
+  <button onclick="addDespesa()">Adicionar</button>
+
+  <div id="listaDespesas"></div>
+</div>
+
+<!-- AGENDA -->
+<div id="agenda" style="display:none;">
+  <h2>📅 Agendamentos</h2>
+
+  <input type="date" id="filtroData" onchange="filtrar()">
+
+  <div id="listaPedidos"></div>
+</div>
+
+<!-- CADASTROS -->
+<div id="cadastros" style="display:none;">
+  <h2>✂️ Barbeiros</h2>
+  <input id="nomeBarbeiro" placeholder="Nome">
+  <button onclick="cadastrarBarbeiro()">Cadastrar</button>
+  <div id="listaBarbeiros"></div>
+
+  <h2>💰 Serviços</h2>
+  <input id="nomeServico" placeholder="Nome">
+  <input id="precoServico" placeholder="Preço">
+  <button onclick="cadastrarServico()">Cadastrar</button>
+  <div id="listaServicos"></div>
+</div>
+
+</div>
+
 <script src="config.js"></script>
+
 <script>
 
-// ===== TEMA =====
-const paletteNames = {
-  'preto-ouro':     'Preto & Ouro',
-  'preto-vermelho': 'Preto & Vermelho',
-  'preto-verde':    'Preto & Verde',
-  'cinza-azul':     'Cinza & Azul',
-  'marrom-creme':   'Marrom & Creme'
-};
-document.querySelectorAll('.palette-dot').forEach(dot => {
-  dot.addEventListener('click', () => {
-    document.querySelectorAll('.palette-dot').forEach(d => d.classList.remove('selected'));
-    dot.classList.add('selected');
-    const p = dot.dataset.p;
-    document.body.dataset.theme = p;
-    document.getElementById('paletteName').textContent = paletteNames[p];
-    localStorage.setItem('admin-theme', p);
+// ================= MENU =================
+function mostrar(sec){
+  ['dashboard','financeiro','agenda','cadastros'].forEach(id=>{
+    document.getElementById(id).style.display='none';
   });
-});
-const savedTheme = localStorage.getItem('admin-theme') || 'preto-ouro';
-document.body.dataset.theme = savedTheme;
-document.querySelectorAll('.palette-dot').forEach(d => {
-  d.classList.toggle('selected', d.dataset.p === savedTheme);
-});
-document.getElementById('paletteName').textContent = paletteNames[savedTheme];
-
-// ===== NAVEGAÇÃO =====
-const pageTitles = { dashboard:'Dashboard', financeiro:'Financeiro', agenda:'Agenda', cadastros:'Cadastros' };
-function go(id, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-  document.getElementById('pageTitle').textContent = pageTitles[id];
+  document.getElementById(sec).style.display='block';
 }
 
-// ===== DATA/HORA =====
-function atualizarRelogio() {
-  document.getElementById('liveTime').textContent =
-    new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-}
-function formatarData(data) {
-  return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR');
-}
-document.getElementById('pageDate').textContent =
-  new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
-atualizarRelogio();
-setInterval(atualizarRelogio, 30000);
-
-// ===== ESTADO =====
+// ================= GLOBAL =================
 let agendamentos = [];
 let despesas = [];
 
-// ===== DASHBOARD =====
-function renderDashboard() {
-  const ativos = agendamentos.filter(a => a.status !== 'cancelado');
-  const total  = ativos.length;
-  const fat    = ativos.reduce((s, a) => s + (a.valor || 0), 0);
-  const ticket = total ? (fat / total).toFixed(2) : 0;
+// ================= DASHBOARD =================
+function renderDashboard(){
+  const ativos = agendamentos.filter(a=>a.status !== 'cancelado');
+
+  const total = ativos.length;
+  const faturamento = ativos.reduce((s,a)=>s+(a.valor||0),0);
+  const ticket = total ? (faturamento/total).toFixed(2) : 0;
 
   const cont = {};
-  ativos.forEach(a => { cont[a.servico] = (cont[a.servico] || 0) + 1; });
-  const top = Object.entries(cont).sort((a, b) => b[1] - a[1])[0];
+  ativos.forEach(a=>{
+    cont[a.servico]=(cont[a.servico]||0)+1;
+  });
 
-  document.getElementById('totalAtendimentos').textContent = total;
-  document.getElementById('faturamento').textContent = `R$ ${fat.toFixed(2)}`;
-  document.getElementById('ticketMedio').textContent = `R$ ${ticket}`;
-  document.getElementById('maisVendido').textContent = top ? top[0] : '—';
+  let top = Object.entries(cont).sort((a,b)=>b[1]-a[1])[0];
 
-  const tbody = document.getElementById('dashTable');
-  tbody.innerHTML = '';
-  const hoje = new Date().toISOString().slice(0, 10);
-  const deHoje = agendamentos.filter(a => a.data === hoje);
-  if (!deHoje.length) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:24px">Nenhum agendamento hoje</td></tr>`;
-    return;
-  }
-  deHoje.forEach(a => {
-    const badge = a.status === 'cancelado'
-      ? '<span class="badge badge-red">Cancelado</span>'
-      : '<span class="badge badge-green">Confirmado</span>';
-    tbody.innerHTML += `
-      <tr>
-        <td>${a.nomeCliente||'—'}</td><td>${a.servico||'—'}</td>
-        <td>${a.barbeiro||'—'}</td><td>${a.hora||'—'}</td>
-        <td style="font-family:'DM Mono',monospace">R$ ${(a.valor||0).toFixed(2)}</td>
-        <td>${badge}</td>
-      </tr>`;
+  totalAtendimentos.innerText = `📅 ${total} atendimentos`;
+  faturamento.innerText = `💰 R$ ${faturamento}`;
+  ticketMedio.innerText = `🎯 Ticket médio: R$ ${ticket}`;
+  maisVendido.innerText = `🔥 ${top ? top[0] : '-'}`;
+}
+
+// ================= FINANCEIRO =================
+function renderFinanceiro(){
+  const receitas = agendamentos
+    .filter(a=>a.status !== 'cancelado')
+    .reduce((s,a)=>s+(a.valor||0),0);
+
+  const totalDespesas = despesas.reduce((s,d)=>s+d.valor,0);
+
+  receitasDiv.innerText = `Receitas: R$ ${receitas}`;
+  despesasDiv.innerText = `Despesas: R$ ${totalDespesas}`;
+  saldoDiv.innerText = `Saldo: R$ ${receitas - totalDespesas}`;
+
+  listaDespesas.innerHTML='';
+  despesas.forEach(d=>{
+    let div=document.createElement('div');
+    div.className='lista-item';
+    div.innerText = `${d.desc} - R$ ${d.valor}`;
+    listaDespesas.appendChild(div);
   });
 }
 
-// ===== FINANCEIRO =====
-function renderFinanceiro() {
-  const receitas   = agendamentos.filter(a => a.status !== 'cancelado').reduce((s,a) => s+(a.valor||0), 0);
-  const totalDesp  = despesas.reduce((s,d) => s+d.valor, 0);
-  document.getElementById('receitasVal').textContent = `R$ ${receitas.toFixed(2)}`;
-  document.getElementById('despesasVal').textContent = `R$ ${totalDesp.toFixed(2)}`;
-  document.getElementById('saldoVal').textContent    = `R$ ${(receitas-totalDesp).toFixed(2)}`;
+function addDespesa(){
+  if (!descDespesa.value || !valorDespesa.value) return;
 
-  const lista = document.getElementById('listaDespesas');
-  lista.innerHTML = '';
-  if (!despesas.length) {
-    lista.innerHTML = `<p style="color:var(--text2);font-size:13px;text-align:center;padding:16px 0">Nenhuma despesa cadastrada</p>`;
-    return;
-  }
-  despesas.forEach(d => {
-    lista.innerHTML += `
-      <div class="desp-item">
-        <span class="desp-nome">${d.desc}</span>
-        <span class="desp-val">− R$ ${d.valor.toFixed(2)}</span>
-      </div>`;
+  despesas.push({
+    desc: descDespesa.value,
+    valor: Number(valorDespesa.value)
   });
-}
 
-function addDespesa() {
-  const desc  = document.getElementById('descDespesa');
-  const valor = document.getElementById('valorDespesa');
-  if (!desc.value || !valor.value) return;
-  despesas.push({ desc: desc.value, valor: Number(valor.value) });
-  desc.value = ''; valor.value = '';
+  descDespesa.value='';
+  valorDespesa.value='';
+
   renderFinanceiro();
 }
 
-// ===== AGENDA =====
-function renderAgenda(lista) {
-  const tbody = document.getElementById('listaPedidos');
-  tbody.innerHTML = '';
-  if (!lista.length) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:24px">Nenhum agendamento encontrado</td></tr>`;
-    return;
-  }
-  lista.forEach(a => {
-    const cancelado = a.status === 'cancelado';
-    const badge = cancelado
-      ? '<span class="badge badge-red">Cancelado</span>'
-      : '<span class="badge badge-green">Confirmado</span>';
-    const btnCancelar = !cancelado
-      ? `<button class="btn btn-danger" onclick="cancelar('${a._id}')">Cancelar</button>` : '';
-    tbody.innerHTML += `
-      <tr style="${cancelado?'opacity:0.5':''}">
-        <td>${a.nomeCliente||'—'}</td><td>${a.servico||'—'}</td>
-        <td>${a.barbeiro||'—'}</td>
-        <td>${a.data ? formatarData(a.data) : '—'}</td>
-        <td>${a.hora||'—'}</td>
-        <td style="font-family:'DM Mono',monospace">R$ ${(a.valor||0).toFixed(2)}</td>
-        <td>${badge}</td><td>${btnCancelar}</td>
-      </tr>`;
+// refs
+const receitasDiv = document.getElementById('receitas');
+const despesasDiv = document.getElementById('despesas');
+const saldoDiv = document.getElementById('saldo');
+
+// ================= AGRUPAMENTO =================
+function agrupar(lista){
+  const g={};
+
+  lista.forEach(a=>{
+    const chave = a.grupoId || a.pedidoId || 'sem-grupo';
+
+    if(!g[chave]) g[chave]=[];
+    g[chave].push(a);
+  });
+
+  return Object.values(g);
+}
+
+// ================= AGENDA =================
+function renderAgenda(lista){
+  listaPedidos.innerHTML='';
+
+  const grupos = agrupar(lista);
+
+  grupos.forEach(grupo=>{
+    let total=0;
+
+    let div=document.createElement('div');
+    div.className='pedido';
+
+    let html='';
+
+    grupo.forEach(a=>{
+      if(a.status !== 'cancelado') total += a.valor || 0;
+
+      html += `
+        <div class="${a.status==='cancelado'?'cancelado':''}">
+          ${a.nomeCliente} - ${a.servico} - ${a.data} ${a.hora}
+          ${a.status!=='cancelado'
+            ? `<button onclick="cancelar('${a._id}')">❌</button>`
+            : ''
+          }
+        </div>
+      `;
+    });
+
+    html += `<br><b>Total: R$ ${total}</b>`;
+
+    div.innerHTML = html;
+    listaPedidos.appendChild(div);
   });
 }
 
-function filtrar() {
-  const d = document.getElementById('filtroData').value;
-  if (!d) return renderAgenda(agendamentos);
-  renderAgenda(agendamentos.filter(a => a.data === d));
+function filtrar(){
+  const d = filtroData.value;
+
+  if(!d) return renderAgenda(agendamentos);
+
+  const filtrados = agendamentos.filter(a=>a.data === d);
+  renderAgenda(filtrados);
 }
 
-// ===== CANCELAR =====
-async function cancelar(id) {
-  await fetch(`${API_URL}/agendamentos/${id}/cancelar`, { method: 'PUT' });
+// ================= CANCELAR =================
+async function cancelar(id){
+  await fetch(`${API_URL}/agendamentos/${id}/cancelar`,{
+    method:'PUT'
+  });
+
   carregar();
 }
 
-// ===== CADASTROS =====
-async function cadastrarBarbeiro() {
-  const input = document.getElementById('nomeBarbeiro');
-  if (!input.value) return;
-  await fetch(`${API_URL}/barbeiros`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome: input.value })
+// ================= CADASTROS =================
+async function cadastrarBarbeiro(){
+  if (!nomeBarbeiro.value) return;
+
+  await fetch(`${API_URL}/barbeiros`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({nome:nomeBarbeiro.value})
   });
-  input.value = '';
+
+  nomeBarbeiro.value='';
   carregarBarbeiros();
 }
 
-async function cadastrarServico() {
-  const nome  = document.getElementById('nomeServico');
-  const preco = document.getElementById('precoServico');
-  if (!nome.value || !preco.value) return;
-  await fetch(`${API_URL}/servicos`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome: nome.value, preco: preco.value })
+async function cadastrarServico(){
+  if (!nomeServico.value || !precoServico.value) return;
+
+  await fetch(`${API_URL}/servicos`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      nome:nomeServico.value,
+      preco:precoServico.value
+    })
   });
-  nome.value = ''; preco.value = '';
+
+  nomeServico.value='';
+  precoServico.value='';
   carregarServicos();
 }
 
-async function carregarBarbeiros() {
-  const lista = await fetch(`${API_URL}/barbeiros`).then(r => r.json());
-  const el = document.getElementById('listaBarbeiros');
-  el.innerHTML = '';
-  lista.forEach(b => {
-    const ini = (b.nome||'?').substring(0,2).toUpperCase();
-    el.innerHTML += `
-      <div class="list-row">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="avatar">${ini}</div>
-          <span class="list-name">${b.nome}</span>
-        </div>
-        <span class="list-sub">ativo</span>
-      </div>`;
+async function carregarBarbeiros(){
+  let lista = await fetch(`${API_URL}/barbeiros`).then(r=>r.json());
+
+  listaBarbeiros.innerHTML='';
+  lista.forEach(b=>{
+    let div=document.createElement('div');
+    div.className='lista-item';
+    div.innerText=b.nome;
+    listaBarbeiros.appendChild(div);
   });
 }
 
-async function carregarServicos() {
-  const lista = await fetch(`${API_URL}/servicos`).then(r => r.json());
-  const el = document.getElementById('listaServicos');
-  el.innerHTML = '';
-  lista.forEach(s => {
-    el.innerHTML += `
-      <div class="list-row">
-        <span class="list-name">${s.nome}</span>
-        <span class="list-sub" style="font-family:'DM Mono',monospace">R$ ${Number(s.preco).toFixed(2)}</span>
-      </div>`;
+async function carregarServicos(){
+  let lista = await fetch(`${API_URL}/servicos`).then(r=>r.json());
+
+  listaServicos.innerHTML='';
+  lista.forEach(s=>{
+    let div=document.createElement('div');
+    div.className='lista-item';
+    div.innerText=`${s.nome} - R$ ${s.preco}`;
+    listaServicos.appendChild(div);
   });
 }
 
-// ===== CARREGAR =====
-async function carregar() {
-  try {
-    agendamentos = await fetch(`${API_URL}/agendamentos`).then(r => r.json());
-    renderAgenda(agendamentos);
-    renderDashboard();
-    renderFinanceiro();
-  } catch(e) {
-    console.error('Erro ao carregar:', e);
-  }
+// ================= LOAD =================
+async function carregar(){
+  const res = await fetch(`${API_URL}/agendamentos`);
+  agendamentos = await res.json();
+
+  console.log('AGENDAMENTOS:', agendamentos); // 🔥 debug
+
+  renderAgenda(agendamentos);
+  renderDashboard();
+  renderFinanceiro();
 }
 
+// 🔥 AUTO UPDATE
 setInterval(carregar, 5000);
+
+// ================= INIT =================
 carregar();
 carregarBarbeiros();
 carregarServicos();
 
 </script>
+
 </body>
 </html>
